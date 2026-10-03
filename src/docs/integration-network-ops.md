@@ -37,7 +37,7 @@
 2. `ExternalCallService` 用 `HttpListener` 接收请求，解析路径为 `ExternalCallAction`。
 3. 按 GET/POST 请求内容路由到 `MainWindowViewModel` 对应命令（翻译、OCR、图片翻译、静默 OCR/TTS、窗口操作、热键开关等）。
 4. action 获得串行执行锁后压入 `ForceForeground` 激活上下文；异步命令会等待完成，保证上下文覆盖完整请求链并在异常、取消或提前返回后恢复。
-5. 主窗口、设置、历史、OCR、图片翻译窗口以及请求派生的异常提示仍复用应用内显示入口，但会自动使用 `AttachThreadInput` 强制置前；HTTP action 无需逐层传递激活参数。
+5. 主窗口、设置、历史、OCR、图片翻译窗口以及请求派生的异常提示仍复用应用内显示入口，但会自动使用 `ForceSetForegroundWindow()` 强制置前；HTTP action 无需逐层传递激活参数。
 6. 统一返回 JSON：`code + data`。
 
 ### 从入口到结果：流式 HTTP 请求

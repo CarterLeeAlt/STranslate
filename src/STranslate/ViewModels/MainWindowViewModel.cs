@@ -2010,9 +2010,12 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
 
     private void ActivateMainWindow()
     {
-        Win32Helper.ActivateForegroundWindow(MainWindow);
+        var activated = Win32Helper.ActivateForegroundWindow(MainWindow);
 
         MainWindow.Activate();
+        if (WindowActivationContext.Current == WindowActivationMode.ForceForeground)
+            Serilog.Log.Information("主窗口强制置前 {Result}，可见 {Visible}，当前前台 {Foreground}",
+                activated, MainWindow.IsVisible, Win32Helper.DescribeForegroundWindow());
 
         if (IsInputBoxVisible)
         {

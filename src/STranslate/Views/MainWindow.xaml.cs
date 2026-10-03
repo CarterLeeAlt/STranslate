@@ -48,6 +48,9 @@ public partial class MainWindow : IDisposable
 
     internal void StartShowAnimation(Action activate)
     {
+        if (WindowActivationContext.Current == WindowActivationMode.ForceForeground)
+            Serilog.Log.Information("主窗口显示：动画 {Animated}，当前前台 {Foreground}",
+                _showAnimation?.IsActive == true, Win32Helper.DescribeForegroundWindow());
         if (_showAnimation?.IsActive != true)
         {
             activate();
@@ -175,7 +178,10 @@ public partial class MainWindow : IDisposable
         // win32 api和wpf层面修改窗口显隐时表现有所不同，直接使用Hide可能会导致出现在Alt-Tab栏
         // https://github.com/ZGGSONG/STranslate/issues/165
         if (_settings.HideWhenDeactivated)
+        {
+            Serilog.Log.Information("主窗口失焦自动隐藏，当前前台 {Foreground}", Win32Helper.DescribeForegroundWindow());
             _viewModel.Hide();
+        }
 
         base.OnDeactivated(e);
     }

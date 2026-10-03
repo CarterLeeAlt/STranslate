@@ -64,8 +64,8 @@
 - 全局热键由 STranslate 接收并不代表 STranslate 已是前台应用；触发时浏览器、编辑器或 Explorer 通常仍持有前台窗口。
 - `ExecuteTranslate()`、`InputClear()` 及其他显示入口最终统一调用 `Win32Helper.ActivateForegroundWindow()`，再执行 WPF `Activate()` / `Focus()`。
 - 热键、托盘、鼠标划词、剪贴板监听和第二实例唤醒均处于默认 `Normal` 上下文，只调用 Win32 `SetForegroundWindow`；普通调用失败时不会升级为 `AttachThreadInput`，避免打断 Explorer 文件重命名等文本编辑操作。
-- 三击 Ctrl 在 UI 调度回调内压入 `ForceForeground` 上下文；翻译成功和取词失败回退产生的主窗口显示都会在需要时通过 `AttachThreadInput` 强制置前。
-- HTTP `ExternalCallService` 会为完整 action 压入 `ForceForeground` 上下文；相同的显示入口会自动改用线程挂接强制置前，无需在 ViewModel、热键回调或窗口打开器之间传递激活参数。
+- 三击 Ctrl 在 UI 调度回调内压入 `ForceForeground` 上下文；翻译成功和取词失败回退产生的主窗口显示都会在需要时通过 `ForceSetForegroundWindow()` 强制置前（空鼠标输入取得前台权限，输入队列挂接仅兜底）。日志中“主窗口强制置前 / 主窗口失焦自动隐藏”两条记录可区分“未显示”与“显示后被失焦隐藏”。
+- HTTP `ExternalCallService` 会为完整 action 压入 `ForceForeground` 上下文；相同的显示入口会自动改用强制置前，无需在 ViewModel、热键回调或窗口打开器之间传递激活参数。
 - 主窗口失焦时按 `HideWhenDeactivated` 自动隐藏；置顶窗口不受此逻辑影响。
 
 ### 从入口到结果：取词超时、后处理与失败回退

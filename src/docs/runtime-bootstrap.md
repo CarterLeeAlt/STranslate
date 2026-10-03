@@ -20,7 +20,7 @@
 - `STranslate/Helpers/Win32Helper.cs`
   - `ActivateForegroundWindow()`：统一的窗口置前入口，根据 `WindowActivationContext` 选择普通或强制激活。
   - `SetForegroundWindow()`：只调用 Win32 `SetForegroundWindow`，遵循系统前台权限规则，不自动升级为线程挂接。
-  - `ForceSetForegroundWindow()`：临时通过 `AttachThreadInput` 挂接前台线程后强制置前，仅供强制激活上下文使用。
+  - `ForceSetForegroundWindow()`：先以一次空鼠标 `SendInput` 让本进程成为最近输入来源再 `SetForegroundWindow`，失败才临时 `AttachThreadInput` 兜底，仅供强制激活上下文使用。
 - `STranslate/Helpers/WindowActivationContext.cs`
   - 使用 `AsyncLocal` 保存当前激活模式；默认普通，HTTP 外部调用和三击 Ctrl 的 UI 回调期间切换为强制模式。
 - `STranslate/Helpers/SingletonWindowOpener.cs`
@@ -77,7 +77,7 @@
 3. 两条路径都统一调用 `Win32Helper.ActivateForegroundWindow()`；主窗口动画播放完并解除遮蔽后才置前和聚焦，避免临时失焦导致自动隐藏。动画回调保留调用时的 `WindowActivationContext` 策略；若期间用户切换到了其他窗口，则不抢回焦点。没有动画时立即执行。
 4. 默认上下文使用普通 `SetForegroundWindow()`，适用于热键、托盘、鼠标划词、剪贴板监听和第二实例唤醒；普通调用失败时不会升级为线程挂接，避免强制抢夺其他应用的编辑焦点。
 5. 三击 Ctrl 的 UI 调度回调和 `ExternalCallService` 的 HTTP action 会在各自触发源边界压入 `ForceForeground` 上下文；作用域内产生的窗口显示都改用 `ForceSetForegroundWindow()`。
-6. 强制策略只在前台线程与当前 UI 线程不同时尝试 `AttachThreadInput`，并在 `finally` 中解除成功建立的挂接；同时保留最小化恢复和 `BringWindowToTop` 兜底。
+6. 强制策略先恢复最小化窗口，再注入一次不移动、不按键的空鼠标输入取得前台权限后调用 `SetForegroundWindow`。不优先共享输入队列：解除 `AttachThreadInput` 时窗口激活状态会与真实前台错位（错发或漏发失活），开启“失焦隐藏”时表现为窗口闪现即消失，或切走后不再隐藏。仅当空输入置前失败时记录警告，并在前台线程与当前 UI 线程不同时临时挂接、`finally` 中解除，保留 `BringWindowToTop` 兜底。
 7. Win32 置前后继续调用 WPF `Activate()`；单实例窗口还会调用 `Focus()`，保证新建窗口和已存在窗口使用相同的前台语义。
 8. 主窗口 `OnDeactivated()` 按 `HideWhenDeactivated` 决定是否自动隐藏；置顶窗口不受此逻辑影响。
 

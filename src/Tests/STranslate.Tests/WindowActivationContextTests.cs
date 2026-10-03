@@ -89,6 +89,13 @@ public class WindowActivationContextTests
     }
 
     [Fact]
+    public void EmptyMouseInputMatchesNativeInputSize()
+    {
+        // SendInput 要求 cbSize 等于系统 INPUT 大小，否则拒绝注入，强制置前会退回输入队列共享。
+        Assert.Equal(IntPtr.Size == 8 ? 40 : 28, System.Runtime.InteropServices.Marshal.SizeOf<Win32Helper.MouseInput>());
+    }
+
+    [Fact]
     public void SelectUsesActionForCurrentMode()
     {
         var normalResult = WindowActivationContext.Select(

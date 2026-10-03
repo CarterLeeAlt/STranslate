@@ -148,13 +148,56 @@ public static class Win32Helper
             forceForeground: () => ForceSetForegroundWindow(handle));
 
     /// <summary>
-    /// 强制将窗口带到前台，使用 AttachThreadInput 绕过系统限制。
+    /// 强制将窗口带到前台。先注入一次空鼠标输入取得前台权限，失败时才用 AttachThreadInput 兜底。
     /// </summary>
     internal static bool ForceSetForegroundWindow(HWND handle)
     {
         var foregroundWnd = PInvoke.GetForegroundWindow();
         if (handle == foregroundWnd) return true;
 
+        if (PInvoke.IsIconic(handle))
+            PInvoke.ShowWindow(handle, SHOW_WINDOW_CMD.SW_RESTORE);
+
+        // 最近一次 SendInput 的来源进程可合法调用 SetForegroundWindow。
+        // 不优先共享输入队列：解除共享时窗口会收到错位的失活，开启"失焦隐藏"后表现为闪现即消失。
+        if (SendEmptyMouseInput() && PInvoke.SetForegroundWindow(handle))
+            return true;
+        if (PInvoke.GetForegroundWindow() == handle) return true;
+
+        Serilog.Log.Warning("前台权限获取失败，改用输入队列共享置前，当前前台 {Foreground}", DescribeForegroundWindow());
+        return SetForegroundWindowByAttachingInput(handle, foregroundWnd);
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct MouseInputData
+    {
+        public int X;
+        public int Y;
+        public uint Data;
+        public uint Flags;
+        public uint Time;
+        public nint ExtraInfo;
+    }
+
+    /// <summary>INPUT（type = INPUT_MOUSE），联合体按 MOUSEINPUT 对齐，大小与系统 INPUT 一致。</summary>
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct MouseInput
+    {
+        public uint Type;
+        public MouseInputData Mouse;
+    }
+
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern uint SendInput(uint count, [In] MouseInput[] inputs, int size);
+
+    /// <summary>
+    /// 注入一次不移动、不按键的鼠标输入，仅用于让本进程成为最近的输入来源。
+    /// </summary>
+    private static bool SendEmptyMouseInput() =>
+        SendInput(1, [new MouseInput()], Marshal.SizeOf<MouseInput>()) == 1;
+
+    private static bool SetForegroundWindowByAttachingInput(HWND handle, HWND foregroundWnd)
+    {
         var currentThreadId = PInvoke.GetCurrentThreadId();
         var foregroundThreadId = PInvoke.GetWindowThreadProcessId(foregroundWnd, out _);
         var attached = false;
@@ -167,11 +210,6 @@ public static class Win32Helper
             }
 
             var result = PInvoke.SetForegroundWindow(handle);
-
-            if (PInvoke.IsIconic(handle))
-            {
-                PInvoke.ShowWindow(handle, SHOW_WINDOW_CMD.SW_RESTORE);
-            }
 
             if (!result)
             {
@@ -194,6 +232,26 @@ public static class Win32Helper
     public static bool IsForegroundWindow(nint handle) => IsForegroundWindow(new HWND(handle));
 
     internal static bool IsForegroundWindow(HWND handle) => handle.Equals(PInvoke.GetForegroundWindow());
+
+    /// <summary>
+    /// 描述当前前台窗口（进程名与句柄），用于诊断日志。
+    /// </summary>
+    public static unsafe string DescribeForegroundWindow()
+    {
+        var handle = PInvoke.GetForegroundWindow();
+        if (handle.IsNull) return "none";
+        uint processId;
+        PInvoke.GetWindowThreadProcessId(handle, &processId);
+        try
+        {
+            using var process = System.Diagnostics.Process.GetProcessById((int)processId);
+            return $"{process.ProcessName}({(nint)handle.Value})";
+        }
+        catch (ArgumentException)
+        {
+            return $"pid {processId}({(nint)handle.Value})";
+        }
+    }
 
     #endregion
 
