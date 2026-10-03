@@ -16,7 +16,7 @@ namespace STranslate.Controls;
 /// </summary>
 public partial class UpdateChangelogDialog : ContentDialog, INotifyPropertyChanged
 {
-    private const string ChangelogUrl = "https://raw.githubusercontent.com/STranslate/STranslate/refs/heads/main/CHANGELOG.md";
+    private const string ChangelogUrl = Constant.UpdateChangelogUrl;
     private readonly ILogger<UpdateChangelogDialog> _logger = Ioc.Default.GetRequiredService<ILogger<UpdateChangelogDialog>>();
     private readonly Internationalization _i18n = Ioc.Default.GetRequiredService<Internationalization>();
     private readonly IHttpService _httpService = Ioc.Default.GetRequiredService<IHttpService>();

@@ -36,7 +36,7 @@ public class UpdaterService(
         {
             notification.Show(i18n.GetTranslation("UpdateCheck"), i18n.GetTranslation("CheckingForUpdates"));
 
-            var updateManager = new UpdateManager(new GithubSource(Constant.Github, accessToken: default, prerelease: false));
+            var updateManager = new UpdateManager(new GithubSource(Constant.UpdateRepository, accessToken: default, prerelease: false));
 
             var newUpdateInfo = await updateManager.CheckForUpdatesAsync();
 
@@ -116,7 +116,7 @@ public class UpdaterService(
         await UpdateLock.WaitAsync();
         try
         {
-            var updateManager = new UpdateManager(new GithubSource(Constant.Github, accessToken: default, prerelease: false));
+            var updateManager = new UpdateManager(new GithubSource(Constant.UpdateRepository, accessToken: default, prerelease: false));
             var newUpdateInfo = await updateManager.CheckForUpdatesAsync();
 
             if (newUpdateInfo == null)

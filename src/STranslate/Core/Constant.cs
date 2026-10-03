@@ -28,6 +28,16 @@ public class Constant
     public const string BackupFileName = ".BACKUP";
 
     public const string Github = "https://github.com/STranslate/STranslate";
+
+    /// <summary>
+    /// 检查与下载更新所用的 GitHub 仓库（本分支的 fork），与关于页指向的上游项目主页分开。
+    /// </summary>
+    public const string UpdateRepository = "https://github.com/CarterLeeAlt/STranslate";
+
+    /// <summary>
+    /// 更新提示中展示的更新日志，与更新源同一仓库，保证内容与检测到的版本对应。
+    /// </summary>
+    public const string UpdateChangelogUrl = "https://raw.githubusercontent.com/CarterLeeAlt/STranslate/refs/heads/main/CHANGELOG.md";
     public const string Sponsor = "https://github.com/STranslate/STranslate/tree/main?tab=readme-ov-file#donations";
     public const string Dev = "Dev";
     public static readonly string Version = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location.NonNull()).ProductVersion.NonNull();

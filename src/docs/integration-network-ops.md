@@ -50,10 +50,10 @@
 
 ### 从入口到结果：应用更新（手动）
 1. `UpdaterService.UpdateAppAsync()` 使用 `UpdateLock` 防止并发更新。
-2. 通过 Velopack `GithubSource` 检查新版本。
+2. 通过 Velopack `GithubSource` 检查新版本；更新源为 `Constant.UpdateRepository`（本分支 fork `CarterLeeAlt/STranslate` 的 Release），与关于页的上游项目链接 `Constant.Github` 分开。
 3. 非静默检查时弹出 `UpdateChangelogDialog`：
    - 默认先显示加载动画（`ProgressRing`）。
-   - 通过 `IHttpService` 拉取 `https://raw.githubusercontent.com/STranslate/STranslate/refs/heads/main/CHANGELOG.md` 并用 `MarkdownViewer` 渲染完整更新内容。
+   - 通过 `IHttpService` 拉取 `Constant.UpdateChangelogUrl`（fork 的 `main` 分支 `CHANGELOG.md`，与更新源同仓库）并用 `MarkdownViewer` 渲染完整更新内容。
    - 加载失败时显示可点击外链回退文案，用户可在浏览器查看完整更新日志。
 4. 用户点击“下载”后继续下载更新；取消则终止本次更新流程。
 5. 便携模式下先把便携目录复制到临时目录，避免覆盖丢失配置。
@@ -62,7 +62,7 @@
 ### 从入口到结果：应用更新（自动检查）
 1. 应用启动后，`App.OnStartup()` 在主窗口 `Loaded` 阶段启动 `AutoUpdateCheckerService`。
 2. 服务首次延迟 2 分钟执行检查，之后每 24 小时轮询一次。
-3. 每轮先判断 `Settings.AutoCheckUpdate`，关闭时跳过本轮检查。
+3. 每轮先判断 `Settings.AutoCheckUpdate`（默认关闭），关闭时跳过本轮检查；开发版本（版本号 1.0.0）不启动自动检查。
 4. 开启时调用 `UpdaterService.NotifyUpdateIfAvailableAsync()`，并复用 `UpdateLock` 防并发。
 5. 发现新版本后通过托盘通知展示按钮，点击按钮会跳转到“设置-关于”页面执行更新。
 
@@ -92,7 +92,7 @@
 - 关键设置
   - `Settings.Proxy`、`Settings.HttpTimeout`。
   - `Settings.EnableExternalCall`、`Settings.ExternalCallPort`。
-  - `Settings.AutoCheckUpdate`（是否启用自动检查更新）。
+  - `Settings.AutoCheckUpdate`（是否启用自动检查更新，默认关闭）。
   - `Settings.Backup`（地址、账号、密码、备份类型）。
 
 ## 关键文件
