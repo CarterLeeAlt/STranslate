@@ -99,6 +99,12 @@ public class PinnedImageTranslateTests
     }
 
     [Fact]
+    public void IncrementalTranslationDefaultsToF4()
+    {
+        Assert.Equal(System.Windows.Input.Key.F4, new HotkeySettings().IncrementalTranslateKey);
+    }
+
+    [Fact]
     public async Task CaptureCoordinatorCloaksRestoresAndRejectsConcurrentCapture()
     {
         var flushCount = 0;

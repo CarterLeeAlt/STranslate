@@ -26,7 +26,7 @@ public partial class HotkeySettings : ObservableObject, IDisposable
 
     [ObservableProperty] public partial bool CrosswordTranslateByCtrlSameC { get; set; } = true;
 
-    [ObservableProperty] public partial Key IncrementalTranslateKey { get; set; } = Key.None;
+    [ObservableProperty] public partial Key IncrementalTranslateKey { get; set; } = Key.F4;
 
     #region Setting Items
 
