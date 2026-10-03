@@ -77,9 +77,10 @@
 3. 两条路径都统一调用 `Win32Helper.ActivateForegroundWindow()`；主窗口动画播放完并解除遮蔽后才置前和聚焦，避免临时失焦导致自动隐藏。动画回调保留调用时的 `WindowActivationContext` 策略；若期间用户切换到了其他窗口，则不抢回焦点。没有动画时立即执行。
 4. 默认上下文使用普通 `SetForegroundWindow()`，适用于热键、托盘、鼠标划词、剪贴板监听和第二实例唤醒；普通调用失败时不会升级为线程挂接，避免强制抢夺其他应用的编辑焦点。
 5. 三击 Ctrl 的 UI 调度回调和 `ExternalCallService` 的 HTTP action 会在各自触发源边界压入 `ForceForeground` 上下文；作用域内产生的窗口显示都改用 `ForceSetForegroundWindow()`。
-6. 强制策略先恢复最小化窗口，再注入一次不移动、不按键的空鼠标输入取得前台权限后调用 `SetForegroundWindow`。不优先共享输入队列：解除 `AttachThreadInput` 时窗口激活状态会与真实前台错位（错发或漏发失活），开启“失焦隐藏”时表现为窗口闪现即消失，或切走后不再隐藏。仅当空输入置前失败时记录警告，并在前台线程与当前 UI 线程不同时临时挂接、`finally` 中解除，保留 `BringWindowToTop` 兜底。
-7. Win32 置前后继续调用 WPF `Activate()`；单实例窗口还会调用 `Focus()`，保证新建窗口和已存在窗口使用相同的前台语义。
-8. 主窗口 `OnDeactivated()` 按 `HideWhenDeactivated` 决定是否自动隐藏；置顶窗口不受此逻辑影响。
+6. 主窗口每次 `Show()` 置为可见后调用 `MainWindow.RefreshContentMeasure()`，让主滚动区 `ScrollContentPresenter` 到窗口的整条祖先链重新测量：隐藏期间切换输入框（如“失焦隐藏”退出输入翻译、取词失败回退再进入）后，这些祖先可能保留隐藏前的需求高度且仍标记为有效，按内容定高（`SizeToContent=Height`）的窗口会停在最小高度，表现为结果区被截掉。
+7. 强制策略先恢复最小化窗口，再注入一次不移动、不按键的空鼠标输入取得前台权限后调用 `SetForegroundWindow`。不优先共享输入队列：解除 `AttachThreadInput` 时窗口激活状态会与真实前台错位（错发或漏发失活），开启“失焦隐藏”时表现为窗口闪现即消失，或切走后不再隐藏。仅当空输入置前失败时记录警告，并在前台线程与当前 UI 线程不同时临时挂接、`finally` 中解除，保留 `BringWindowToTop` 兜底。
+8. Win32 置前后继续调用 WPF `Activate()`；单实例窗口还会调用 `Focus()`，保证新建窗口和已存在窗口使用相同的前台语义。
+9. 主窗口 `OnDeactivated()` 按 `HideWhenDeactivated` 决定是否自动隐藏；置顶窗口不受此逻辑影响。
 
 ### 窗口生命周期要点
 - `MainWindow`：

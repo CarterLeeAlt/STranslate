@@ -46,6 +46,17 @@ public partial class MainWindow : IDisposable
             _showAnimation = WindowShowAnimation.TryCreate(this);
     }
 
+    /// <summary>
+    /// 隐藏期间切换输入框等内容后，滚动区呈现器到窗口之间的祖先可能保留旧的需求高度且仍标记为有效，
+    /// 按内容定高的窗口因此停在旧高度；重新显示时让整条祖先链重新测量，未变化的子树沿用缓存。
+    /// </summary>
+    internal void RefreshContentMeasure()
+    {
+        DependencyObject? node = Utilities.FindVisualChild<System.Windows.Controls.ScrollContentPresenter>(PART_ContentScroll);
+        for (; node is not null; node = System.Windows.Media.VisualTreeHelper.GetParent(node))
+            if (node is UIElement element) element.InvalidateMeasure();
+    }
+
     internal void StartShowAnimation(Action activate)
     {
         if (WindowActivationContext.Current == WindowActivationMode.ForceForeground)

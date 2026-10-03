@@ -2001,6 +2001,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
             Settings.MainWindowTop = _cacheTop;
         }
         MainWindow.Visibility = Visibility.Visible;
+        MainWindow.RefreshContentMeasure();
         UpdateMainWindowMaxHeightConstraint();
         if (!expandedFromTopEdge) UpdatePosition();
         UpdateMainWindowMaxHeightConstraint();

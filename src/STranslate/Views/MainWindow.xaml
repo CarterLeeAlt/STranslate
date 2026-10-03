@@ -128,7 +128,7 @@
             ToggleQuickServiceCommand="{Binding ToggleQuickServiceCommand}"
             VisibleActions="{Binding Settings.MainHeaderVisibleActions}" />
 
-        <ui:ScrollViewerEx Margin="10,37,0,5">
+        <ui:ScrollViewerEx x:Name="PART_ContentScroll" Margin="10,37,0,5">
             <StackPanel>
                 <!--  //  InputControl  //  -->
                 <control:InputControl
