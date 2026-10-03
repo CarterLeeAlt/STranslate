@@ -52,6 +52,10 @@
         <ProjectReference Include="..\..\STranslate.Plugin\STranslate.Plugin.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+        <InternalsVisibleTo Include="STranslate.Tests" />
+    </ItemGroup>
+
     <Target Name="CleanExtraDlls" AfterTargets="Build">
         <Message Text="Cleaning redundant DLLs in $(OutputPath)" Importance="high" />
         <ItemGroup>

@@ -69,11 +69,8 @@ public class Main : ObservableObject, IOcrPlugin, ILlm
 
     public async Task<OcrResult> RecognizeAsync(OcrRequest request, CancellationToken cancellationToken)
     {
-        if (Context.ImageQuality == ImageQuality.High)
-            return new OcrResult().Fail($"Not supported, please use {Context.GetTranslation("ImageQualityLow")} or {Context.GetTranslation("ImageQualityMedium")}");
-
-        var formatStr = Context.ImageQuality == ImageQuality.Low ? "image/jpeg" : "image/png";
-        var imageDataUrl = $"data:{formatStr};base64,{Convert.ToBase64String(request.ImageData)}";
+        // 按实际格式发送；"高"质量的 BMP 会无损转为 PNG。
+        var imageDataUrl = DeepSeekOcrProtocol.BuildImageDataUrl(request.ImageData);
 
         var text = await SendAsync(imageDataUrl, ConvertLanguage(request.Language), cancellationToken);
         if (string.IsNullOrWhiteSpace(text))

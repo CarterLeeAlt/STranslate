@@ -65,19 +65,8 @@ public class Main : ObservableObject, IOcrPlugin, ILlm
     {
         var url = UrlHelper.BuildFinalUrl(Settings.Url);
 
-        if (Context.ImageQuality == ImageQuality.High)
-            return new OcrResult().Fail($"Not supported, please use {Context.GetTranslation("ImageQualityLow")} or {Context.GetTranslation("ImageQualityMedium")}");
-
-        // 处理图片数据
-        var base64Str = Convert.ToBase64String(request.ImageData);
-        // https://www.volcengine.com/docs/82379/1362931#%E5%9B%BE%E7%89%87%E6%A0%BC%E5%BC%8F%E8%AF%B4%E6%98%8E
-        var formatStr = Context.ImageQuality switch
-        {
-            ImageQuality.Low => "image/jpeg",
-            ImageQuality.Medium => "image/png",
-            ImageQuality.High => "image/bmp",
-            _ => "image/png"
-        };
+        // 按实际格式发送；"高"质量的 BMP 会无损转为 PNG。
+        var imageDataUrl = OcrImageDataUrl.Build(request.ImageData);
 
         // 选择模型
         var model = Settings.Model.Trim();
@@ -119,7 +108,7 @@ public class Main : ObservableObject, IOcrPlugin, ILlm
                     type = "image_url",
                     image_url = new
                     {
-                        url = $"data:{formatStr};base64,{base64Str}"
+                        url = imageDataUrl
                     }
                 }
             }

@@ -21,6 +21,7 @@ public class DeepSeekOcrTests(ITestOutputHelper output)
 {
     private const string LiveKeyVariable = "DEEPSEEK_API_KEY";
     private const string ImageUrl = "data:image/png;base64,AAAA";
+    private static readonly byte[] PngHeader = [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A];
 
     [Theory]
     [InlineData("https://api.deepseek.com/", "https://api.deepseek.com/chat/completions")]
@@ -96,11 +97,11 @@ public class DeepSeekOcrTests(ITestOutputHelper output)
         var (main, viewModel, context) = CreatePlugin(http);
 
         viewModel.Thinking = true;
-        var thinkingResult = await main.RecognizeAsync(new OcrRequest([1, 2, 3], LangEnum.Auto), CancellationToken.None);
+        var thinkingResult = await main.RecognizeAsync(new OcrRequest(PngHeader, LangEnum.Auto), CancellationToken.None);
         var thinkingRequest = http.Requests[^1];
 
         viewModel.Thinking = false;
-        await main.RecognizeAsync(new OcrRequest([1, 2, 3], LangEnum.Auto), CancellationToken.None);
+        await main.RecognizeAsync(new OcrRequest(PngHeader, LangEnum.Auto), CancellationToken.None);
         var plainRequest = http.Requests[^1];
 
         Assert.Equal(["Hello OCR", "第二行"], thinkingResult.OcrContents.Select(c => c.Text));
@@ -114,16 +115,31 @@ public class DeepSeekOcrTests(ITestOutputHelper output)
         Assert.All(http.Urls, url => Assert.Equal("https://api.deepseek.com/chat/completions", url));
     }
 
-    [Fact]
-    public async Task HighImageQuality_IsRejectedBeforeRequest()
+    [Theory]
+    [InlineData(new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A }, "image/png")]
+    [InlineData(new byte[] { 0xFF, 0xD8, 0xFF, 0xE0 }, "image/jpeg")]
+    [InlineData(new byte[] { 0x47, 0x49, 0x46, 0x38, 0x39, 0x61 }, "image/gif")]
+    [InlineData(new byte[] { 0x52, 0x49, 0x46, 0x46, 0, 0, 0, 0, 0x57, 0x45, 0x42, 0x50 }, "image/webp")]
+    public void BuildImageDataUrl_PassesSupportedFormatsThrough(byte[] image, string mediaType)
     {
-        var http = PostRecorder.Create("{}");
+        Assert.Equal($"data:{mediaType};base64,{Convert.ToBase64String(image)}", DeepSeekOcrProtocol.BuildImageDataUrl(image));
+    }
+
+    [Fact]
+    public async Task HighImageQuality_BmpIsSentAsLosslessPng()
+    {
+        // "高"图片质量由 BmpBitmapEncoder 产生 BMP，DeepSeek 拒收 BMP，需转为 PNG。
+        var bmp = RenderTextImage(() => new BmpBitmapEncoder(), "BMP");
+        var http = PostRecorder.Create("""{"choices":[{"message":{"content":"BMP"}}]}""");
         var (main, _, _) = CreatePlugin(http, imageQuality: ImageQuality.High);
 
-        var result = await main.RecognizeAsync(new OcrRequest([1], LangEnum.Auto), CancellationToken.None);
+        var result = await main.RecognizeAsync(new OcrRequest(bmp, LangEnum.Auto), CancellationToken.None);
 
-        Assert.False(result.IsSuccess);
-        Assert.Empty(http.Requests);
+        Assert.True(result.IsSuccess);
+        var url = http.Requests[^1]["messages"]!.AsArray()[^1]?["content"]?[1]?["image_url"]?["url"]?.ToString();
+        Assert.StartsWith("data:image/png;base64,", url);
+        var png = Convert.FromBase64String(url!["data:image/png;base64,".Length..]);
+        Assert.Equal(PngHeader, png[..8]);
     }
 
     [Fact]
@@ -155,6 +171,13 @@ public class DeepSeekOcrTests(ITestOutputHelper output)
         Assert.Contains("深度求索", plain.Text);
         Assert.True(thinkingTokens > 0, "开启思考时应产生推理 token");
         Assert.Equal(0, plainTokens);
+
+        // "高"图片质量：同一画面以 BMP 交给插件，应被转为 PNG 并正常识别。
+        var bmp = RenderTextImage(() => new BmpBitmapEncoder(), "Hello OCR 2026", "深度求索文本识别");
+        var high = await main.RecognizeAsync(new OcrRequest(bmp, LangEnum.Auto), CancellationToken.None);
+        output.WriteLine($"高质量 BMP：识别 {high.Text.Replace('\n', '|')}");
+        Assert.Contains("Hello OCR 2026", high.Text);
+        Assert.Contains("深度求索", high.Text);
     }
 
     private static (Main Main, SettingsViewModel ViewModel, FakeOcrContext Context) CreatePlugin(
@@ -170,7 +193,9 @@ public class DeepSeekOcrTests(ITestOutputHelper output)
     /// <summary>
     /// 在 STA 线程用 WPF 渲染含中英文的测试图片。
     /// </summary>
-    private static byte[] RenderTextImage(params string[] lines)
+    private static byte[] RenderTextImage(params string[] lines) => RenderTextImage(() => new PngBitmapEncoder(), lines);
+
+    internal static byte[] RenderTextImage(Func<BitmapEncoder> createEncoder, params string[] lines)
     {
         byte[]? png = null;
         var thread = new Thread(() =>
@@ -188,7 +213,7 @@ public class DeepSeekOcrTests(ITestOutputHelper output)
             }
             var bitmap = new RenderTargetBitmap(520, 60 * lines.Length + 20, 96, 96, PixelFormats.Pbgra32);
             bitmap.Render(visual);
-            var encoder = new PngBitmapEncoder();
+            var encoder = createEncoder();
             encoder.Frames.Add(BitmapFrame.Create(bitmap));
             using var stream = new MemoryStream();
             encoder.Save(stream);
