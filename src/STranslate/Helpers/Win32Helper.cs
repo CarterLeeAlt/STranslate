@@ -511,6 +511,24 @@ public static class Win32Helper
 
     #region System Font
 
+    /// <summary>
+    /// 随程序内嵌的 Noto Sans SC family 名称（Resources/Fonts/，无需系统安装）
+    /// </summary>
+    public const string EmbeddedNotoSansFontName = "Noto Sans SC";
+
+    /// <summary>
+    /// 内嵌 Noto Sans SC 可变字体资源路径（单文件含 Thin-Black 全部命名字重）
+    /// </summary>
+    private const string EmbeddedNotoSansFontUri = "pack://application:,,,/Resources/Fonts/NotoSansSC-VF.ttf";
+
+    /// <summary>
+    /// 从内嵌资源加载 Noto Sans SC。
+    /// .NET 10 中 "pack://...#名" 字符串形式的 FontFamily 解析失效（静默回退 Arial 占位），
+    /// 必须经 Fonts.GetFontFamilies 直接从资源加载
+    /// </summary>
+    public static FontFamily GetEmbeddedNotoSansFont() =>
+        Fonts.GetFontFamilies(new Uri(EmbeddedNotoSansFontUri)).First();
+
     private static readonly Dictionary<string, string> _languageToNotoSans = new()
     {
         { "ko", "Noto Sans KR" },

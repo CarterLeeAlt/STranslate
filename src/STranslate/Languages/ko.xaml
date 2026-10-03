@@ -177,9 +177,9 @@
     <sys:String x:Key="Hotkey_InputTranslateDescription">STranslate를 열고 내용을 지운 뒤 번역 입력을 대기하는 단축키입니다.</sys:String>
     <sys:String x:Key="Hotkey_CrosswordTranslate">드래그 번역</sys:String>
     <sys:String x:Key="Hotkey_CrosswordTranslateDescription">마우스로 선택한 텍스트를 번역하는 단축키입니다.</sys:String>
-    <sys:String x:Key="Hotkey_CrosswordTranslateIsUseCtrlSameC">Ctrl+C+C로 드래그 번역을 사용하시겠습니까?</sys:String>
+    <sys:String x:Key="Hotkey_CrosswordTranslateIsUseCtrlSameC">Ctrl 3회로 드래그 번역을 사용하시겠습니까?</sys:String>
     <sys:String x:Key="Hotkey_CrosswordTranslateTraditional">기존 단축키</sys:String>
-    <sys:String x:Key="Hotkey_CrosswordTranslateByCtrlSameCDescription">마우스로 텍스트를 선택하고 빠르게 Ctrl+C+C를 눌러 번역합니다.</sys:String>
+    <sys:String x:Key="Hotkey_CrosswordTranslateByCtrlSameCDescription">마우스로 텍스트를 선택하고 빠르게 Ctrl 3회를 눌러 번역합니다.</sys:String>
     <sys:String x:Key="CrosswordTranslateFetchFailed">선택 텍스트를 가져오지 못했습니다. 입력 번역을 열었습니다.</sys:String>
     <sys:String x:Key="CrosswordTranslateFetchFailedShowWindow">선택 텍스트를 가져오지 못했습니다. 메인 창을 표시했습니다.</sys:String>
     <sys:String x:Key="CrosswordTranslateFetchFailedNotifyOnly">선택한 텍스트를 가져오지 못했습니다. 텍스트를 선택한 후 다시 시도하세요.</sys:String>
@@ -605,7 +605,7 @@
     <sys:String x:Key="TextSeparatorHandleTypeUnderscoreAndHyphen">밑줄과 하이픈 처리</sys:String>
     <sys:String x:Key="TextSeparatorHandleScopeNone">사용 안 함</sys:String>
     <sys:String x:Key="TextSeparatorHandleScopeMouseSelection">마우스 선택</sys:String>
-    <sys:String x:Key="TextSeparatorHandleScopeCrossword">선택 번역 / Ctrl+C+C</sys:String>
+    <sys:String x:Key="TextSeparatorHandleScopeCrossword">선택 번역 / Ctrl 3회</sys:String>
     <sys:String x:Key="TextSeparatorHandleScopeIncremental">증분 번역</sys:String>
     <sys:String x:Key="TextSeparatorHandleScopeClipboardMonitor">클립보드 감시</sys:String>
     <sys:String x:Key="TextSeparatorHandleScopeScreenshotTranslate">스크린샷 번역</sys:String>

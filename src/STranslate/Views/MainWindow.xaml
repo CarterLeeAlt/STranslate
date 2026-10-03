@@ -20,6 +20,7 @@
     MinHeight="200"
     MaxHeight="{Binding MainWindowEffectiveMaxHeight, Mode=OneWay}"
     control:SizeToContentBehavior.PersistentSizeToContent="Height"
+    core:Snackbar.ContentTopOffset="37"
     d:DataContext="{d:DesignInstance Type=vm:MainWindowViewModel}"
     d:DesignHeight="800"
     d:DesignWidth="470"

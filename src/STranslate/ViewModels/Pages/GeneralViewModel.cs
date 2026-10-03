@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Windows;
+using System.Windows.Media;
 using System.Windows.Threading;
 
 namespace STranslate.ViewModels.Pages;
@@ -35,8 +36,20 @@ public partial class GeneralViewModel : SearchViewModelBase
 
     public ObservableCollection<string> AvailableHeaderActions { get; } = [];
 
+    /// <summary>
+    /// 字体选择器数据源：内嵌 Noto Sans SC 置顶（系统同名项滤除，避免重复），其余为系统字体按名称排序
+    /// </summary>
+    public IReadOnlyList<FontItem> AvailableFonts { get; } =
+        [
+            new(Win32Helper.EmbeddedNotoSansFontName),
+            .. Fonts.SystemFontFamilies
+                .Where(f => f.Source != Win32Helper.EmbeddedNotoSansFontName)
+                .OrderBy(f => f.Source)
+                .Select(f => new FontItem(f.Source)),
+        ];
+
     [RelayCommand]
-    private void ResetFontFamily() => Settings.FontFamily = Win32Helper.GetSystemDefaultFont();
+    private void ResetFontFamily() => Settings.FontFamily = Win32Helper.EmbeddedNotoSansFontName;
 
     [RelayCommand]
     private void ResetAutoTransDelay() => Settings.AutoTranslateDelayMs = 500;
@@ -273,3 +286,8 @@ public partial class GeneralViewModel : SearchViewModelBase
         base.Dispose(disposing);
     }
 }
+
+/// <summary>
+/// 字体选择器条目（Source 同时作为显示文本与选中值，与 Settings.FontFamily 存储格式一致）
+/// </summary>
+public sealed record FontItem(string Source);

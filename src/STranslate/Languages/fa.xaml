@@ -182,9 +182,9 @@
     <sys:String x:Key="Hotkey_InputTranslateDescription">کلید میانبر برای باز کردن STranslate و پاک کردن محتوا جهت ترجمه ورودی.</sys:String>
     <sys:String x:Key="Hotkey_CrosswordTranslate">ترجمه انتخاب متن</sys:String>
     <sys:String x:Key="Hotkey_CrosswordTranslateDescription">کلید میانبر برای شروع ترجمه متن انتخاب‌شده با موش‌واره.</sys:String>
-    <sys:String x:Key="Hotkey_CrosswordTranslateIsUseCtrlSameC">استفاده از Ctrl+C+C برای ترجمه متن انتخاب‌شده؟</sys:String>
+    <sys:String x:Key="Hotkey_CrosswordTranslateIsUseCtrlSameC">استفاده از سه بار فشردن Ctrl برای ترجمه متن انتخاب‌شده؟</sys:String>
     <sys:String x:Key="Hotkey_CrosswordTranslateTraditional">کلید میانبر سنتی</sys:String>
-    <sys:String x:Key="Hotkey_CrosswordTranslateByCtrlSameCDescription">فشردن سریع Ctrl+C+C پس از انتخاب متن با موش‌واره برای ترجمه متن.</sys:String>
+    <sys:String x:Key="Hotkey_CrosswordTranslateByCtrlSameCDescription">پس از انتخاب متن با موش‌واره، Ctrl را سه بار سریع فشار دهید تا متن ترجمه شود.</sys:String>
     <sys:String x:Key="CrosswordTranslateFetchFailed">خطا در دریافت متن انتخاب‌شده، به ترجمه ورودی تغییر یافت.</sys:String>
     <sys:String x:Key="CrosswordTranslateFetchFailedShowWindow">خطا در دریافت متن انتخاب‌شده، به نمایش پنجره اصلی تغییر یافت.</sys:String>
     <sys:String x:Key="CrosswordTranslateFetchFailedNotifyOnly">دریافت متن انتخاب‌شده ناموفق بود. متن را انتخاب کنید و دوباره تلاش کنید.</sys:String>
@@ -629,7 +629,7 @@ localhost;127.*;10.*;192.168.*;*.example.com</sys:String>
     <sys:String x:Key="TextSeparatorHandleTypeUnderscoreAndHyphen">پردازش خط‌زیر و خط‌تیره</sys:String>
     <sys:String x:Key="TextSeparatorHandleScopeNone">غیرفعال</sys:String>
     <sys:String x:Key="TextSeparatorHandleScopeMouseSelection">انتخاب با موش‌واره</sys:String>
-    <sys:String x:Key="TextSeparatorHandleScopeCrossword">ترجمه انتخابی / Ctrl+C+C</sys:String>
+    <sys:String x:Key="TextSeparatorHandleScopeCrossword">ترجمه انتخابی / سه بار فشردن Ctrl</sys:String>
     <sys:String x:Key="TextSeparatorHandleScopeIncremental">ترجمه افزایشی</sys:String>
     <sys:String x:Key="TextSeparatorHandleScopeClipboardMonitor">پایش حافظه موقت</sys:String>
     <sys:String x:Key="TextSeparatorHandleScopeScreenshotTranslate">ترجمه اسکرین‌شات</sys:String>

@@ -7,6 +7,22 @@ namespace STranslate.Core;
 
 public class Snackbar : ISnackbar, IDisposable
 {
+    /// <summary>
+    /// 附加属性：窗口内容区上边缘距窗口顶部的偏移，提示框将与其对齐（未设置时保持默认 16）
+    /// </summary>
+    public static readonly DependencyProperty ContentTopOffsetProperty =
+        DependencyProperty.RegisterAttached(
+            "ContentTopOffset",
+            typeof(double),
+            typeof(Snackbar),
+            new PropertyMetadata(16.0));
+
+    public static void SetContentTopOffset(DependencyObject element, double value) =>
+        element.SetValue(ContentTopOffsetProperty, value);
+
+    public static double GetContentTopOffset(DependencyObject element) =>
+        (double)element.GetValue(ContentTopOffsetProperty);
+
     private readonly Dictionary<Window, SnackbarEntry> _snackbars = [];
     private bool _disposed;
 
@@ -75,6 +91,7 @@ public class Snackbar : ISnackbar, IDisposable
             return null;
 
         var container = new SnackbarContainer();
+        container.TopOffset = GetContentTopOffset(window);
         panel.Children.Add(container);
         Panel.SetZIndex(container, 9999);
 

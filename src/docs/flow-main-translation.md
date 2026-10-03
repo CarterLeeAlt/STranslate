@@ -61,7 +61,7 @@
 4. `ExecuteTranslate(text, ...)` 用于已有文本直接翻译，会退出临时输入翻译模式并继续按用户隐藏设置展示结果。
 
 ### 从入口到结果：取词文本进入主翻译
-1. 截图翻译、鼠标划词、划词翻译 / `Ctrl+C+C`、增量翻译、剪贴板监听等入口取得文本后，不直接进入翻译。
+1. 截图翻译、鼠标划词、划词翻译 / 三击 Ctrl、增量翻译、剪贴板监听等入口取得文本后，不直接进入翻译。
 2. `MainWindowViewModel.HandleCapturedText(text, scope)` 先按 `Settings.LineBreakHandleType` 处理换行。
 3. 若 `Settings.TextSeparatorHandleType != None` 且当前 `scope` 包含在 `Settings.TextSeparatorHandleScopes` 中，再把英文/数字标识符内部的 `_` 或 `-` 转为空格。
 4. 处理后的文本再进入 `ExecuteTranslate()` 或追加到输入框；普通键盘输入不走该取词后处理。

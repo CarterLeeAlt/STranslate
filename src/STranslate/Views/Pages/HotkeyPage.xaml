@@ -133,7 +133,7 @@
                             WindowTitle="{DynamicResource Hotkey_CrosswordTranslate}" />
                     </ui:SettingsCard>
 
-                    <ui:SettingsCard Description="{DynamicResource Hotkey_CrosswordTranslateByCtrlSameCDescription}" Header="Ctrl+C+C">
+                    <ui:SettingsCard Description="{DynamicResource Hotkey_CrosswordTranslateByCtrlSameCDescription}" Header="三击 Ctrl">
                         <ui:SettingsCard.HeaderIcon>
                             <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.CopySelect_20_Regular}" />
                         </ui:SettingsCard.HeaderIcon>

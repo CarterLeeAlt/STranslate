@@ -9,9 +9,17 @@
 ## 全局开发规则
 - 项目内 MessageBox 必须统一走 `AppMessageBox.Show()`，不要直接调用 iNKORE `MessageBox.Show()`。
 - 从具体窗口或控件触发的 iNKORE `ContentDialog` 必须显式传入 owner，避免依赖活动窗口推断。
+- 调试运行使用便携模式：运行 Debug 构建（`dotnet run` 或直接启动 exe）前，在输出目录 `src/.artifacts/Debug/` 下创建空的 `PortableConfig` 文件夹，使配置写入程序目录而非 `%APPDATA%\STranslate`。
+- **每次重新构建时必须同时清理运行配置**，保证每次构建后程序以全新状态启动（首次运行向导重新出现）：
+  1. 程序未运行（进程占用时不得清理）；
+  2. 删除 `src/.artifacts/Debug/PortableConfig/` 整个目录（回收站方式），再重建空目录保持便携模式；
+  3. 若 `%APPDATA%\STranslate` 存在（曾以非便携模式运行过），一并删除（回收站方式）。
 
 ## 最小构建与运行
 ```powershell
+# 运行前启用便携模式（配置跟随程序目录，不污染 AppData）
+New-Item -ItemType Directory -Force .artifacts/Debug/PortableConfig | Out-Null
+
 # 最常用：直接运行
  dotnet run --project STranslate/STranslate.csproj
 
@@ -28,7 +36,7 @@
 | 主翻译链路 | [docs/flow-main-translation.md](docs/flow-main-translation.md) | 自动翻译、防抖、缓存命中、回译、复制与词典路径 |
 | OCR 链路 | [docs/flow-ocr-image.md](docs/flow-ocr-image.md) | 截图翻译、静默 OCR、OCR窗口、坐标归一化 |
 | 图片翻译链路 | [docs/flow-image-translation.md](docs/flow-image-translation.md) | 专用 OCR/翻译服务、分段逻辑、译文覆盖、插件能力 |
-| 输入与触发系统 | [docs/flow-input-trigger.md](docs/flow-input-trigger.md) | 全局/软件内热键、低级键盘钩子、Ctrl+CC、鼠标划词、剪贴板监听与触发后置前 |
+| 输入与触发系统 | [docs/flow-input-trigger.md](docs/flow-input-trigger.md) | 全局/软件内热键、低级键盘钩子、三击 Ctrl、鼠标划词、剪贴板监听与触发后置前 |
 | 插件市场与管理 | [docs/plugin-market-management.md](docs/plugin-market-management.md) | 已安装插件管理、市场加载、下载/取消/升级/重启策略 |
 | 配置、存储与历史 | [docs/config-storage-history.md](docs/config-storage-history.md) | Settings/ServiceSettings、存储抽象、便携/漫游路径、历史记录 |
 | 网络集成与运维 | [docs/integration-network-ops.md](docs/integration-network-ops.md) | HTTP层、代理测试、外部调用、更新、备份恢复 |

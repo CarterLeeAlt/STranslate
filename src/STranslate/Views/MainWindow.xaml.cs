@@ -182,6 +182,7 @@ public partial class MainWindow : IDisposable
 
     private void OnClosed(object sender, EventArgs e)
     {
+        CtrlSameCHelper.Stop();
         StopShowAnimation();
         _topEdgeAutoHide?.Dispose();
         _topEdgeAutoHide = null;

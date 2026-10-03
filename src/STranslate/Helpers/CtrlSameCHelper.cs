@@ -1,62 +1,144 @@
-using Gma.System.MouseKeyHook;
 using STranslate.Core;
-using System.Windows.Forms;
+using System.Runtime.InteropServices;
+using System.Windows.Threading;
+using System.Windows.Interop;
 
 namespace STranslate.Helpers;
 
+/// <summary>
+/// 接收全局键盘按下与松开事件以识别三击 Ctrl。
+/// </summary>
 public static class CtrlSameCHelper
 {
-    private static IKeyboardMouseEvents? _keyboardHook;
-    private static DebounceExecutor? _debounceExecutor;
-    private static bool _isListening;
-    private static int _pressCount;
+    private const int WmInput = 0x00FF;
+    private const uint RidInput = 0x10000003;
+    private const uint RidevInputSink = 0x00000100;
+    private const uint RidevRemove = 0x00000001;
+    private const ushort KeyboardUsagePage = 0x01;
+    private const ushort KeyboardUsage = 0x06;
+    private const ushort Control = 0x11;
+    private const ushort LeftControl = 0xA2;
+    private const ushort RightControl = 0xA3;
+    private const uint KeyboardInputType = 1;
+    private static readonly uint RawInputHeaderSize = (uint)(8 + 2 * IntPtr.Size);
 
-    /// <summary>
-    /// Ctrl + C 双击事件
-    /// </summary>
+    private static HwndSource? _source;
+    private static DispatcherTimer? _healthTimer;
+    private static TripleCtrlGestureDetector _detector = CreateDetector();
+    private static bool _isListening;
+    private static long _lastCtrlEvent;
+
+    private static TripleCtrlGestureDetector CreateDetector() => new(key => (GetAsyncKeyState(key) & 0x8000) != 0);
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct RawInputDevice
+    {
+        public ushort UsagePage;
+        public ushort Usage;
+        public uint Flags;
+        public nint Window;
+    }
+
+    [DllImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool RegisterRawInputDevices(ref RawInputDevice device, uint count, uint size);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern uint GetRawInputData(nint input, uint command, nint data, ref uint size, uint headerSize);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern uint GetRegisteredRawInputDevices([Out] RawInputDevice[]? devices, ref uint count, uint size);
+
+    [DllImport("user32.dll")]
+    private static extern short GetAsyncKeyState(int key);
+
     public static event Action? OnCtrlSameC;
 
-    /// <summary>
-    /// 启动 Ctrl + C + C 监听
-    /// </summary>
+    public static bool IsListening => _isListening;
+
     public static void Start()
     {
         if (_isListening) return;
 
-        // 初始化防抖执行器
-        _debounceExecutor = new DebounceExecutor();
-        _pressCount = 0;
-
-        _keyboardHook = Hook.GlobalEvents();
-        _keyboardHook.KeyDown += OnKeyDown;
-
         _isListening = true;
+        _healthTimer = new DispatcherTimer(DispatcherPriority.Background) { Interval = TimeSpan.FromSeconds(30) };
+        _healthTimer.Tick += CheckRegistration;
+        _healthTimer.Start();
+        EnsureKeyboardRegistration();
     }
 
-    /// <summary>
-    /// 停止 Ctrl + C + C 监听
-    /// </summary>
+    internal static bool EnsureKeyboardRegistration()
+    {
+        if (!_isListening) return false;
+        if (HasKeyboardRegistration()) return true;
+
+        _source?.RemoveHook(WndProc);
+        _source?.Dispose();
+        _source = null;
+        HwndSource? source = null;
+        try
+        {
+            var parameters = new HwndSourceParameters("STranslate.TripleCtrlInput")
+            {
+                ParentWindow = new nint(-3),
+                WindowStyle = 0
+            };
+            source = new HwndSource(parameters);
+            source.AddHook(WndProc);
+            var device = new RawInputDevice
+            {
+                UsagePage = KeyboardUsagePage,
+                Usage = KeyboardUsage,
+                Flags = RidevInputSink,
+                Window = source.Handle
+            };
+            if (!RegisterRawInputDevices(ref device, 1, (uint)Marshal.SizeOf<RawInputDevice>()))
+            {
+                Serilog.Log.Error("三击 Ctrl 原始键盘输入注册失败，错误码 {Error}", Marshal.GetLastWin32Error());
+                return false;
+            }
+
+            _detector = CreateDetector();
+            _source = source;
+            _lastCtrlEvent = Environment.TickCount64;
+            Serilog.Log.Information("三击 Ctrl 原始键盘输入监听已启动，独立消息窗口 {Window}", source.Handle);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Serilog.Log.Error(ex, "三击 Ctrl 监听窗口创建失败，将在健康检查时重试");
+            return false;
+        }
+        finally
+        {
+            if (_source != source) source?.Dispose();
+        }
+    }
+
     public static void Stop()
     {
         if (!_isListening) return;
 
-        if (_keyboardHook != null)
-        {
-            _keyboardHook.KeyDown -= OnKeyDown;
-            _keyboardHook.Dispose();
-            _keyboardHook = null;
-        }
-
-        _debounceExecutor?.Dispose();
-        _debounceExecutor = null;
-
-        _pressCount = 0;
+        var ownsRegistration = HasKeyboardRegistration();
         _isListening = false;
+        _healthTimer?.Stop();
+        if (_healthTimer is not null) _healthTimer.Tick -= CheckRegistration;
+        _healthTimer = null;
+        _source?.RemoveHook(WndProc);
+        var source = _source;
+        _source = null;
+        var device = new RawInputDevice
+        {
+            UsagePage = KeyboardUsagePage,
+            Usage = KeyboardUsage,
+            Flags = RidevRemove
+        };
+        if (ownsRegistration && !RegisterRawInputDevices(ref device, 1, (uint)Marshal.SizeOf<RawInputDevice>()))
+            Serilog.Log.Warning("三击 Ctrl 原始键盘输入注销失败，错误码 {Error}", Marshal.GetLastWin32Error());
+        source?.Dispose();
+        Serilog.Log.Information("三击 Ctrl 原始键盘输入监听已停止");
     }
 
-    /// <summary>
-    /// 切换监听状态
-    /// </summary>
     public static void Toggle()
     {
         if (_isListening)
@@ -65,48 +147,100 @@ public static class CtrlSameCHelper
             Start();
     }
 
-    /// <summary>
-    /// 判断是否正在监听
-    /// </summary>
-    public static bool IsListening => _isListening;
-
-    private static void OnKeyDown(object? sender, KeyEventArgs e)
+    internal static bool HasKeyboardRegistration()
     {
-        // 监听 Ctrl + C
-        // 排除 Alt 和 Shift 键，确保只是纯粹的 Ctrl + C
-        // 允许 Win 键如果不做限制，但通常 Ctrl+C 不会配合 Win 键
-        if (e.KeyCode == Keys.C && e.Control && !e.Alt && !e.Shift)
-        {
-            // 如果 e.Handled 被设为 true，会拦截按键，这里默认 false 以保留系统的复制功能
-
-            if (_pressCount == 0)
-            {
-                _pressCount++;
-                // 启动 500ms 超时重置任务
-                // 如果在 500ms 内没有第二次按下，计数器归零
-                _debounceExecutor?.Execute(() => _pressCount = 0, TimeSpan.FromMilliseconds(500));
-            }
-            else
-            {
-                // 检测到第二次按下（且在超时前）
-                
-                // 重置状态
-                _pressCount = 0;
-                // 取消当前的重置任务
-                _debounceExecutor?.Cancel();
-
-                // 检查是否应该跳过热键执行
-                if (ShouldSkipHotkey())
-                    return;
-
-                // 触发事件 (可以在此处 Task.Run 避免阻塞 Hook，取决于外部订阅者的实现)
-                OnCtrlSameC?.Invoke();
-            }
-        }
+        uint count = 0;
+        var deviceSize = (uint)Marshal.SizeOf<RawInputDevice>();
+        if (_source is null || _source.IsDisposed ||
+            GetRegisteredRawInputDevices(null, ref count, deviceSize) == uint.MaxValue)
+            return false;
+        var devices = new RawInputDevice[count];
+        var result = GetRegisteredRawInputDevices(devices, ref count, deviceSize);
+        return result != uint.MaxValue && devices.Take((int)result).Any(device =>
+            device.UsagePage == KeyboardUsagePage && device.Usage == KeyboardUsage &&
+            device.Window == _source.Handle && (device.Flags & RidevInputSink) != 0);
     }
 
-    /// <summary>
-    /// 检查是否应该跳过热键执行
-    /// </summary>
-    private static bool ShouldSkipHotkey() => HotkeyExecutionGuard.ShouldSkipGlobalHotkey();
+    private static void CheckRegistration(object? sender, EventArgs e)
+    {
+        if (!_isListening) return;
+        if (!HasKeyboardRegistration())
+        {
+            Serilog.Log.Warning("三击 Ctrl 键盘注册已失效，重新创建监听");
+            EnsureKeyboardRegistration();
+        }
+        Serilog.Log.Information("三击 Ctrl 监听健康检查：注册 {Registered}，距最近 Ctrl {Elapsed}ms",
+            HasKeyboardRegistration(), Environment.TickCount64 - _lastCtrlEvent);
+    }
+
+    private static nint WndProc(nint hwnd, int message, nint wParam, nint lParam, ref bool handled)
+    {
+        if (message != WmInput || !_isListening)
+            return 0;
+
+        uint size = 0;
+        var sizeResult = GetRawInputData(lParam, RidInput, 0, ref size, RawInputHeaderSize);
+        if (sizeResult == uint.MaxValue)
+        {
+            Serilog.Log.Warning("三击 Ctrl 原始输入读取长度失败，错误码 {Error}", Marshal.GetLastWin32Error());
+            return 0;
+        }
+        if (sizeResult != 0 || size < RawInputHeaderSize + 16 || size > 4096)
+            return 0;
+
+        var buffer = Marshal.AllocHGlobal((int)size);
+        try
+        {
+            var bytesRead = GetRawInputData(lParam, RidInput, buffer, ref size, RawInputHeaderSize);
+            if (bytesRead == uint.MaxValue)
+            {
+                Serilog.Log.Warning("三击 Ctrl 原始输入读取事件失败，错误码 {Error}", Marshal.GetLastWin32Error());
+                return 0;
+            }
+            if (bytesRead < RawInputHeaderSize + 16 || Marshal.ReadInt32(buffer) != KeyboardInputType)
+                return 0;
+
+            var flags = (ushort)Marshal.ReadInt16(buffer, (int)RawInputHeaderSize + 2);
+            var key = (ushort)Marshal.ReadInt16(buffer, (int)RawInputHeaderSize + 6);
+            if (key == 0xFF)
+                return 0;
+
+            var isCtrl = key is Control or LeftControl or RightControl;
+            var wasDown = _detector.CtrlDown;
+            var wasIsolated = _detector.Isolated;
+            var triggered = _detector.OnKeyEvent(key, flags, Environment.TickCount64);
+            if (isCtrl)
+            {
+                _lastCtrlEvent = Environment.TickCount64;
+                Serilog.Log.Information("三击 Ctrl：原始输入 {Transition}，已计 {Count}/3，独立按键 {Isolated}",
+                    (flags & 1) == 0 ? "按下" : "松开", _detector.PressCount, _detector.Isolated);
+            }
+            else if (wasDown && wasIsolated && !_detector.Isolated)
+            {
+                Serilog.Log.Information("三击 Ctrl：检测到组合键，本次点击作废");
+            }
+
+            if (triggered)
+            {
+                if (HotkeyExecutionGuard.ShouldSkipGlobalHotkey())
+                    Serilog.Log.Information("三击 Ctrl 触发被跳过（初始化向导/全局热键禁用/全屏忽略）");
+                else
+                {
+                    Serilog.Log.Information("三击 Ctrl 触发划词翻译");
+                    OnCtrlSameC?.Invoke();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Serilog.Log.Error(ex, "三击 Ctrl 原始键盘输入处理异常");
+        }
+        finally
+        {
+            Marshal.FreeHGlobal(buffer);
+        }
+
+        // 前台 WM_INPUT 必须留给 DefWindowProc 完成清理。
+        return 0;
+    }
 }

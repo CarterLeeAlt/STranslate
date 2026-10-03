@@ -181,9 +181,9 @@
     <sys:String x:Key="Hotkey_InputTranslateDescription">開啟STranslate並清空內容等待輸入翻譯的快速鍵。</sys:String>
     <sys:String x:Key="Hotkey_CrosswordTranslate">劃詞翻譯</sys:String>
     <sys:String x:Key="Hotkey_CrosswordTranslateDescription">滑鼠選中文字觸發翻譯的快速鍵。</sys:String>
-    <sys:String x:Key="Hotkey_CrosswordTranslateIsUseCtrlSameC">是否使用 Ctrl+C+C 進行劃詞翻譯？</sys:String>
+    <sys:String x:Key="Hotkey_CrosswordTranslateIsUseCtrlSameC">是否使用 連按三次 Ctrl 進行劃詞翻譯？</sys:String>
     <sys:String x:Key="Hotkey_CrosswordTranslateTraditional">傳統快速鍵</sys:String>
-    <sys:String x:Key="Hotkey_CrosswordTranslateByCtrlSameCDescription">滑鼠選中文字快速按下 Ctrl+C+C 進行取詞翻譯。</sys:String>
+    <sys:String x:Key="Hotkey_CrosswordTranslateByCtrlSameCDescription">滑鼠選中文字後快速連按三次 Ctrl 進行取詞翻譯。</sys:String>
     <sys:String x:Key="CrosswordTranslateFetchFailed">劃詞取詞失敗，已開啟輸入翻譯</sys:String>
     <sys:String x:Key="CrosswordTranslateFetchFailedShowWindow">劃詞取詞失敗，已開啟主介面顯示</sys:String>
     <sys:String x:Key="CrosswordTranslateFetchFailedNotifyOnly">劃詞取詞失敗，請選取文字後重試。</sys:String>
@@ -622,7 +622,7 @@
     <sys:String x:Key="TextSeparatorHandleTypeUnderscoreAndHyphen">處理底線和中劃線</sys:String>
     <sys:String x:Key="TextSeparatorHandleScopeNone">不啟用</sys:String>
     <sys:String x:Key="TextSeparatorHandleScopeMouseSelection">滑鼠劃詞</sys:String>
-    <sys:String x:Key="TextSeparatorHandleScopeCrossword">劃詞翻譯 / Ctrl+C+C</sys:String>
+    <sys:String x:Key="TextSeparatorHandleScopeCrossword">劃詞翻譯 / 連按三次 Ctrl</sys:String>
     <sys:String x:Key="TextSeparatorHandleScopeIncremental">增量翻譯</sys:String>
     <sys:String x:Key="TextSeparatorHandleScopeClipboardMonitor">剪貼簿監聽</sys:String>
     <sys:String x:Key="TextSeparatorHandleScopeScreenshotTranslate">截圖翻譯</sys:String>

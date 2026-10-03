@@ -24,7 +24,7 @@ public partial class Settings : ObservableObject
     [ObservableProperty] public partial bool AutoStartup { get; set; } = false;
     [ObservableProperty] public partial StartMode StartMode { get; set; } = StartMode.Normal;
 
-    [ObservableProperty] public partial string FontFamily { get; set; } = Win32Helper.GetSystemDefaultFont();
+    [ObservableProperty] public partial string FontFamily { get; set; } = Win32Helper.EmbeddedNotoSansFontName;
 
     /// <summary>
     /// 界面字体大小
@@ -32,9 +32,9 @@ public partial class Settings : ObservableObject
     /// </summary>
     [ObservableProperty] public partial double FontSize { get; set; } = 14;
 
-    [ObservableProperty] public partial string Language { get; set; } = Constant.SystemLanguageCode;
+    [ObservableProperty] public partial string Language { get; set; } = Constant.ChineseLanguageCode;
 
-    [ObservableProperty] public partial bool HideOnStartup { get; set; } = false;
+    [ObservableProperty] public partial bool HideOnStartup { get; set; } = true;
 
     [ObservableProperty] public partial bool HideWhenDeactivated { get; set; } = true;
 
@@ -51,40 +51,40 @@ public partial class Settings : ObservableObject
     /// <summary>
     /// 是否启用自动检查更新
     /// </summary>
-    [ObservableProperty] public partial bool AutoCheckUpdate { get; set; } = true;
+    [ObservableProperty] public partial bool AutoCheckUpdate { get; set; } = false;
 
     [ObservableProperty] public partial ElementTheme ColorScheme { get; set; }
 
-    [ObservableProperty] public partial HistoryLimit HistoryLimit { get; set; } = HistoryLimit.Limit1000;
+    [ObservableProperty] public partial HistoryLimit HistoryLimit { get; set; } = HistoryLimit.Limit100;
 
     [ObservableProperty] public partial bool IsColorSchemeVisible { get; set; } = true;
 
     [ObservableProperty] public partial bool IsScreenshotTranslateVisible { get; set; } = true;
-    [ObservableProperty] public partial bool IsImageTranslateVisible { get; set; } = true;
+    [ObservableProperty] public partial bool IsImageTranslateVisible { get; set; } = false;
 
     /// <summary>
     /// 截图时是否显示辅助线
     /// </summary>
     [ObservableProperty] public partial bool ShowScreenshotAuxiliaryLines { get; set; } = true;
 
-    [ObservableProperty] public partial bool HideInput { get; set; } = false;
+    [ObservableProperty] public partial bool HideInput { get; set; } = true;
 
     [ObservableProperty] public partial bool HideInputWithLangSelectControl { get; set; } = false;
 
-    [ObservableProperty] public partial bool IsHideInputVisible { get; set; } = true;
+    [ObservableProperty] public partial bool IsHideInputVisible { get; set; } = false;
 
-    [ObservableProperty] public partial bool IsMouseSelectionTranslationVisible { get; set; } = true;
+    [ObservableProperty] public partial bool IsMouseSelectionTranslationVisible { get; set; } = false;
 
     [ObservableProperty] public partial bool IsMouseSelectionTranslationEnabled { get; set; } = false;
 
     [ObservableProperty] public partial bool IsMouseSelectionIconEnabled { get; set; } = false;
 
-    [ObservableProperty] public partial bool IsHistoryNavigationVisible { get; set; } = true;
+    [ObservableProperty] public partial bool IsHistoryNavigationVisible { get; set; } = false;
 
     [ObservableProperty] public partial bool IsOcrVisible { get; set; } = true;
 
     [ObservableProperty] public partial bool IsClipboardMonitorVisible { get; set; } = true;
-    [ObservableProperty] public partial List<string> MainHeaderVisibleActions { get; set; } = [];
+    [ObservableProperty] public partial List<string> MainHeaderVisibleActions { get; set; } = ["clipboard_monitor", "ocr", "screenshot_translate", "color_scheme", "service_switcher"];
     [ObservableProperty] public partial bool IsServiceSwitcherVisible { get; set; } = true;
     [ObservableProperty] public partial bool IsCloseButtonVisible { get; set; } = false;
 
@@ -148,7 +148,7 @@ public partial class Settings : ObservableObject
     /// <summary>
     /// 切换提示词后自动翻译
     /// </summary>
-    [ObservableProperty] public partial bool AutoTranslateOnPromptChanged { get; set; } = true;
+    [ObservableProperty] public partial bool AutoTranslateOnPromptChanged { get; set; } = false;
 
     [ObservableProperty] public partial bool ImageTranslateOnOcrServiceChanged { get; set; } = true;
     [ObservableProperty] public partial bool ImageTranslateOnTranslateServiceChanged { get; set; } = true;
@@ -157,7 +157,7 @@ public partial class Settings : ObservableObject
     [ObservableProperty] public partial bool OcrOnServiceChanged { get; set; } = true;
     [ObservableProperty] public partial bool OcrOnLanguageChanged { get; set; } = true;
 
-    [ObservableProperty] public partial bool IsAutoTranslateVisible { get; set; } = true;
+    [ObservableProperty] public partial bool IsAutoTranslateVisible { get; set; } = false;
 
     /// <summary>
     /// 自动翻译
@@ -198,15 +198,15 @@ public partial class Settings : ObservableObject
     [ObservableProperty] public partial double MainWindowMaxHeight { get; set; } = 800;
 
     [ObservableProperty] public partial bool ShowPascalCase { get; set; } = true;
-    [ObservableProperty] public partial bool ShowCamelCase { get; set; } = false;
-    [ObservableProperty] public partial bool ShowSnakeCase { get; set; } = true;
-    [ObservableProperty] public partial bool ShowInsert { get; set; } = true;
-    [ObservableProperty] public partial bool ShowBackTranslation { get; set; } = true;
+    [ObservableProperty] public partial bool ShowCamelCase { get; set; } = true;
+    [ObservableProperty] public partial bool ShowSnakeCase { get; set; } = false;
+    [ObservableProperty] public partial bool ShowInsert { get; set; } = false;
+    [ObservableProperty] public partial bool ShowBackTranslation { get; set; } = false;
 
     /// <summary>
     /// 主界面Llm服务是否显示提示词按钮
     /// </summary>
-    [ObservableProperty] public partial bool ShowPromptButton { get; set; } = true;
+    [ObservableProperty] public partial bool ShowPromptButton { get; set; } = false;
 
     [ObservableProperty] public partial bool ShowScreenshotItemInNotifyIconMenu { get; set; } = false;
     [ObservableProperty] public partial bool ShowImageTranslateItemInNotifyIconMenu { get; set; } = false;
@@ -248,10 +248,10 @@ public partial class Settings : ObservableObject
     #region OCR Settings
 
     [ObservableProperty] public partial LangEnum OcrWindowOcrLanguage { get; set; } = LangEnum.Auto;
-    [ObservableProperty] public partial bool IsOcrShowingAnnotated { get; set; } = false;
-    [ObservableProperty] public partial bool IsOcrShowingTextControl { get; set; } = false;
-    [ObservableProperty] public partial double OcrWindowWidth { get; set; } = 600;
-    [ObservableProperty] public partial double OcrWindowHeight { get; set; } = 600;
+    [ObservableProperty] public partial bool IsOcrShowingAnnotated { get; set; } = true;
+    [ObservableProperty] public partial bool IsOcrShowingTextControl { get; set; } = true;
+    [ObservableProperty] public partial double OcrWindowWidth { get; set; } = 946;
+    [ObservableProperty] public partial double OcrWindowHeight { get; set; } = 500;
     [ObservableProperty] public partial OcrResultShowingType OcrResultShowingType { get; set; } = OcrResultShowingType.Original;
 
     #endregion
@@ -648,14 +648,18 @@ public partial class Settings : ObservableObject
 
     private void ApplyFontFamily(bool initialize = false)
     {
-        // 初始化时检查字体有效性
-        if (initialize && !Fonts.SystemFontFamilies.Select(x => x.Source).Contains(FontFamily))
+        // 初始化时检查字体有效性（内嵌 Noto Sans SC 无需系统安装，始终有效；无效配置回退到内嵌字体）
+        if (initialize
+            && FontFamily != Win32Helper.EmbeddedNotoSansFontName
+            && !Fonts.SystemFontFamilies.Select(x => x.Source).Contains(FontFamily))
         {
-            FontFamily = Win32Helper.GetSystemDefaultFont();
+            FontFamily = Win32Helper.EmbeddedNotoSansFontName;
             return;
         }
 
-        App.Current.Resources["ContentControlThemeFontFamily"] = new FontFamily(FontFamily);
+        App.Current.Resources["ContentControlThemeFontFamily"] = FontFamily == Win32Helper.EmbeddedNotoSansFontName
+            ? Win32Helper.GetEmbeddedNotoSansFont()
+            : new FontFamily(FontFamily);
 
         // https://github.com/iNKORE-NET/UI.WPF.Modern/releases/tag/v0.10.2
         // https://github.com/iNKORE-NET/UI.WPF.Modern/issues/396

@@ -55,6 +55,8 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     private ClipboardMonitor? _clipboardMonitor;
     private bool _forceShowInputForInputTranslate;
     private bool _skipShowForNextTranslate;
+    private bool _tripleCtrlTranslationInProgress;
+    private long _tripleCtrlRequestId;
     private bool _disposed;
     private readonly object _manualTranslationTaskLock = new();
     private readonly Dictionary<string, CancellationTokenSource> _manualTranslationTaskTokens = [];
@@ -1829,22 +1831,51 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         ExecuteTranslate(HandleCapturedText(text, TextSeparatorHandleScope.Crossword));
     }
 
-    public void CrosswordTranslateByCtrlSameCHandler()
+    public void CrosswordTranslateByCtrlSameCHandler() => _ = DispatchTripleCtrlTranslationAsync();
+
+    private async Task DispatchTripleCtrlTranslationAsync()
     {
-        _ = Application.Current.Dispatcher.InvokeAsync(() =>
+        try
         {
-            // Ctrl+C+C 由其他前台应用触发，需要越过前台锁确保翻译窗口可见。
-            using var _ = WindowActivationContext.Push(WindowActivationMode.ForceForeground);
+            await Application.Current.Dispatcher.InvokeAsync(RunTripleCtrlTranslationAsync).Task.Unwrap();
+        }
+        catch (Exception ex)
+        {
+            Serilog.Log.Error(ex, "三击 Ctrl 回调调度或显示异常");
+        }
+    }
 
-            var text = ClipboardHelper.GetText()?.Trim();
-            if (string.IsNullOrWhiteSpace(text))
-            {
-                HandleCrosswordFetchFailed();
-                return;
-            }
+    private async Task RunTripleCtrlTranslationAsync()
+    {
+        using var scope = WindowActivationContext.Push(WindowActivationMode.ForceForeground);
+        var requestId = ++_tripleCtrlRequestId;
+        var started = Environment.TickCount64;
+        Serilog.Log.Information("三击 Ctrl 回调开始 {RequestId}", requestId);
+        if (_tripleCtrlTranslationInProgress)
+        {
+            // 取词尚未结束时只响应显示，避免并行模拟复制互相覆盖剪贴板。
+            Show();
+            Serilog.Log.Information("三击 Ctrl 回调 {RequestId} 已显示窗口，沿用正在执行的取词", requestId);
+            return;
+        }
 
-            ExecuteTranslate(HandleCapturedText(text, TextSeparatorHandleScope.Crossword));
-        });
+        _tripleCtrlTranslationInProgress = true;
+        try
+        {
+            await CrosswordTranslateAsync();
+        }
+        catch (Exception ex)
+        {
+            Serilog.Log.Error(ex, "三击 Ctrl 回调 {RequestId} 执行异常", requestId);
+        }
+        finally
+        {
+            _tripleCtrlTranslationInProgress = false;
+            if (!MainWindow.IsVisible || !Win32Helper.IsForegroundWindow(MainWindow))
+                Show();
+            Serilog.Log.Information("三击 Ctrl 回调完成 {RequestId}，耗时 {Elapsed}ms，窗口可见 {Visible}",
+                requestId, Environment.TickCount64 - started, MainWindow.IsVisible);
+        }
     }
 
     [RelayCommand]

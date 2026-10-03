@@ -52,7 +52,9 @@ public partial class WelcomeSetupViewModel : ObservableObject, IDisposable
 
         RefreshWelcomePluginOptions();
 
-        SelectedTranslatePlugin = WelcomeTranslatePlugins.FirstOrDefault();
+        // 引导默认文本翻译优先选中微软翻译（内置免费），无则取排序首位
+        SelectedTranslatePlugin = WelcomeTranslatePlugins.FirstOrDefault(p => p.AssemblyName.Contains("MicrosoftBuiltIn", StringComparison.OrdinalIgnoreCase))
+            ?? WelcomeTranslatePlugins.FirstOrDefault();
         SelectedOcrPlugin = WelcomeOcrPlugins.FirstOrDefault();
 
         SelectedTranslateService = TranslateService.Services.FirstOrDefault(s => s.IsEnabled)
@@ -264,8 +266,28 @@ public partial class WelcomeSetupViewModel : ObservableObject, IDisposable
 
     private void SaveAndClose(Window window)
     {
+        EnsureSelectedPluginsAdded();
         SaveAll();
         window.Close();
+    }
+
+    /// <summary>
+    /// 完成引导时，若所选插件尚未通过"添加"按钮加入服务列表则自动补加，
+    /// 避免只选择了插件未点击添加导致引导后服务缺失
+    /// </summary>
+    private void EnsureSelectedPluginsAdded()
+    {
+        if (SelectedTranslatePlugin != null &&
+            TranslateService.Services.All(s => !ReferenceEquals(s.MetaData, SelectedTranslatePlugin)))
+        {
+            AddTranslateService();
+        }
+
+        if (SelectedOcrPlugin != null &&
+            OcrService.Services.All(s => !ReferenceEquals(s.MetaData, SelectedOcrPlugin)))
+        {
+            AddOcrService();
+        }
     }
 
     private void RefreshTranslateServiceOptions()

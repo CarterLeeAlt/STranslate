@@ -177,9 +177,9 @@
     <sys:String x:Key="Hotkey_InputTranslateDescription">STranslateを開き、内容をクリアして翻訳入力を待機します。</sys:String>
     <sys:String x:Key="Hotkey_CrosswordTranslate">選択翻訳</sys:String>
     <sys:String x:Key="Hotkey_CrosswordTranslateDescription">マウスで選択したテキストを翻訳するホットキー。</sys:String>
-    <sys:String x:Key="Hotkey_CrosswordTranslateIsUseCtrlSameC">Ctrl+C+C で選択翻訳を行う？</sys:String>
+    <sys:String x:Key="Hotkey_CrosswordTranslateIsUseCtrlSameC">Ctrl を3回押して選択翻訳を行う？</sys:String>
     <sys:String x:Key="Hotkey_CrosswordTranslateTraditional">従来のホットキー</sys:String>
-    <sys:String x:Key="Hotkey_CrosswordTranslateByCtrlSameCDescription">テキストを選択し、Ctrl+C+C を素早く押して翻訳します。</sys:String>
+    <sys:String x:Key="Hotkey_CrosswordTranslateByCtrlSameCDescription">テキストを選択し、Ctrl を素早く3回押して翻訳します。</sys:String>
     <sys:String x:Key="CrosswordTranslateFetchFailed">選択テキストの取得に失敗しました。入力翻訳を開きました。</sys:String>
     <sys:String x:Key="CrosswordTranslateFetchFailedShowWindow">選択テキストの取得に失敗しました。メイン画面を表示しました。</sys:String>
     <sys:String x:Key="CrosswordTranslateFetchFailedNotifyOnly">選択テキストを取得できませんでした。テキストを選択して再試行してください。</sys:String>
@@ -605,7 +605,7 @@
     <sys:String x:Key="TextSeparatorHandleTypeUnderscoreAndHyphen">アンダースコアとハイフンを処理</sys:String>
     <sys:String x:Key="TextSeparatorHandleScopeNone">無効</sys:String>
     <sys:String x:Key="TextSeparatorHandleScopeMouseSelection">マウス選択</sys:String>
-    <sys:String x:Key="TextSeparatorHandleScopeCrossword">選択翻訳 / Ctrl+C+C</sys:String>
+    <sys:String x:Key="TextSeparatorHandleScopeCrossword">選択翻訳 / Ctrl を3回</sys:String>
     <sys:String x:Key="TextSeparatorHandleScopeIncremental">増分翻訳</sys:String>
     <sys:String x:Key="TextSeparatorHandleScopeClipboardMonitor">クリップボード監視</sys:String>
     <sys:String x:Key="TextSeparatorHandleScopeScreenshotTranslate">スクリーンショット翻訳</sys:String>

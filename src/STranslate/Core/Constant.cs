@@ -16,6 +16,7 @@ public class Constant
     public const string TmpPluginFolderName = "STranslateTmpPlugins";
     public const string TmpConfigFolderName = "STranslateTmpConfig";
     public const string SystemLanguageCode = "system";
+    public const string ChineseLanguageCode = "zh-cn";
     public const string HttpClientName = "DefaultClient";
     public const string HostExeName = "z_stranslate_host.exe";
     public const string TaskName = "STranslateSkipUAC";

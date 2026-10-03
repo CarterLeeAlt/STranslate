@@ -25,6 +25,15 @@ public partial class SnackbarContainer : UserControl, IDisposable
         NoticeBarControl.ActionRequested += NoticeBarControl_ActionRequested;
     }
 
+    /// <summary>
+    /// 提示框距窗口客户区顶部的偏移，由 Snackbar 服务按各窗口内容区上边缘设置
+    /// </summary>
+    public double TopOffset
+    {
+        get => RootGrid.Margin.Top;
+        set => RootGrid.Margin = new Thickness(16, value, 16, 0);
+    }
+
     public void Show(
         string message,
         Severity severity = Severity.Informational,

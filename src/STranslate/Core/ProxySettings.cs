@@ -5,7 +5,7 @@ namespace STranslate.Core;
 public partial class ProxySettings : ObservableObject
 {
     [ObservableProperty]
-    public partial bool IsEnabled { get; set; } = true;
+    public partial bool IsEnabled { get; set; } = false;
 
     [ObservableProperty]
     public partial ProxyType ProxyType { get; set; } = ProxyType.System;

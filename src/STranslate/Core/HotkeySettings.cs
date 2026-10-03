@@ -24,55 +24,55 @@ public partial class HotkeySettings : ObservableObject, IDisposable
     private bool _globalHotkeysRegistered;
     private int _hotkeyRegistrationGeneration;
 
-    [ObservableProperty] public partial bool CrosswordTranslateByCtrlSameC { get; set; } = false;
+    [ObservableProperty] public partial bool CrosswordTranslateByCtrlSameC { get; set; } = true;
 
     [ObservableProperty] public partial Key IncrementalTranslateKey { get; set; } = Key.None;
 
     #region Setting Items
 
-    public GlobalHotkey OpenWindowHotkey { get; set; } = new("Alt + G");
+    public GlobalHotkey OpenWindowHotkey { get; set; } = new(Constant.EmptyHotkey);
     public GlobalHotkey InputTranslateHotkey { get; set; } = new(Constant.EmptyHotkey);
-    public GlobalHotkey CrosswordTranslateHotkey { get; set; } = new("Alt + D");
-    public GlobalHotkey ScreenshotTranslateHotkey { get; set; } = new("Alt + S");
-    public GlobalHotkey ImageTranslateHotkey { get; set; } = new("Alt + Shift + X");
+    public GlobalHotkey CrosswordTranslateHotkey { get; set; } = new(Constant.EmptyHotkey);
+    public GlobalHotkey ScreenshotTranslateHotkey { get; set; } = new(Constant.EmptyHotkey);
+    public GlobalHotkey ImageTranslateHotkey { get; set; } = new(Constant.EmptyHotkey);
     public GlobalHotkey ReplaceTranslateHotkey { get; set; } = new(Constant.EmptyHotkey);
     public GlobalHotkey MouseSelectionTranslationHotkey { get; set; } = new(Constant.EmptyHotkey);
     public GlobalHotkey SilentOcrHotkey { get; set; } = new(Constant.EmptyHotkey);
     public GlobalHotkey SilentTtsHotkey { get; set; } = new(Constant.EmptyHotkey);
-    public GlobalHotkey OcrHotkey { get; set; } = new("Alt + Shift + S");
+    public GlobalHotkey OcrHotkey { get; set; } = new(Constant.EmptyHotkey);
     public GlobalHotkey ClipboardMonitorHotkey { get; set; } = new(Constant.EmptyHotkey);
 
     #region Software Hotkeys - MainWindow
 
-    public Hotkey OpenSettingsHotkey { get; set; } = new("Ctrl + OemComma");
+    public Hotkey OpenSettingsHotkey { get; set; } = new(Constant.EmptyHotkey);
 
-    public Hotkey OpenHistoryHotkey { get; set; } = new("Ctrl + OemQuestion");
+    public Hotkey OpenHistoryHotkey { get; set; } = new(Constant.EmptyHotkey);
 
-    public Hotkey HideInputHotkey { get; set; } = new("Ctrl + Shift + A");
+    public Hotkey HideInputHotkey { get; set; } = new(Constant.EmptyHotkey);
 
-    public Hotkey ToggleColorThemeHotkey { get; set; } = new("Ctrl + Shift + R");
+    public Hotkey ToggleColorThemeHotkey { get; set; } = new(Constant.EmptyHotkey);
 
-    public Hotkey ToggleTopmostHotkey { get; set; } = new("Ctrl + Shift + T");
+    public Hotkey ToggleTopmostHotkey { get; set; } = new(Constant.EmptyHotkey);
 
-    public Hotkey SaveToVocabularyHotkey { get; set; } = new("Ctrl + Shift + S");
+    public Hotkey SaveToVocabularyHotkey { get; set; } = new(Constant.EmptyHotkey);
 
-    public Hotkey HistoryNavigePreviousHotkey { get; set; } = new("Ctrl + P");
+    public Hotkey HistoryNavigePreviousHotkey { get; set; } = new(Constant.EmptyHotkey);
 
-    public Hotkey HistoryNavigeNextHotkey { get; set; } = new("Ctrl + N");
+    public Hotkey HistoryNavigeNextHotkey { get; set; } = new(Constant.EmptyHotkey);
 
-    public Hotkey AutoTranslateHotkey { get; set; } = new("Ctrl + B");
+    public Hotkey AutoTranslateHotkey { get; set; } = new(Constant.EmptyHotkey);
 
     #endregion
 
     #region Software Hotkeys - OcrWindow / ImageTranslateWindow
 
-    public Hotkey ReExecuteOcrHotkey { get; set; } = new("Ctrl + R");
+    public Hotkey ReExecuteOcrHotkey { get; set; } = new(Constant.EmptyHotkey);
 
-    public Hotkey QrCodeHotkey { get; set; } = new("Ctrl + Shift + R");
+    public Hotkey QrCodeHotkey { get; set; } = new(Constant.EmptyHotkey);
 
-    public Hotkey SwitchImageHotkey { get; set; } = new("Ctrl + OemQuestion");
+    public Hotkey SwitchImageHotkey { get; set; } = new(Constant.EmptyHotkey);
 
-    public Hotkey PinImageTranslateHotkey { get; set; } = new("Ctrl + T");
+    public Hotkey PinImageTranslateHotkey { get; set; } = new(Constant.EmptyHotkey);
 
     #endregion
 
@@ -187,34 +187,10 @@ public partial class HotkeySettings : ObservableObject, IDisposable
     public void Initialize()
     {
         // 手动更新默认值
+        // 本构建不预设任何默认快捷键（避免与其他软件的全局热键冲突），
+        // 因此默认值字典保持为空；如需恢复出厂推荐键位，在此按 "属性名" = "键位" 填入
         var defaultHotkeys = new Dictionary<string, string>
         {
-            // Global Hotkeys
-            [nameof(OpenWindowHotkey)] = "Alt + G",
-            [nameof(InputTranslateHotkey)] = "Alt + A",
-            [nameof(CrosswordTranslateHotkey)] = "Alt + D",
-            [nameof(ScreenshotTranslateHotkey)] = "Alt + S",
-            [nameof(ImageTranslateHotkey)] = "Alt + Shift + X",
-            [nameof(ReplaceTranslateHotkey)] = "Alt + F",
-            [nameof(MouseSelectionTranslationHotkey)] = "Alt + Shift + D",
-            [nameof(SilentOcrHotkey)] = "Alt + Shift + F",
-            [nameof(SilentTtsHotkey)] = "Alt + Shift + G",
-            [nameof(OcrHotkey)] = "Alt + Shift + S",
-            [nameof(ClipboardMonitorHotkey)] = "Alt + Shift + A",
-            // Software Hotkeys - MainWindow
-            [nameof(OpenSettingsHotkey)] = "Ctrl + OemComma",
-            [nameof(OpenHistoryHotkey)] = "Ctrl + OemQuestion",
-            [nameof(HideInputHotkey)] = "Ctrl + Shift + A",
-            [nameof(ToggleColorThemeHotkey)] = "Ctrl + Shift + R",
-            [nameof(ToggleTopmostHotkey)] = "Ctrl + Shift + T",
-            [nameof(HistoryNavigePreviousHotkey)] = "Ctrl + P",
-            [nameof(HistoryNavigeNextHotkey)] = "Ctrl + N",
-            [nameof(AutoTranslateHotkey)] = "Ctrl + B",
-            // Software Hotkeys - OcrWindow / ImageTranslateWindow
-            [nameof(ReExecuteOcrHotkey)] = "Ctrl + R",
-            [nameof(QrCodeHotkey)] = "Ctrl + Shift + R",
-            [nameof(SwitchImageHotkey)] = "Ctrl + OemQuestion",
-            [nameof(PinImageTranslateHotkey)] = "Ctrl + T",
         };
         foreach (var prop in GetType().GetProperties())
         {
@@ -561,6 +537,9 @@ public partial class HotkeySettings : ObservableObject, IDisposable
     public void Dispose()
     {
         _hotkeyRegistrationGeneration++;
+        CtrlSameCHelper.Stop();
+        if (MainWindowViewModel is not null)
+            CtrlSameCHelper.OnCtrlSameC -= MainWindowViewModel.CrosswordTranslateByCtrlSameCHandler;
         _fullscreenMonitor?.Dispose();
     }
 
