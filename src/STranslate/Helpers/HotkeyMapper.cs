@@ -34,6 +34,8 @@ public class HotkeyMapper
     private static readonly Lock _hookStateLock = new();
     private static readonly HashSet<Key> _suppressedKeys = [];
     private static readonly HashSet<Key> _pressedKeys = [];
+    /// <summary>与修饰键组合按下的按住键（如 Alt+F4），整次按压原样放行且不触发功能。</summary>
+    private static readonly HashSet<Key> _passthroughKeys = [];
     private static readonly Dictionary<Key, (Action OnPress, Action OnRelease)> _holdKeyActions = [];
 
     #endregion
@@ -228,6 +230,7 @@ public class HotkeyMapper
     {
         _holdKeyActions.Clear();
         _suppressedKeys.Clear();
+        _passthroughKeys.Clear();
     }
 
     private static void ClearPressedKeys()
@@ -235,8 +238,19 @@ public class HotkeyMapper
         lock (_hookStateLock)
         {
             _pressedKeys.Clear();
+            _passthroughKeys.Clear();
         }
     }
+
+    /// <summary>
+    /// 按住键仅支持单独按下；修饰键按下时放行组合键（如 Alt+F4 关闭窗口）。
+    /// 低级键盘钩子中 GetKeyState 反映的是本线程状态，需用 GetAsyncKeyState 读取全局状态。
+    /// </summary>
+    private static bool IsAnyModifierDown() =>
+        IsKeyDown(VIRTUAL_KEY.VK_MENU) || IsKeyDown(VIRTUAL_KEY.VK_CONTROL) || IsKeyDown(VIRTUAL_KEY.VK_SHIFT) ||
+        IsKeyDown(VIRTUAL_KEY.VK_LWIN) || IsKeyDown(VIRTUAL_KEY.VK_RWIN);
+
+    private static bool IsKeyDown(VIRTUAL_KEY key) => (PInvoke.GetAsyncKeyState((int)key) & 0x8000) != 0;
 
     private static bool IsRegisteredHoldKey(Key key)
     {
@@ -270,6 +284,10 @@ public class HotkeyMapper
                 {
                     // 如果该键已经在按下状态，忽略重复的 KeyDown 事件
                     isRepeatedKeyDown = !_pressedKeys.Add(key);
+                    if (!isRepeatedKeyDown && _holdKeyActions.ContainsKey(key) && IsAnyModifierDown())
+                        _passthroughKeys.Add(key);
+                    if (_passthroughKeys.Contains(key))
+                        return PInvoke.CallNextHookEx(HHOOK.Null, nCode, wParam, lParam);
                     shouldSuppress = _suppressedKeys.Contains(key);
                     actions = !isRepeatedKeyDown && _holdKeyActions.TryGetValue(key, out var holdActions)
                         ? holdActions
@@ -313,6 +331,8 @@ public class HotkeyMapper
                 {
                     // 从按下状态集合中移除
                     _pressedKeys.Remove(key);
+                    if (_passthroughKeys.Remove(key))
+                        return PInvoke.CallNextHookEx(HHOOK.Null, nCode, wParam, lParam);
                     shouldSuppress = _suppressedKeys.Contains(key);
                     actions = _holdKeyActions.TryGetValue(key, out var holdActions)
                         ? holdActions
