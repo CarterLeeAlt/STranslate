@@ -1,0 +1,10 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <sys:String x:Key="STranslate_Plugin_Ocr_DeepSeek_Thinking">思考模式</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_DeepSeek_Thinking_Description">開啟後模型先以中等推理強度思考再輸出識別結果，複雜版面更準確，但速度更慢、消耗更多 Token。</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_DeepSeek_NoTextOutput">DeepSeek 未識別出任何文字</sys:String>
+
+</ResourceDictionary>

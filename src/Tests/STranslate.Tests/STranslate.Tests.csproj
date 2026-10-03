@@ -21,6 +21,7 @@
     <ProjectReference Include="..\..\Plugins\STranslate.Plugin.Ocr.OcrSpace\STranslate.Plugin.Ocr.OcrSpace.csproj" />
     <ProjectReference Include="..\..\Plugins\STranslate.Plugin.Translate.OpenAI\STranslate.Plugin.Translate.OpenAI.csproj" />
     <ProjectReference Include="..\..\Plugins\STranslate.Plugin.Translate.DeepSeek\STranslate.Plugin.Translate.DeepSeek.csproj" />
+    <ProjectReference Include="..\..\Plugins\STranslate.Plugin.Ocr.DeepSeek\STranslate.Plugin.Ocr.DeepSeek.csproj" />
   </ItemGroup>
 
   <ItemGroup>

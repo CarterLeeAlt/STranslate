@@ -1,0 +1,10 @@
+{
+  "PluginID": "e988e4390e834ac78d38248cb46bc27d",
+  "Name": "DeepSeek OCR",
+  "Description": "DeepSeek OCR plugin for STranslate",
+  "Author": "zggsong",
+  "Version": "1.0.0",
+  "Website": "https://github.com/STranslate/STranslate",
+  "ExecuteFileName": "STranslate.Plugin.Ocr.DeepSeek.dll",
+  "IconPath": "icon.png"
+}

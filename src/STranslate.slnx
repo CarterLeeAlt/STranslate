@@ -38,6 +38,7 @@
     <!-- OCR 插件 -->
     <Project Path="Plugins/STranslate.Plugin.Ocr.Baidu/STranslate.Plugin.Ocr.Baidu.csproj" />
     <Project Path="Plugins/STranslate.Plugin.Ocr.OpenAI/STranslate.Plugin.Ocr.OpenAI.csproj" />
+    <Project Path="Plugins/STranslate.Plugin.Ocr.DeepSeek/STranslate.Plugin.Ocr.DeepSeek.csproj" />
     <Project Path="Plugins/STranslate.Plugin.Ocr.WeChatBuiltIn/STranslate.Plugin.Ocr.WeChatBuiltIn.csproj" />
     <Project Path="Plugins/STranslate.Plugin.Ocr.Google/STranslate.Plugin.Ocr.Google.csproj" />
     <Project Path="Plugins/STranslate.Plugin.Ocr.Tencent/STranslate.Plugin.Ocr.Tencent.csproj" />

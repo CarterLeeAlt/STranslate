@@ -1,0 +1,10 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <sys:String x:Key="STranslate_Plugin_Ocr_DeepSeek_Thinking">사고 모드</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_DeepSeek_Thinking_Description">켜면 모델이 중간 추론 강도로 생각한 뒤 인식 결과를 반환합니다. 복잡한 레이아웃에서 더 정확하지만 느리고 토큰을 더 사용합니다.</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_DeepSeek_NoTextOutput">DeepSeek에서 텍스트를 인식하지 못했습니다</sys:String>
+
+</ResourceDictionary>
