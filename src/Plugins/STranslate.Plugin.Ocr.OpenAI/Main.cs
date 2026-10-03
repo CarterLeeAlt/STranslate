@@ -70,7 +70,7 @@ public class Main : ObservableObject, IOcrPlugin, ILlm
 
         // 选择模型
         var model = Settings.Model.Trim();
-        model = string.IsNullOrEmpty(model) ? "gpt-4o" : model;
+        model = string.IsNullOrEmpty(model) ? "gpt-6-luna" : model;
 
         // 替换Prompt关键字
         var messages = (Prompts.FirstOrDefault(x => x.IsEnabled) ?? throw new Exception("请先完善Prompt配置"))
@@ -80,8 +80,6 @@ public class Main : ObservableObject, IOcrPlugin, ILlm
             .ForEach(item =>
                 item.Content = item.Content.Replace("$target", ConvertLanguage(request.Language)));
 
-        // 温度限定
-        var temperature = Math.Clamp(Settings.Temperature, 0, 2);
         var userPrompt = messages.LastOrDefault() ?? throw new Exception("Prompt配置为空");
         messages.Remove(userPrompt);
         var messages2 = new List<object>();
@@ -117,8 +115,7 @@ public class Main : ObservableObject, IOcrPlugin, ILlm
         var content = new
         {
             model,
-            messages = messages2.ToArray(),
-            temperature
+            messages = messages2.ToArray()
         };
 
         var option = new Options

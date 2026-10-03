@@ -37,6 +37,17 @@ public class OpenAIOcrTests
         var url = http.Requests[^1]["messages"]!.AsArray()[^1]?["content"]?[1]?["image_url"]?["url"]?.ToString();
         Assert.StartsWith("data:image/png;base64,", url);
         Assert.Equal(PngHeader, Convert.FromBase64String(url!["data:image/png;base64,".Length..])[..8]);
+        Assert.Equal("gpt-6-luna", http.Requests[^1]["model"]?.ToString());
+        Assert.Null(http.Requests[^1]["temperature"]);
+    }
+
+    [Fact]
+    public void DefaultSettings_PresetOnlyTheLatestEfficientModel()
+    {
+        var settings = new Settings();
+
+        Assert.Equal("gpt-6-luna", settings.Model);
+        Assert.Equal([settings.Model], settings.Models);
     }
 
     private sealed class FakeOcrContext(Settings settings, IHttpService httpService, ImageQuality imageQuality) : IPluginContext

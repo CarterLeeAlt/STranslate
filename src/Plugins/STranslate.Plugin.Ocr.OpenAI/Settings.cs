@@ -4,14 +4,12 @@ public class Settings
 {
     public string ApiKey { get; set; } = string.Empty;
     public string Url { get; set; } = "https://api.openai.com/";
-    public string Model { get; set; } = "gpt-4o";
+    public string Model { get; set; } = "gpt-6-luna";
     public List<string> Models { get; set; } =
     [
-        "gpt-4o",
-        "gpt-5",
+        "gpt-6-luna",
     ];
     public int MaxTokens { get; set; } = 2048;
-    public double Temperature { get; set; } = 0.7;
     public int TopP { get; set; } = 1;
     public int N { get; set; } = 1;
     public bool Stream { get; set; } = true;

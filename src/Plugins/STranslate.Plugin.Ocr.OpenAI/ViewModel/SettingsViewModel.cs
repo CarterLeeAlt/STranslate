@@ -24,7 +24,6 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
         ApiKey = _settings.ApiKey;
         Model = _settings.Model;
         Models = new ObservableCollection<string>(_settings.Models);
-        Temperature = _settings.Temperature;
 
         PropertyChanged += OnPropertyChanged;
         Models.CollectionChanged += OnModelsCollectionChanged;
@@ -54,10 +53,6 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
             case nameof(Model):
                 _settings.Model = Model ?? string.Empty;
                 break;
-            case nameof(Temperature):
-                // 舍入到一位小数，避免浮点精度问题
-                _settings.Temperature = Math.Round(Temperature, 1);
-                break;
             default:
                 return;
         }
@@ -69,7 +64,6 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
     [ObservableProperty] public partial string ApiKey { get; set; }
     [ObservableProperty] public partial string? Model { get; set; }
     [ObservableProperty] public partial ObservableCollection<string> Models { get; set; }
-    [ObservableProperty] public partial double Temperature { get; set; }
 
     [RelayCommand]
     private void AddModel(string model)
@@ -123,7 +117,7 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
 
             // 选择模型
             var model = _settings.Model.Trim();
-            model = string.IsNullOrEmpty(model) ? "gpt-4o" : model;
+            model = string.IsNullOrEmpty(model) ? "gpt-6-luna" : model;
 
             // 替换Prompt关键字
             var prompt = (Main.Prompts.FirstOrDefault(x => x.IsEnabled) ?? throw new Exception("请先完善Prompt配置"));
@@ -136,10 +130,7 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
                     .Replace("$content", "Hello world");
             }
 
-            // 温度限定
-            var temperature = Math.Clamp(_settings.Temperature, 0, 2);
-
-            var content = new { model, messages, temperature, stream = true };
+            var content = new { model, messages, stream = true };
 
             var option = new Options
             {
