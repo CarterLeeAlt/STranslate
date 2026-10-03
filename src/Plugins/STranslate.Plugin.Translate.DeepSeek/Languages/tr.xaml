@@ -4,7 +4,7 @@
     xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
     <sys:String x:Key="STranslate_Plugin_Translate_DeepSeek_Thinking">Düşünme Modu</sys:String>
-    <sys:String x:Key="STranslate_Plugin_Translate_DeepSeek_Thinking_Description">Açıkken model çeviriden önce orta düzeyde akıl yürütür: daha özenli ama daha yavaştır ve daha fazla token kullanır. Açıkken sıcaklık ayarı dikkate alınmaz.</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Translate_DeepSeek_Thinking_Description">Açıkken model çeviriden önce orta düzeyde akıl yürütür: daha özenli ama daha yavaştır ve daha fazla token kullanır.</sys:String>
     <sys:String x:Key="STranslate_Plugin_Translate_DeepSeek_NoTextOutput">DeepSeek herhangi bir çeviri döndürmedi</sys:String>
 
 </ResourceDictionary>

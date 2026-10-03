@@ -9,7 +9,6 @@ public class Settings
     [
         "deepseek-flash",
     ];
-    public double Temperature { get; set; } = 0.7;
 
     /// <summary>
     /// 思考模式；DeepSeek 服务端默认开启，因此关闭时也必须显式发送 disabled。

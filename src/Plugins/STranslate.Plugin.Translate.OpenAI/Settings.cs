@@ -11,7 +11,6 @@ public class Settings
         "gpt-6-luna",
     ];
     public int MaxTokens { get; set; } = 2048;
-    public double Temperature { get; set; } = 0.7;
     public string AdditionalParametersJson { get; set; } = string.Empty;
     public int TopP { get; set; } = 1;
     public int N { get; set; } = 1;

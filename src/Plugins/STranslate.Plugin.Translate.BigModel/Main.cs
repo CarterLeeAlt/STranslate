@@ -149,14 +149,10 @@ public class Main : LlmTranslatePluginBase
                 .Replace("$content", request.Text)
                 );
 
-        // 温度限定
-        var temperature = Math.Clamp(Settings.Temperature, 0, 1);
-
         var content = new
         {
             model,
             messages,
-            temperature,
             stream = true,
             thinking = new
             {

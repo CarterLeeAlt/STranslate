@@ -164,8 +164,7 @@ public class Main : LlmTranslatePluginBase
     {
         var url = DeepSeekProtocol.BuildFinalUrl(Settings.Url);
         var model = string.IsNullOrWhiteSpace(Settings.Model) ? DefaultModel : Settings.Model.Trim();
-        var temperature = Math.Clamp(Settings.Temperature, 0, 2);
-        var content = DeepSeekProtocol.CreateRequest(model, messages, temperature, Settings.Thinking);
+        var content = DeepSeekProtocol.CreateRequest(model, messages, Settings.Thinking);
 
         var option = new Options
         {

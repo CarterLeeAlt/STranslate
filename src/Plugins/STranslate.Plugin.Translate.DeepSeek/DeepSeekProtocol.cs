@@ -19,7 +19,6 @@ internal static class DeepSeekProtocol
     internal static JsonObject CreateRequest(
         string model,
         IReadOnlyCollection<PromptItem> messages,
-        double temperature,
         bool thinking)
     {
         var request = new JsonObject
@@ -33,9 +32,6 @@ internal static class DeepSeekProtocol
 
         if (thinking)
             request["reasoning_effort"] = ThinkingReasoningEffort;
-        else
-            // 思考模式不支持 temperature，仅在关闭思考时发送。
-            request["temperature"] = temperature;
 
         return request;
     }

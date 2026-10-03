@@ -4,7 +4,7 @@
     xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
     <sys:String x:Key="STranslate_Plugin_Translate_DeepSeek_Thinking">思考模式</sys:String>
-    <sys:String x:Key="STranslate_Plugin_Translate_DeepSeek_Thinking_Description">开启后模型先以中等推理强度思考再输出译文，结果更严谨但速度更慢、消耗更多 Token；开启时温度设置不生效。</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Translate_DeepSeek_Thinking_Description">开启后模型先以中等推理强度思考再输出译文，结果更严谨但速度更慢、消耗更多 Token。</sys:String>
     <sys:String x:Key="STranslate_Plugin_Translate_DeepSeek_NoTextOutput">DeepSeek 未返回任何译文</sys:String>
 
 </ResourceDictionary>

@@ -57,8 +57,7 @@ public class OpenAIProtocolTests
         var request = OpenAIProtocol.CreateRequest(
             OpenAIApiMode.ChatCompletions,
             "test-model",
-            CreateMessages(),
-            0.7);
+            CreateMessages());
 
         var json = JsonSerializer.SerializeToNode(request, RequestJsonOptions)!;
 
@@ -67,6 +66,7 @@ public class OpenAIProtocolTests
         Assert.Null(json["input"]);
         Assert.Null(json["store"]);
         Assert.True(json["stream"]?.GetValue<bool>());
+        Assert.Null(json["temperature"]);
         Assert.Equal("system", json["messages"]?[0]?["role"]?.ToString());
     }
 
@@ -76,8 +76,7 @@ public class OpenAIProtocolTests
         var request = OpenAIProtocol.CreateRequest(
             OpenAIApiMode.Responses,
             "test-model",
-            CreateMessages(),
-            0.7);
+            CreateMessages());
 
         var json = JsonSerializer.SerializeToNode(request, RequestJsonOptions)!;
 
@@ -86,6 +85,7 @@ public class OpenAIProtocolTests
         Assert.Null(json["messages"]);
         Assert.False(json["store"]?.GetValue<bool>());
         Assert.True(json["stream"]?.GetValue<bool>());
+        Assert.Null(json["temperature"]);
         Assert.Equal("system", json["input"]?[0]?["role"]?.ToString());
     }
 
@@ -98,13 +98,14 @@ public class OpenAIProtocolTests
             apiMode,
             "test-model",
             CreateMessages(),
-            0.7,
-            """{"thinking":{"type":"enabled"},"top_k":40}""");
+            """{"thinking":{"type":"enabled"},"top_k":40,"temperature":0.3}""");
 
         var json = JsonSerializer.SerializeToNode(request, RequestJsonOptions)!;
 
         Assert.Equal("enabled", json["thinking"]?["type"]?.ToString());
         Assert.Equal(40, json["top_k"]?.GetValue<int>());
+        // temperature 不再是内置字段，需要时可通过附加参数显式指定。
+        Assert.Equal(0.3, json["temperature"]?.GetValue<double>());
     }
 
     [Theory]
@@ -118,7 +119,6 @@ public class OpenAIProtocolTests
             OpenAIApiMode.ChatCompletions,
             "test-model",
             CreateMessages(),
-            0.7,
             additionalParametersJson));
     }
 

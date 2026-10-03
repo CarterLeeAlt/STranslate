@@ -4,7 +4,7 @@
     xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
     <sys:String x:Key="STranslate_Plugin_Translate_DeepSeek_Thinking">思考モード</sys:String>
-    <sys:String x:Key="STranslate_Plugin_Translate_DeepSeek_Thinking_Description">オンにすると、モデルは中程度の推論強度で考えてから翻訳します。より丁寧ですが、遅くなりトークン消費も増えます。オンの間は温度設定は無効です。</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Translate_DeepSeek_Thinking_Description">オンにすると、モデルは中程度の推論強度で考えてから翻訳します。より丁寧ですが、遅くなりトークン消費も増えます。</sys:String>
     <sys:String x:Key="STranslate_Plugin_Translate_DeepSeek_NoTextOutput">DeepSeek から翻訳結果が返されませんでした</sys:String>
 
 </ResourceDictionary>

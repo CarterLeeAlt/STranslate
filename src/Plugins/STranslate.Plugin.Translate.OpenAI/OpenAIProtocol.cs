@@ -18,7 +18,6 @@ internal static class OpenAIProtocol
         OpenAIApiMode apiMode,
         string model,
         IReadOnlyCollection<PromptItem> messages,
-        double temperature,
         string? additionalParametersJson = null)
     {
         JsonObject request = apiMode switch
@@ -27,7 +26,6 @@ internal static class OpenAIProtocol
             {
                 ["model"] = model,
                 ["input"] = JsonSerializer.SerializeToNode(messages),
-                ["temperature"] = temperature,
                 ["stream"] = true,
                 ["store"] = false
             },
@@ -35,7 +33,6 @@ internal static class OpenAIProtocol
             {
                 ["model"] = model,
                 ["messages"] = JsonSerializer.SerializeToNode(messages),
-                ["temperature"] = temperature,
                 ["stream"] = true
             }
         };

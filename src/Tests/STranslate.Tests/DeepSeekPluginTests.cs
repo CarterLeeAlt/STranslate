@@ -48,7 +48,7 @@ public class DeepSeekPluginTests(ITestOutputHelper output)
         Assert.Null(thinkingRequest["temperature"]);
         Assert.Equal("disabled", plainRequest["thinking"]?["type"]?.ToString());
         Assert.Null(plainRequest["reasoning_effort"]);
-        Assert.NotNull(plainRequest["temperature"]);
+        Assert.Null(plainRequest["temperature"]);
         Assert.True(context.SaveCount >= 2, "开关切换后应保存插件配置");
         Assert.All(http.Urls, url => Assert.Equal("https://api.deepseek.com/chat/completions", url));
     }

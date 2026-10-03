@@ -4,7 +4,7 @@
     xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
     <sys:String x:Key="STranslate_Plugin_Translate_DeepSeek_Thinking">حالت تفکر</sys:String>
-    <sys:String x:Key="STranslate_Plugin_Translate_DeepSeek_Thinking_Description">در صورت فعال بودن، مدل پیش از ترجمه با شدت استدلال متوسط فکر می‌کند؛ دقیق‌تر اما کندتر است و توکن بیشتری مصرف می‌کند. در این حالت تنظیم دما اعمال نمی‌شود.</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Translate_DeepSeek_Thinking_Description">در صورت فعال بودن، مدل پیش از ترجمه با شدت استدلال متوسط فکر می‌کند؛ دقیق‌تر اما کندتر است و توکن بیشتری مصرف می‌کند.</sys:String>
     <sys:String x:Key="STranslate_Plugin_Translate_DeepSeek_NoTextOutput">DeepSeek هیچ ترجمه‌ای برنگرداند</sys:String>
 
 </ResourceDictionary>

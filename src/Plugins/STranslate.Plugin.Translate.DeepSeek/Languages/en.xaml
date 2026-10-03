@@ -4,7 +4,7 @@
     xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
     <sys:String x:Key="STranslate_Plugin_Translate_DeepSeek_Thinking">Thinking Mode</sys:String>
-    <sys:String x:Key="STranslate_Plugin_Translate_DeepSeek_Thinking_Description">When on, the model reasons at medium effort before translating: more careful, but slower and uses more tokens. Temperature is ignored while thinking is on.</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Translate_DeepSeek_Thinking_Description">When on, the model reasons at medium effort before translating: more careful, but slower and uses more tokens.</sys:String>
     <sys:String x:Key="STranslate_Plugin_Translate_DeepSeek_NoTextOutput">DeepSeek returned no translation</sys:String>
 
 </ResourceDictionary>

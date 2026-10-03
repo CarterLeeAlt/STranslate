@@ -26,7 +26,6 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
         ApiKey = _settings.ApiKey;
         Model = _settings.Model;
         Models = new ObservableCollection<string>(_settings.Models);
-        Temperature = _settings.Temperature;
         Thinking = _settings.Thinking;
 
         PropertyChanged += OnPropertyChanged;
@@ -57,10 +56,6 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
             case nameof(Model):
                 _settings.Model = Model ?? string.Empty;
                 break;
-            case nameof(Temperature):
-                // 舍入到一位小数，避免浮点精度问题
-                _settings.Temperature = Math.Round(Temperature, 1);
-                break;
             case nameof(Thinking):
                 _settings.Thinking = Thinking;
                 break;
@@ -76,7 +71,6 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
     [ObservableProperty] public partial string ApiKey { get; set; }
     [ObservableProperty] public partial string? Model { get; set; }
     [ObservableProperty] public partial ObservableCollection<string> Models { get; set; }
-    [ObservableProperty] public partial double Temperature { get; set; }
     [ObservableProperty] public partial bool Thinking { get; set; }
 
     [RelayCommand]
@@ -140,14 +134,10 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
                     .Replace("$content", "Hello world");
             }
 
-            // 温度限定
-            var temperature = Math.Clamp(_settings.Temperature, 0, 1);
-
             var content = new
             {
                 model,
                 messages,
-                temperature,
                 stream = true,
                 thinking = new
                 {

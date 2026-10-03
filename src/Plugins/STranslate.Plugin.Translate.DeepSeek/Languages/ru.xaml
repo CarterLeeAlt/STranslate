@@ -4,7 +4,7 @@
     xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
     <sys:String x:Key="STranslate_Plugin_Translate_DeepSeek_Thinking">Режим размышления</sys:String>
-    <sys:String x:Key="STranslate_Plugin_Translate_DeepSeek_Thinking_Description">Если включено, модель рассуждает со средней интенсивностью перед переводом: точнее, но медленнее и расходует больше токенов. Температура при этом не учитывается.</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Translate_DeepSeek_Thinking_Description">Если включено, модель рассуждает со средней интенсивностью перед переводом: точнее, но медленнее и расходует больше токенов.</sys:String>
     <sys:String x:Key="STranslate_Plugin_Translate_DeepSeek_NoTextOutput">DeepSeek не вернул перевод</sys:String>
 
 </ResourceDictionary>

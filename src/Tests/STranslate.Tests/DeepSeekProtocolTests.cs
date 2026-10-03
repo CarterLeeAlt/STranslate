@@ -18,23 +18,23 @@ public class DeepSeekProtocolTests
     }
 
     [Fact]
-    public void CreateRequest_ThinkingOff_ExplicitlyDisablesAndKeepsTemperature()
+    public void CreateRequest_ThinkingOff_ExplicitlyDisablesWithoutTemperature()
     {
-        var json = DeepSeekProtocol.CreateRequest("deepseek-flash", CreateMessages(), 0.7, thinking: false);
+        var json = DeepSeekProtocol.CreateRequest("deepseek-flash", CreateMessages(), thinking: false);
 
         Assert.Equal("deepseek-flash", json["model"]?.ToString());
         Assert.True(json["stream"]?.GetValue<bool>());
         Assert.Equal("system", json["messages"]?[0]?["role"]?.ToString());
         // 服务端默认开启思考，关闭必须显式发送。
         Assert.Equal("disabled", json["thinking"]?["type"]?.ToString());
-        Assert.Equal(0.7, json["temperature"]?.GetValue<double>());
+        Assert.Null(json["temperature"]);
         Assert.Null(json["reasoning_effort"]);
     }
 
     [Fact]
     public void CreateRequest_ThinkingOn_UsesMediumEffortWithoutTemperature()
     {
-        var json = DeepSeekProtocol.CreateRequest("deepseek-flash", CreateMessages(), 0.7, thinking: true);
+        var json = DeepSeekProtocol.CreateRequest("deepseek-flash", CreateMessages(), thinking: true);
 
         Assert.Equal("enabled", json["thinking"]?["type"]?.ToString());
         Assert.Equal("medium", json["reasoning_effort"]?.ToString());
@@ -45,7 +45,7 @@ public class DeepSeekProtocolTests
     public void CreateRequest_SerializesToSnakeCaseFieldsUnchanged()
     {
         // HttpService 以驼峰策略序列化请求体，JsonObject 的键不受命名策略影响。
-        var json = DeepSeekProtocol.CreateRequest("m", CreateMessages(), 0.5, thinking: true);
+        var json = DeepSeekProtocol.CreateRequest("m", CreateMessages(), thinking: true);
         var text = JsonSerializer.Serialize(json, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
 
         Assert.Contains("\"reasoning_effort\":\"medium\"", text);

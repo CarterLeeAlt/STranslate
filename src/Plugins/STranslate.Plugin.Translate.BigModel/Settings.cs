@@ -10,7 +10,6 @@ public class Settings
         "glm-4.7-flash",
     ];
     public int MaxTokens { get; set; } = 2048;
-    public double Temperature { get; set; } = 0.7;
     public int TopP { get; set; } = 1;
     public int N { get; set; } = 1;
     public bool Stream { get; set; } = true;
