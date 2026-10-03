@@ -29,6 +29,7 @@
     <!-- API 翻译插件 -->
     <Project Path="Plugins/STranslate.Plugin.Translate.Baidu/STranslate.Plugin.Translate.Baidu.csproj" />
     <Project Path="Plugins/STranslate.Plugin.Translate.BigModel/STranslate.Plugin.Translate.BigModel.csproj" />
+    <Project Path="Plugins/STranslate.Plugin.Translate.DeepSeek/STranslate.Plugin.Translate.DeepSeek.csproj" />
     <Project Path="Plugins/STranslate.Plugin.Translate.DeepL/STranslate.Plugin.Translate.DeepL.csproj" />
     <Project Path="Plugins/STranslate.Plugin.Translate.MTranServer/STranslate.Plugin.Translate.MTranServer.csproj" />
     <Project Path="Plugins/STranslate.Plugin.Translate.OpenAI/STranslate.Plugin.Translate.OpenAI.csproj" />

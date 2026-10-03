@@ -1,0 +1,10 @@
+{
+  "PluginID": "ea9bc4475857408b90962aa629a490a9",
+  "Name": "DeepSeek",
+  "Description": "Official DeepSeek plugin for STranslate",
+  "Author": "zggsong",
+  "Version": "1.0.0",
+  "Website": "https://github.com/STranslate/STranslate",
+  "ExecuteFileName": "STranslate.Plugin.Translate.DeepSeek.dll",
+  "IconPath": "icon.png"
+}
