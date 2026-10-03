@@ -58,7 +58,7 @@ public partial class GeneralViewModel : SearchViewModelBase
     private void ResetFontSize() => Settings.FontSize = 14;
 
     [RelayCommand]
-    private void ResetMainWindowMaxHeightRatio() => Settings.MainWindowMaxHeightRatio = 0.85;
+    private void ResetMainWindowMaxHeightRatio() => Settings.MainWindowMaxHeightRatio = Settings.DefaultMainWindowMaxHeightRatio;
 
     [RelayCommand]
     private void ShowAllHeaderActions()

@@ -182,7 +182,10 @@ public partial class Settings : ObservableObject
     [ObservableProperty] public partial double MainWindowTop { get; set; }
     [ObservableProperty] public partial double CustomWindowLeft { get; set; }
     [ObservableProperty] public partial double CustomWindowTop { get; set; }
-    [ObservableProperty] public partial double MainWindowMaxHeightRatio { get; set; } = 0.85;
+    /// <summary>主窗口最大高度占显示器工作区比例的默认值（设置页"重置"同样恢复为此值）。</summary>
+    public const double DefaultMainWindowMaxHeightRatio = 0.75;
+
+    [ObservableProperty] public partial double MainWindowMaxHeightRatio { get; set; } = DefaultMainWindowMaxHeightRatio;
 
     private double _mainWindowWidth = 470;
     public double MainWindowWidth
