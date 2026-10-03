@@ -162,7 +162,7 @@ public class Main : LlmTranslatePluginBase
     {
         var apiMode = Settings.ApiMode;
         var url = OpenAIProtocol.BuildFinalUrl(Settings.Url, apiMode);
-        var model = string.IsNullOrWhiteSpace(Settings.Model) ? "gpt-4o" : Settings.Model.Trim();
+        var model = string.IsNullOrWhiteSpace(Settings.Model) ? "gpt-6-luna" : Settings.Model.Trim();
         var temperature = Math.Clamp(Settings.Temperature, 0, 2);
         var content = OpenAIProtocol.CreateRequest(
             apiMode,

@@ -27,6 +27,15 @@ public class OpenAIProtocolTests
         Assert.Equal(OpenAIApiMode.ChatCompletions, settings.ApiMode);
     }
 
+    [Fact]
+    public void DefaultSettings_PresetOnlyTheLatestEfficientModel()
+    {
+        var settings = new Settings();
+
+        Assert.Equal("gpt-6-luna", settings.Model);
+        Assert.Equal([settings.Model], settings.Models);
+    }
+
     [Theory]
     [InlineData(OpenAIApiMode.ChatCompletions, "https://api.openai.com/", "https://api.openai.com/v1/chat/completions")]
     [InlineData(OpenAIApiMode.ChatCompletions, "https://api.openai.com/v1", "https://api.openai.com/v1/chat/completions")]

@@ -5,11 +5,10 @@ public class Settings
     public OpenAIApiMode ApiMode { get; set; } = OpenAIApiMode.ChatCompletions;
     public string ApiKey { get; set; } = string.Empty;
     public string Url { get; set; } = "https://api.openai.com/";
-    public string Model { get; set; } = "gpt-4o";
+    public string Model { get; set; } = "gpt-6-luna";
     public List<string> Models { get; set; } =
     [
-        "gpt-4o",
-        "gpt-5",
+        "gpt-6-luna",
     ];
     public int MaxTokens { get; set; } = 2048;
     public double Temperature { get; set; } = 0.7;

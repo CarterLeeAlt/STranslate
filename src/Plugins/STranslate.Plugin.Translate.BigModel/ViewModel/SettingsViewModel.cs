@@ -127,7 +127,7 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
             var url = UrlHelper.BuildFinalUrl(_settings.Url, "/api/paas/v4/chat/completions", UrlPathMatchRule.ChatGLM);
 
             // 选择模型
-            var model = string.IsNullOrEmpty(_settings.Model?.Trim()) ? "glm-4" : _settings.Model.Trim();
+            var model = string.IsNullOrEmpty(_settings.Model?.Trim()) ? "glm-4.7-flash" : _settings.Model.Trim();
 
             // 替换Prompt关键字
             var prompt = (Main.Prompts.FirstOrDefault(x => x.IsEnabled) ?? throw new Exception("请先完善Prompt配置"));

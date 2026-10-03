@@ -92,6 +92,7 @@ public class DeepSeekProtocolTests
         Assert.NotNull(settings);
         Assert.False(settings.Thinking);
         Assert.Equal("deepseek-flash", settings.Model);
+        Assert.Equal(["deepseek-flash"], new Settings().Models);
         Assert.Equal("https://api.deepseek.com/", settings.Url);
     }
 

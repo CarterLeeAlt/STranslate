@@ -8,7 +8,6 @@ public class Settings
     public List<string> Models { get; set; } =
     [
         "deepseek-flash",
-        "deepseek-v4-pro",
     ];
     public double Temperature { get; set; } = 0.7;
 

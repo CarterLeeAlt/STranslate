@@ -4,12 +4,10 @@ public class Settings
 {
     public string ApiKey { get; set; } = string.Empty;
     public string Url { get; set; } = "https://open.bigmodel.cn/";
-    public string Model { get; set; } = "glm-4-flash-250414";
+    public string Model { get; set; } = "glm-4.7-flash";
     public List<string> Models { get; set; } =
     [
-        "glm-4-flash-250414",
-        "glm-4.6",
-        "glm-4",
+        "glm-4.7-flash",
     ];
     public int MaxTokens { get; set; } = 2048;
     public double Temperature { get; set; } = 0.7;
