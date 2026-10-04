@@ -183,7 +183,7 @@
     <sys:String x:Key="Hotkey_CrosswordTranslateDescription">Fare ile seçilen metnin çevirisini tetiklemek için kısayol tuşu.</sys:String>
     <sys:String x:Key="Hotkey_CrosswordTranslateIsUseCtrlSameC">Metin seçimi çevirisi için Ctrl tuşuna üç kez basılsın mı?</sys:String>
     <sys:String x:Key="Hotkey_CrosswordTranslateTraditional">Geleneksel Kısayol</sys:String>
-    <sys:String x:Key="Hotkey_CrosswordTranslateByCtrlSameCDescription">Metin çevirisi için fare ile metin seçtikten sonra Ctrl tuşuna hızla üç kez basın.</sys:String>
+    <sys:String x:Key="Hotkey_CrosswordTranslateByCtrlSameCDescription">Metin çevirisi için fare ile metin seçtikten sonra Sol Ctrl tuşuna hızla üç kez basın.</sys:String>
     <sys:String x:Key="CrosswordTranslateFetchFailed">Seçili metin yakalanamadı, giriş çevirisine geçildi.</sys:String>
     <sys:String x:Key="CrosswordTranslateFetchFailedShowWindow">Seçili metin yakalanamadı, ana pencere görünümüne geçildi.</sys:String>
     <sys:String x:Key="CrosswordTranslateFetchFailedNotifyOnly">Seçili metin alınamadı. Metni seçip tekrar deneyin.</sys:String>

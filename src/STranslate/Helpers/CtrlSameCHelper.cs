@@ -6,7 +6,7 @@ using System.Windows.Interop;
 namespace STranslate.Helpers;
 
 /// <summary>
-/// 接收全局键盘按下与松开事件以识别三击 Ctrl。
+/// 接收全局键盘按下与松开事件以识别三击左 Ctrl。
 /// </summary>
 public static class CtrlSameCHelper
 {
@@ -16,9 +16,6 @@ public static class CtrlSameCHelper
     private const uint RidevRemove = 0x00000001;
     private const ushort KeyboardUsagePage = 0x01;
     private const ushort KeyboardUsage = 0x06;
-    private const ushort Control = 0x11;
-    private const ushort LeftControl = 0xA2;
-    private const ushort RightControl = 0xA3;
     private const uint KeyboardInputType = 1;
     private static readonly uint RawInputHeaderSize = (uint)(8 + 2 * IntPtr.Size);
 
@@ -205,7 +202,7 @@ public static class CtrlSameCHelper
             if (key == 0xFF)
                 return 0;
 
-            var isCtrl = key is Control or LeftControl or RightControl;
+            var isCtrl = TripleCtrlGestureDetector.IsLeftControl(key, flags);
             var wasDown = _detector.CtrlDown;
             var wasIsolated = _detector.Isolated;
             var triggered = _detector.OnKeyEvent(key, flags, Environment.TickCount64);

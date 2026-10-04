@@ -183,7 +183,7 @@
     <sys:String x:Key="Hotkey_CrosswordTranslateDescription">Перевести текст, выделенный мышью.</sys:String>
     <sys:String x:Key="Hotkey_CrosswordTranslateIsUseCtrlSameC">Использовать тройное нажатие Ctrl для перевода выделенного текста?</sys:String>
     <sys:String x:Key="Hotkey_CrosswordTranslateTraditional">Обычная горячая клавиша</sys:String>
-    <sys:String x:Key="Hotkey_CrosswordTranslateByCtrlSameCDescription">Выделите текст мышью и быстро нажмите Ctrl три раза, чтобы перевести его.</sys:String>
+    <sys:String x:Key="Hotkey_CrosswordTranslateByCtrlSameCDescription">Выделите текст мышью и быстро нажмите левый Ctrl три раза, чтобы перевести его.</sys:String>
     <sys:String x:Key="CrosswordTranslateFetchFailed">Не удалось получить выделенный текст — открыто поле ввода для перевода.</sys:String>
     <sys:String x:Key="CrosswordTranslateFetchFailedShowWindow">Не удалось получить выделенный текст — показано главное окно.</sys:String>
     <sys:String x:Key="CrosswordTranslateFetchFailedNotifyOnly">Не удалось получить выделенный текст. Выделите текст и повторите попытку.</sys:String>

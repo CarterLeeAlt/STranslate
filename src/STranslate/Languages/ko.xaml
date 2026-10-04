@@ -179,7 +179,7 @@
     <sys:String x:Key="Hotkey_CrosswordTranslateDescription">마우스로 선택한 텍스트를 번역하는 단축키입니다.</sys:String>
     <sys:String x:Key="Hotkey_CrosswordTranslateIsUseCtrlSameC">Ctrl 3회로 드래그 번역을 사용하시겠습니까?</sys:String>
     <sys:String x:Key="Hotkey_CrosswordTranslateTraditional">기존 단축키</sys:String>
-    <sys:String x:Key="Hotkey_CrosswordTranslateByCtrlSameCDescription">마우스로 텍스트를 선택하고 빠르게 Ctrl 3회를 눌러 번역합니다.</sys:String>
+    <sys:String x:Key="Hotkey_CrosswordTranslateByCtrlSameCDescription">마우스로 텍스트를 선택하고 빠르게 왼쪽 Ctrl 3회를 눌러 번역합니다.</sys:String>
     <sys:String x:Key="CrosswordTranslateFetchFailed">선택 텍스트를 가져오지 못했습니다. 입력 번역을 열었습니다.</sys:String>
     <sys:String x:Key="CrosswordTranslateFetchFailedShowWindow">선택 텍스트를 가져오지 못했습니다. 메인 창을 표시했습니다.</sys:String>
     <sys:String x:Key="CrosswordTranslateFetchFailedNotifyOnly">선택한 텍스트를 가져오지 못했습니다. 텍스트를 선택한 후 다시 시도하세요.</sys:String>

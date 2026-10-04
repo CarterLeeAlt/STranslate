@@ -183,7 +183,7 @@
     <sys:String x:Key="Hotkey_CrosswordTranslateDescription">Shortcut key to trigger translation of mouse-selected text.</sys:String>
     <sys:String x:Key="Hotkey_CrosswordTranslateIsUseCtrlSameC">Use Triple Ctrl for text selection translation?</sys:String>
     <sys:String x:Key="Hotkey_CrosswordTranslateTraditional">Traditional Hotkey</sys:String>
-    <sys:String x:Key="Hotkey_CrosswordTranslateByCtrlSameCDescription">Quickly press Ctrl three times after selecting text with the mouse to translate it.</sys:String>
+    <sys:String x:Key="Hotkey_CrosswordTranslateByCtrlSameCDescription">Quickly press Left Ctrl three times after selecting text with the mouse to translate it.</sys:String>
     <sys:String x:Key="CrosswordTranslateFetchFailed">Failed to capture selected text, switched to input translation.</sys:String>
     <sys:String x:Key="CrosswordTranslateFetchFailedShowWindow">Failed to capture selected text, switched to main window display.</sys:String>
     <sys:String x:Key="CrosswordTranslateFetchFailedNotifyOnly">Could not capture the selected text. Please select text and try again.</sys:String>

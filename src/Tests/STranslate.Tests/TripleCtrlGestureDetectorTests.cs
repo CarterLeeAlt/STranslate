@@ -58,23 +58,91 @@ public class TripleCtrlGestureDetectorTests
         Assert.True(detector.OnKeyEvent(Ctrl, KeyBreak, 260));
     }
 
-    [Fact]
-    public void TracksRightCtrlAndRejectsTwoCtrlsHeldTogether()
+    [Theory]
+    [InlineData(Ctrl, Extended)]
+    [InlineData(RightCtrl, (ushort)0)]
+    public void IgnoresTripleRightCtrl(ushort key, ushort extended)
     {
         var detector = new TripleCtrlGestureDetector();
 
-        Assert.False(detector.OnKeyEvent(Ctrl, Extended, 100));
-        Assert.False(detector.OnKeyEvent(Ctrl, KeyBreak | Extended, 110));
+        for (var i = 0; i < 3; i++)
+        {
+            Assert.False(detector.OnKeyEvent(key, extended, 100 + i * 50));
+            Assert.False(detector.OnKeyEvent(key, (ushort)(KeyBreak | extended), 110 + i * 50));
+        }
+        Assert.Equal(0, detector.PressCount);
+    }
+
+    [Fact]
+    public void CountsLeftCtrlReportedWithEitherVirtualKey()
+    {
+        var detector = new TripleCtrlGestureDetector();
+
+        Assert.False(detector.OnKeyEvent(LeftCtrl, 0, 100));
+        Assert.False(detector.OnKeyEvent(LeftCtrl, KeyBreak, 110));
+        Assert.False(detector.OnKeyEvent(Ctrl, 0, 150));
+        Assert.False(detector.OnKeyEvent(Ctrl, KeyBreak, 160));
+        Assert.False(detector.OnKeyEvent(LeftCtrl, 0, 200));
+        Assert.True(detector.OnKeyEvent(LeftCtrl, KeyBreak, 210));
+    }
+
+    [Theory]
+    [InlineData(Ctrl, Extended)]
+    [InlineData((ushort)0x41, (ushort)0)]
+    public void OtherKeyTapBetweenLeftPressesResetsGesture(ushort key, ushort extended)
+    {
+        var detector = new TripleCtrlGestureDetector();
+
+        detector.OnKeyEvent(Ctrl, 0, 100);
+        detector.OnKeyEvent(Ctrl, KeyBreak, 110);
+        detector.OnKeyEvent(Ctrl, 0, 150);
+        detector.OnKeyEvent(Ctrl, KeyBreak, 160);
+        detector.OnKeyEvent(key, extended, 200);
+        detector.OnKeyEvent(key, (ushort)(KeyBreak | extended), 210);
+        detector.OnKeyEvent(Ctrl, 0, 250);
+        Assert.False(detector.OnKeyEvent(Ctrl, KeyBreak, 260));
+        detector.OnKeyEvent(Ctrl, 0, 300);
+        Assert.False(detector.OnKeyEvent(Ctrl, KeyBreak, 310));
+        detector.OnKeyEvent(Ctrl, 0, 350);
+        Assert.True(detector.OnKeyEvent(Ctrl, KeyBreak, 360));
+    }
+
+    [Fact]
+    public void RejectsLeftCtrlPressedTogetherWithRightCtrl()
+    {
+        var detector = new TripleCtrlGestureDetector();
+
         Assert.False(detector.OnKeyEvent(LeftCtrl, 0, 150));
         Assert.False(detector.OnKeyEvent(RightCtrl, 0, 155));
         Assert.False(detector.OnKeyEvent(LeftCtrl, KeyBreak, 160));
         Assert.False(detector.OnKeyEvent(RightCtrl, KeyBreak, 165));
-        Assert.False(detector.OnKeyEvent(Ctrl, 0, 200));
-        Assert.False(detector.OnKeyEvent(Ctrl, KeyBreak, 210));
-        Assert.False(detector.OnKeyEvent(Ctrl, 0, 250));
-        Assert.False(detector.OnKeyEvent(Ctrl, KeyBreak, 260));
-        Assert.False(detector.OnKeyEvent(Ctrl, 0, 300));
-        Assert.True(detector.OnKeyEvent(Ctrl, KeyBreak, 310));
+        Assert.False(detector.OnKeyEvent(Ctrl, Extended, 170));
+        Assert.False(detector.OnKeyEvent(LeftCtrl, 0, 175));
+        Assert.False(detector.OnKeyEvent(LeftCtrl, KeyBreak, 180));
+        Assert.False(detector.OnKeyEvent(Ctrl, KeyBreak | Extended, 185));
+        Assert.Equal(0, detector.PressCount);
+        for (var i = 0; i < 3; i++)
+        {
+            detector.OnKeyEvent(Ctrl, 0, 200 + i * 50);
+            Assert.Equal(i == 2, detector.OnKeyEvent(Ctrl, KeyBreak, 210 + i * 50));
+        }
+    }
+
+    [Fact]
+    public void ReconcilesMissedRightCtrlReleaseWhileLeftCtrlIsDown()
+    {
+        // GetAsyncKeyState(0x11) 在任一侧 Ctrl 按下时都为真，右 Ctrl 必须按 0xA3 核对。
+        var physicallyHeld = new HashSet<ushort>();
+        var detector = new TripleCtrlGestureDetector(key => key == Ctrl
+            ? physicallyHeld.Contains(LeftCtrl) || physicallyHeld.Contains(RightCtrl)
+            : physicallyHeld.Contains(key));
+        detector.OnKeyEvent(Ctrl, Extended, 100);
+        physicallyHeld.Add(LeftCtrl);
+        for (var i = 0; i < 3; i++)
+        {
+            detector.OnKeyEvent(Ctrl, 0, 300 + i * 100);
+            Assert.Equal(i == 2, detector.OnKeyEvent(Ctrl, KeyBreak, 350 + i * 100));
+        }
     }
 
     [Fact]

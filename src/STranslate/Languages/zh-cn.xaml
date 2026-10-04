@@ -183,7 +183,7 @@
     <sys:String x:Key="Hotkey_CrosswordTranslateDescription">鼠标选中文本触发翻译的快捷键。</sys:String>
     <sys:String x:Key="Hotkey_CrosswordTranslateIsUseCtrlSameC">是否通过三击 Ctrl 进行划词翻译？</sys:String>
     <sys:String x:Key="Hotkey_CrosswordTranslateTraditional">传统快捷键</sys:String>
-    <sys:String x:Key="Hotkey_CrosswordTranslateByCtrlSameCDescription">鼠标选中文本后快速连按三次 Ctrl 进行取词翻译。</sys:String>
+    <sys:String x:Key="Hotkey_CrosswordTranslateByCtrlSameCDescription">鼠标选中文本后快速连按三次左 Ctrl 进行取词翻译。</sys:String>
     <sys:String x:Key="CrosswordTranslateFetchFailed">划词取词失败，已打开输入翻译</sys:String>
     <sys:String x:Key="CrosswordTranslateFetchFailedShowWindow">划词取词失败，已打开主界面显示</sys:String>
     <sys:String x:Key="CrosswordTranslateFetchFailedNotifyOnly">划词取词失败，请选中文本后重试。</sys:String>

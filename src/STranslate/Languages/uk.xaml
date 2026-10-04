@@ -183,7 +183,7 @@
     <sys:String x:Key="Hotkey_CrosswordTranslateDescription">Перекласти текст, виділений мишею.</sys:String>
     <sys:String x:Key="Hotkey_CrosswordTranslateIsUseCtrlSameC">Використовувати потрійне натискання Ctrl для перекладу виділеного тексту?</sys:String>
     <sys:String x:Key="Hotkey_CrosswordTranslateTraditional">Звичайна гаряча клавіша</sys:String>
-    <sys:String x:Key="Hotkey_CrosswordTranslateByCtrlSameCDescription">Виділіть текст мишею та швидко натисніть Ctrl тричі, щоб перекласти його.</sys:String>
+    <sys:String x:Key="Hotkey_CrosswordTranslateByCtrlSameCDescription">Виділіть текст мишею та швидко натисніть лівий Ctrl тричі, щоб перекласти його.</sys:String>
     <sys:String x:Key="CrosswordTranslateFetchFailed">Не вдалося отримати виділений текст — відкрито поле введення для перекладу.</sys:String>
     <sys:String x:Key="CrosswordTranslateFetchFailedShowWindow">Не вдалося отримати виділений текст — показано головне вікно.</sys:String>
     <sys:String x:Key="Hotkey_MouseSelectionTranslation">Переклад за виділенням мишею</sys:String>

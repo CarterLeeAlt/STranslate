@@ -184,7 +184,7 @@
     <sys:String x:Key="Hotkey_CrosswordTranslateDescription">کلید میانبر برای شروع ترجمه متن انتخاب‌شده با موش‌واره.</sys:String>
     <sys:String x:Key="Hotkey_CrosswordTranslateIsUseCtrlSameC">استفاده از سه بار فشردن Ctrl برای ترجمه متن انتخاب‌شده؟</sys:String>
     <sys:String x:Key="Hotkey_CrosswordTranslateTraditional">کلید میانبر سنتی</sys:String>
-    <sys:String x:Key="Hotkey_CrosswordTranslateByCtrlSameCDescription">پس از انتخاب متن با موش‌واره، Ctrl را سه بار سریع فشار دهید تا متن ترجمه شود.</sys:String>
+    <sys:String x:Key="Hotkey_CrosswordTranslateByCtrlSameCDescription">پس از انتخاب متن با موش‌واره، Ctrl چپ را سه بار سریع فشار دهید تا متن ترجمه شود.</sys:String>
     <sys:String x:Key="CrosswordTranslateFetchFailed">خطا در دریافت متن انتخاب‌شده، به ترجمه ورودی تغییر یافت.</sys:String>
     <sys:String x:Key="CrosswordTranslateFetchFailedShowWindow">خطا در دریافت متن انتخاب‌شده، به نمایش پنجره اصلی تغییر یافت.</sys:String>
     <sys:String x:Key="CrosswordTranslateFetchFailedNotifyOnly">دریافت متن انتخاب‌شده ناموفق بود. متن را انتخاب کنید و دوباره تلاش کنید.</sys:String>

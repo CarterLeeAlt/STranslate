@@ -16,7 +16,7 @@
   - `RegisterHoldKey()`：按住键增量翻译。
   - `IsReservedGlobalHotkey()`：阻止把系统复制热键注册为全局热键。
 - `STranslate/Helpers/CtrlSameCHelper.cs`
-  - 在独立消息窗口注册 `RIDEV_INPUTSINK` 接收后台 `WM_INPUT` 键盘按下/松开事件，由 `TripleCtrlGestureDetector` 在相邻松开间隔不超过 500ms 时识别三次独立 Ctrl。完整后续手势不受固定冷却限制；组合键仍不计数。每 30 秒核对本进程键盘注册，丢失或初次失败时重建监听。
+  - 在独立消息窗口注册 `RIDEV_INPUTSINK` 接收后台 `WM_INPUT` 键盘按下/松开事件，由 `TripleCtrlGestureDetector` 在相邻松开间隔不超过 500ms 时识别三次独立左 Ctrl（原始输入按 E0 扩展标志区分左右，右 Ctrl 视为普通按键并打断三击）。完整后续手势不受固定冷却限制；组合键仍不计数，两次左 Ctrl 之间按下任何其他键也会重新计数。每 30 秒核对本进程键盘注册，丢失或初次失败时重建监听。
 - `STranslate/Services/MouseHookService.cs`
   - 在专用消息线程通过 `WH_MOUSE_LL` 监听鼠标拖选与双击选词，Hook 回调只投递事件，不执行剪贴板或 UI 操作。
 - `STranslate/Services/MouseSelectionService.cs`
@@ -56,7 +56,7 @@
 4. 松开时 `OnIncKeyReleased()`：释放增量取词会话，若文本有变化则执行翻译；常驻划词仍启用时底层 Hook 不会停止。
 
 ### 从入口到结果：三击 Ctrl、鼠标划词、剪贴板监听
-- 三击 Ctrl：`CtrlSameCHelper` 接收后台键盘 `WM_INPUT` 按下和松开事件，`TripleCtrlGestureDetector` 计满三次独立按松后触发 `CrosswordTranslateByCtrlSameCHandler()`。回调直接复用 `CrosswordTranslateAsync()`，观察调度和执行异常；取词结束后保证窗口显示，包含无选区、取词异常和“仅通知”偏好。取词未完成时再次触发只显示窗口，避免并行模拟复制。
+- 三击 Ctrl：`CtrlSameCHelper` 接收后台键盘 `WM_INPUT` 按下和松开事件，`TripleCtrlGestureDetector` 计满三次独立的左 Ctrl 按松后触发 `CrosswordTranslateByCtrlSameCHandler()`。回调直接复用 `CrosswordTranslateAsync()`，观察调度和执行异常；取词结束后保证窗口显示，包含无选区、取词异常和“仅通知”偏好。取词未完成时再次触发只显示窗口，避免并行模拟复制。
 - 鼠标划词：拖选和双击选词共用同一条完成事件链路。`IsMouseSelectionTranslationEnabled` 和 `IsMouseSelectionIconEnabled` 是独立开关，任意一个开启都会维持同一个 Hook。处理优先级为增量翻译、直接翻译、悬浮图标；两者同时开启时直接翻译，不显示图标。
 - 剪贴板监听：`ClipboardMonitor` 收到 `WM_CLIPBOARDUPDATE` 后读取文本，触发 `OnClipboardTextChanged -> ExecuteTranslate()`。
 
