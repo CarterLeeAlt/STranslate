@@ -229,7 +229,7 @@
     <sys:String x:Key="Hotkey_QrCode">识别二维码</sys:String>
     <sys:String x:Key="Hotkey_QrCodeDescription">该热键仅支持OCR窗口</sys:String>
     <sys:String x:Key="Hotkey_IncrementalTranslate">增量翻译</sys:String>
-    <sys:String x:Key="Hotkey_IncrementalTranslateDescription" xml:space="preserve">按住快捷键划词可持续追加内容，松开鼠标即刻翻译。&#10;仅支持单个按键，不包含 Win/Alt/Ctrl/Shift</sys:String>
+    <sys:String x:Key="Hotkey_IncrementalTranslateDescription" xml:space="preserve">按住快捷键划词可持续追加内容，松开鼠标即刻翻译。&#10;仅支持单个按键或右 Ctrl，不包含其他 Win/Alt/Ctrl/Shift</sys:String>
     <!--  // Translation Page //  -->
     <sys:String x:Key="ReplaceService">替换翻译</sys:String>
     <sys:String x:Key="ImTranService">图片翻译</sys:String>

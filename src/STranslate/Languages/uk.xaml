@@ -227,7 +227,7 @@
     <sys:String x:Key="Hotkey_QrCode">Розпізнати QR-код</sys:String>
     <sys:String x:Key="Hotkey_QrCodeDescription">Працює лише у вікні розпізнавання тексту</sys:String>
     <sys:String x:Key="Hotkey_IncrementalTranslate">Накопичувальний переклад</sys:String>
-    <sys:String x:Key="Hotkey_IncrementalTranslateDescription" xml:space="preserve">Утримуйте гарячу клавішу та виділяйте текст — фрагменти додаватимуться один за одним. Відпустіть кнопку миші, щоб одразу перекласти.&#10;Підтримуються лише окремі клавіші, крім Win/Alt/Ctrl/Shift</sys:String>
+    <sys:String x:Key="Hotkey_IncrementalTranslateDescription" xml:space="preserve">Утримуйте гарячу клавішу та виділяйте текст — фрагменти додаватимуться один за одним. Відпустіть кнопку миші, щоб одразу перекласти.&#10;Підтримуються лише окремі клавіші або правий Ctrl, крім інших Win/Alt/Ctrl/Shift</sys:String>
     <!--  // Translation Page //  -->
     <sys:String x:Key="ReplaceService">Переклад із заміною</sys:String>
     <sys:String x:Key="ImTranService">Переклад зображення</sys:String>

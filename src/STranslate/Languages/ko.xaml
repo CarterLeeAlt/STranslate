@@ -225,7 +225,7 @@
     <sys:String x:Key="Hotkey_QrCode">QR 코드 인식</sys:String>
     <sys:String x:Key="Hotkey_QrCodeDescription">이 단축키는 OCR 창에서만 지원됩니다.</sys:String>
     <sys:String x:Key="Hotkey_IncrementalTranslate">증분 번역</sys:String>
-    <sys:String x:Key="Hotkey_IncrementalTranslateDescription" xml:space="preserve">단축키를 누른 상태에서 텍스트를 선택하면 내용이 계속 추가되며, 마우스를 놓으면 즉시 번역됩니다.&#10;단일 키만 지원합니다 (Win/Alt/Ctrl/Shift 제외)</sys:String>
+    <sys:String x:Key="Hotkey_IncrementalTranslateDescription" xml:space="preserve">단축키를 누른 상태에서 텍스트를 선택하면 내용이 계속 추가되며, 마우스를 놓으면 즉시 번역됩니다.&#10;단일 키 또는 오른쪽 Ctrl만 지원합니다 (그 외 Win/Alt/Ctrl/Shift 제외)</sys:String>
     <sys:String x:Key="ReplaceService">치환 번역</sys:String>
     <sys:String x:Key="ImTranService">이미지 번역</sys:String>
     <sys:String x:Key="NoServiceEnabled">활성화된 서비스 없음</sys:String>

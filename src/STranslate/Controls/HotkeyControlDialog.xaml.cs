@@ -108,8 +108,8 @@ public partial class HotkeyControlDialog : ContentDialog
         // 单键模式处理
         if (SingleKeyMode)
         {
-            // 忽略修饰键本身
-            if (key == Key.LeftCtrl || key == Key.RightCtrl ||
+            // 忽略修饰键本身；右 Ctrl 例外，可作为增量翻译按住键
+            if (key == Key.LeftCtrl ||
                 key == Key.LeftAlt || key == Key.RightAlt ||
                 key == Key.LeftShift || key == Key.RightShift ||
                 key == Key.LWin || key == Key.RWin)
@@ -214,6 +214,10 @@ public partial class HotkeyControlDialog : ContentDialog
     {
         if (_type.HasFlag(HotkeyType.Global) && HotkeyMapper.IsReservedGlobalHotkey(hotkey))
             return false;
+
+        // 右 Ctrl 只作为按住键由低级键盘钩子识别，不走系统热键注册
+        if (SingleKeyMode && hotkey.CharKey == Key.RightCtrl)
+            return true;
 
         return hotkey.ToString() is "LWin" or "RWin" ||
                (hotkey.Validate(validateKeyGesture) && HotkeyMapper.CheckAvailability(hotkey));

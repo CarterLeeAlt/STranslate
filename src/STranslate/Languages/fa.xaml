@@ -231,7 +231,7 @@
     <sys:String x:Key="Hotkey_QrCodeDescription">این کلید میانبر فقط در پنجره OCR پشتیبانی می‌شود</sys:String>
     <sys:String x:Key="Hotkey_IncrementalTranslate">ترجمه افزایشی</sys:String>
     <sys:String x:Key="Hotkey_IncrementalTranslateDescription" xml:space="preserve">نگه داشتن کلید میانبر و انتخاب متن برای افزودن پیوسته محتوا. رها کردن موش‌واره برای ترجمه فوری.
-تنها از کلیدهای تکی پشتیبانی می‌کند، به جز کلیدهای Win/Alt/Ctrl/Shift</sys:String>
+تنها از کلیدهای تکی یا Ctrl راست پشتیبانی می‌کند، به جز سایر کلیدهای Win/Alt/Ctrl/Shift</sys:String>
     <!--  // Translation Page //  -->
     <sys:String x:Key="ReplaceService">سرویس جایگزین</sys:String>
     <sys:String x:Key="ImTranService">سرویس ترجمه تصویر</sys:String>

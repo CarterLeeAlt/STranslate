@@ -32,11 +32,8 @@ public class HotkeyMapper
     private static UnhookWindowsHookExSafeHandle? _hookHandle;
     private static HOOKPROC? _hookProc;
     private static readonly Lock _hookStateLock = new();
-    private static readonly HashSet<Key> _suppressedKeys = [];
-    private static readonly HashSet<Key> _pressedKeys = [];
-    /// <summary>与修饰键组合按下的按住键（如 Alt+F4），整次按压原样放行且不触发功能。</summary>
-    private static readonly HashSet<Key> _passthroughKeys = [];
-    private static readonly Dictionary<Key, (Action OnPress, Action OnRelease)> _holdKeyActions = [];
+    private static readonly HoldKeyGate _holdKeyGate = new();
+    private static (Action OnPress, Action OnRelease)? _holdKeyActions;
 
     #endregion
 
@@ -190,8 +187,12 @@ public class HotkeyMapper
             _hookHandle = null;
             _hookProc = null;
 
-            HoldKeyClear();
-            ClearPressedKeys();
+            lock (_hookStateLock)
+            {
+                _holdKeyGate.SetHoldKey(Key.None);
+                _holdKeyGate.Reset();
+                _holdKeyActions = null;
+            }
             _logger.LogInformation("Global keyboard monitoring stopped");
         }
         catch (Exception e)
@@ -210,45 +211,29 @@ public class HotkeyMapper
     {
         lock (_hookStateLock)
         {
-            HoldKeyClearCore();
-            _holdKeyActions[key] = (onPress, onRelease);
-            _suppressedKeys.Add(key);
+            _holdKeyGate.SetHoldKey(key);
+            _holdKeyActions = (onPress, onRelease);
         }
 
         _logger.LogInformation("Registered hold key action for {Key}", key);
     }
 
-    private static void HoldKeyClear()
-    {
-        lock (_hookStateLock)
-        {
-            HoldKeyClearCore();
-        }
-    }
-
-    private static void HoldKeyClearCore()
-    {
-        _holdKeyActions.Clear();
-        _suppressedKeys.Clear();
-        _passthroughKeys.Clear();
-    }
-
-    private static void ClearPressedKeys()
-    {
-        lock (_hookStateLock)
-        {
-            _pressedKeys.Clear();
-            _passthroughKeys.Clear();
-        }
-    }
+    private static readonly VIRTUAL_KEY[] ModifierVirtualKeys =
+    [
+        VIRTUAL_KEY.VK_LMENU, VIRTUAL_KEY.VK_RMENU, VIRTUAL_KEY.VK_LCONTROL, VIRTUAL_KEY.VK_RCONTROL,
+        VIRTUAL_KEY.VK_LSHIFT, VIRTUAL_KEY.VK_RSHIFT, VIRTUAL_KEY.VK_LWIN, VIRTUAL_KEY.VK_RWIN
+    ];
 
     /// <summary>
-    /// 按住键仅支持单独按下；修饰键按下时放行组合键（如 Alt+F4 关闭窗口）。
+    /// 按住键仅支持单独按下；其他修饰键按下时放行组合键（如 Alt+F4 关闭窗口）。
+    /// 按住键本身是修饰键（右 Ctrl）时按左右区分查询并排除自身。
     /// 低级键盘钩子中 GetKeyState 反映的是本线程状态，需用 GetAsyncKeyState 读取全局状态。
     /// </summary>
-    private static bool IsAnyModifierDown() =>
-        IsKeyDown(VIRTUAL_KEY.VK_MENU) || IsKeyDown(VIRTUAL_KEY.VK_CONTROL) || IsKeyDown(VIRTUAL_KEY.VK_SHIFT) ||
-        IsKeyDown(VIRTUAL_KEY.VK_LWIN) || IsKeyDown(VIRTUAL_KEY.VK_RWIN);
+    private static bool IsOtherModifierDown(Key holdKey)
+    {
+        var holdVirtualKey = (VIRTUAL_KEY)KeyInterop.VirtualKeyFromKey(holdKey);
+        return ModifierVirtualKeys.Any(key => key != holdVirtualKey && IsKeyDown(key));
+    }
 
     private static bool IsKeyDown(VIRTUAL_KEY key) => (PInvoke.GetAsyncKeyState((int)key) & 0x8000) != 0;
 
@@ -259,7 +244,7 @@ public class HotkeyMapper
 
         lock (_hookStateLock)
         {
-            return _holdKeyActions.ContainsKey(key);
+            return _holdKeyGate.HoldKey == key;
         }
     }
 
@@ -268,97 +253,49 @@ public class HotkeyMapper
         if (nCode >= 0)
         {
             var kbdStruct = Marshal.PtrToStructure<KBDLLHOOKSTRUCT>(lParam);
+            // 按住键只认物理按键：取词模拟 Ctrl+C 前会注入右 Ctrl 等修饰键松开，不能当作用户松键。
+            if ((kbdStruct.flags & KBDLLHOOKSTRUCT_FLAGS.LLKHF_INJECTED) != 0)
+                return PInvoke.CallNextHookEx(HHOOK.Null, nCode, wParam, lParam);
+
             var key = KeyInterop.KeyFromVirtualKey((int)kbdStruct.vkCode);
 
             uint message = (uint)wParam;
             bool isKeyDown = message == PInvoke.WM_KEYDOWN || message == PInvoke.WM_SYSKEYDOWN;
             bool isKeyUp = message == PInvoke.WM_KEYUP || message == PInvoke.WM_SYSKEYUP;
 
-            if (isKeyDown)
+            if (isKeyDown || isKeyUp)
             {
-                bool shouldSuppress;
-                (Action OnPress, Action OnRelease)? actions;
-                bool isRepeatedKeyDown;
+                HoldKeyDecision decision;
+                Action? action;
 
                 lock (_hookStateLock)
                 {
-                    // 如果该键已经在按下状态，忽略重复的 KeyDown 事件
-                    isRepeatedKeyDown = !_pressedKeys.Add(key);
-                    if (!isRepeatedKeyDown && _holdKeyActions.ContainsKey(key) && IsAnyModifierDown())
-                        _passthroughKeys.Add(key);
-                    if (_passthroughKeys.Contains(key))
-                        return PInvoke.CallNextHookEx(HHOOK.Null, nCode, wParam, lParam);
-                    shouldSuppress = _suppressedKeys.Contains(key);
-                    actions = !isRepeatedKeyDown && _holdKeyActions.TryGetValue(key, out var holdActions)
-                        ? holdActions
-                        : null;
+                    decision = isKeyDown
+                        ? _holdKeyGate.OnKeyDown(key, Environment.TickCount64, IsOtherModifierDown, ShouldSkipHotkey)
+                        : _holdKeyGate.OnKeyUp(key);
+                    action = decision.Action switch
+                    {
+                        HoldKeyAction.Press => _holdKeyActions?.OnPress,
+                        HoldKeyAction.Release => _holdKeyActions?.OnRelease,
+                        _ => null
+                    };
                 }
 
-                var shouldSkipHotkey = ShouldSkipHotkey();
-
-                if (isRepeatedKeyDown)
-                {
-                    if (shouldSuppress && !shouldSkipHotkey)
-                        return new LRESULT(1); // 返回非零值阻止传递
-                    return PInvoke.CallNextHookEx(HHOOK.Null, nCode, wParam, lParam);
-                }
-
-                // 执行按住按键的 OnPress 操作
-                if (actions.HasValue && !shouldSkipHotkey)
+                // 执行按住按键的 OnPress / OnRelease 操作
+                if (action is not null)
                 {
                     try
                     {
-                        actions.Value.OnPress?.Invoke();
+                        action();
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError(ex, "Error executing OnPress action for key {Key}", key);
+                        _logger.LogError(ex, "Error executing {Action} action for key {Key}", decision.Action, key);
                     }
                 }
 
-                // 如果该键在拦截列表中且不跳过，阻止其传递
-                if (shouldSuppress && !shouldSkipHotkey)
-                {
+                if (decision.Suppress)
                     return new LRESULT(1); // 返回非零值阻止按键传递
-                }
-            }
-            else if (isKeyUp)
-            {
-                bool shouldSuppress;
-                (Action OnPress, Action OnRelease)? actions;
-
-                lock (_hookStateLock)
-                {
-                    // 从按下状态集合中移除
-                    _pressedKeys.Remove(key);
-                    if (_passthroughKeys.Remove(key))
-                        return PInvoke.CallNextHookEx(HHOOK.Null, nCode, wParam, lParam);
-                    shouldSuppress = _suppressedKeys.Contains(key);
-                    actions = _holdKeyActions.TryGetValue(key, out var holdActions)
-                        ? holdActions
-                        : null;
-                }
-
-                var shouldSkipHotkey = ShouldSkipHotkey();
-
-                // 执行按住按键的 OnRelease 操作
-                if (actions.HasValue && !shouldSkipHotkey)
-                {
-                    try
-                    {
-                        actions.Value.OnRelease?.Invoke();
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "Error executing OnRelease action for key {Key}", key);
-                    }
-                }
-
-                // 如果该键在拦截列表中且不跳过，阻止其传递
-                if (shouldSuppress && !shouldSkipHotkey)
-                {
-                    return new LRESULT(1); // 返回非零值阻止按键传递
-                }
             }
         }
 

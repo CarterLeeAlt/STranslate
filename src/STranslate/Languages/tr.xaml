@@ -229,7 +229,7 @@
     <sys:String x:Key="Hotkey_QrCode">QR Kodu Tanı</sys:String>
     <sys:String x:Key="Hotkey_QrCodeDescription">Bu kısayol yalnızca OCR penceresinde desteklenir.</sys:String>
     <sys:String x:Key="Hotkey_IncrementalTranslate">Kademeli Çeviri</sys:String>
-    <sys:String x:Key="Hotkey_IncrementalTranslateDescription" xml:space="preserve">Kısayol tuşuna basılı tutun ve içeriği sürekli eklemek için metin seçin. Çeviriyi hemen yapmak için fareyi bırakın.&#10;Yalnızca tek tuşları destekler, Win/Alt/Ctrl/Shift hariçtir.</sys:String>
+    <sys:String x:Key="Hotkey_IncrementalTranslateDescription" xml:space="preserve">Kısayol tuşuna basılı tutun ve içeriği sürekli eklemek için metin seçin. Çeviriyi hemen yapmak için fareyi bırakın.&#10;Yalnızca tek tuşları veya Sağ Ctrl tuşunu destekler, diğer Win/Alt/Ctrl/Shift tuşları hariçtir.</sys:String>
 
     <!--  // Çeviri Sayfası //  -->
     <sys:String x:Key="ReplaceService">Değiştirme Çevirisi</sys:String>

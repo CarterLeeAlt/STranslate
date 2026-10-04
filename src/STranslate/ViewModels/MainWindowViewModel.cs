@@ -1662,24 +1662,51 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
 
     #region Incretemental Translate
 
+    private bool _incrementalKeyHeld;
+    private bool _incrementalSessionShown;
+
     public void OnIncKeyPressed()
     {
+        // 按下只开启取词会话；首次划词完成才弹窗和清空输入，误触按住键不打扰当前窗口
+        _incrementalKeyHeld = true;
+        _incrementalSessionShown = false;
+        _mouseSelectionService.StartIncrementalCapture();
+    }
+
+    public void OnIncKeyReleased()
+    {
+        _incrementalKeyHeld = false;
+        _mouseSelectionService.StopIncrementalCapture();
+
+        if (_incrementalSessionShown)
+            CompleteIncrementalSession();
+    }
+
+    private void BeginIncrementalSession()
+    {
+        _incrementalSessionShown = true;
         Show();
         AcquireManagedTopmost(ref _incrementalHasTopmostLease);
+
+        // 清掉上次的译文，结果区保持为空直到松开按住键再翻译
+        CancelAllOperations();
+        ResetTranslationLanguageState();
+        ResetAllServices(_translationCoordinator.BeginAutomaticOperation(
+            InputText,
+            Settings.SourceLang,
+            Settings.TargetLang,
+            CancellationToken.None));
 
         // 增量翻译触发时清空原本内容（默认开启），false 时保留旧逻辑不清空
         if (Settings.IncrementalClearInput)
             InputText = string.Empty;
 
         UpdateCacheText();
-
-        _mouseSelectionService.StartIncrementalCapture();
     }
 
-    public void OnIncKeyReleased()
+    private void CompleteIncrementalSession()
     {
         ReleaseManagedTopmost(ref _incrementalHasTopmostLease);
-        _mouseSelectionService.StopIncrementalCapture();
 
         if (string.IsNullOrWhiteSpace(InputText) || _oldText == InputText)
             return;
@@ -1703,7 +1730,12 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     {
         _ = Application.Current.Dispatcher.InvokeAsync(() =>
         {
+            if (!_incrementalSessionShown)
+                BeginIncrementalSession();
             InputText += HandleCapturedText(text, TextSeparatorHandleScope.Incremental);
+            // 取词晚于松键完成时补做翻译，避免文本只追加不翻译
+            if (!_incrementalKeyHeld)
+                CompleteIncrementalSession();
         });
     }
 

@@ -225,7 +225,7 @@
     <sys:String x:Key="Hotkey_QrCode">QRコード認識</sys:String>
     <sys:String x:Key="Hotkey_QrCodeDescription">このホットキーはOCR画面でのみ有効です。</sys:String>
     <sys:String x:Key="Hotkey_IncrementalTranslate">増分翻訳</sys:String>
-    <sys:String x:Key="Hotkey_IncrementalTranslateDescription" xml:space="preserve">キーを押しながらテキストを選択すると内容を追加し続け、キーを離すと即座に翻訳します。&#10;単一キーのみサポート（Win/Alt/Ctrl/Shiftを含まない）</sys:String>
+    <sys:String x:Key="Hotkey_IncrementalTranslateDescription" xml:space="preserve">キーを押しながらテキストを選択すると内容を追加し続け、キーを離すと即座に翻訳します。&#10;単一キーまたは右 Ctrl のみサポート（その他の Win/Alt/Ctrl/Shift を含まない）</sys:String>
     <sys:String x:Key="ReplaceService">置換翻訳</sys:String>
     <sys:String x:Key="ImTranService">画像翻訳</sys:String>
     <sys:String x:Key="NoServiceEnabled">有効なサービスがありません</sys:String>

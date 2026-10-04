@@ -99,9 +99,9 @@ public class PinnedImageTranslateTests
     }
 
     [Fact]
-    public void IncrementalTranslationDefaultsToF4()
+    public void IncrementalTranslationDefaultsToRightCtrl()
     {
-        Assert.Equal(System.Windows.Input.Key.F4, new HotkeySettings().IncrementalTranslateKey);
+        Assert.Equal(System.Windows.Input.Key.RightCtrl, new HotkeySettings().IncrementalTranslateKey);
     }
 
     [Fact]

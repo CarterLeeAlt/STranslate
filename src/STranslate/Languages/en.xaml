@@ -229,7 +229,7 @@
     <sys:String x:Key="Hotkey_QrCode">Recognize QR Code</sys:String>
     <sys:String x:Key="Hotkey_QrCodeDescription">This hotkey is only supported in OCR window</sys:String>
     <sys:String x:Key="Hotkey_IncrementalTranslate">Incremental Translation</sys:String>
-    <sys:String x:Key="Hotkey_IncrementalTranslateDescription" xml:space="preserve">Hold down the hotkey and select text to continuously append content. Release the mouse to translate immediately.&#10;Only supports single keys, excludes Win/Alt/Ctrl/Shift</sys:String>
+    <sys:String x:Key="Hotkey_IncrementalTranslateDescription" xml:space="preserve">Hold down the hotkey and select text to continuously append content. Release the mouse to translate immediately.&#10;Only supports a single key or Right Ctrl, excludes other Win/Alt/Ctrl/Shift keys</sys:String>
     <!--  // Translation Page //  -->
     <sys:String x:Key="ReplaceService">Replace Trans</sys:String>
     <sys:String x:Key="ImTranService">Image Trans</sys:String>

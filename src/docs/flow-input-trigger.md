@@ -13,7 +13,7 @@
 - `STranslate/Helpers/HotkeyMapper.cs`
   - `SetHotkey()`：NHotkey/ChefKeys 注册。
   - `StartGlobalKeyboardMonitoring()`：低级键盘钩子（WH_KEYBOARD_LL）。
-  - `RegisterHoldKey()`：按住键增量翻译。
+  - `RegisterHoldKey()`：按住键增量翻译。按键判定委托给 `HoldKeyGate`（纯状态类，不调用系统 API，有单元测试）。
   - `IsReservedGlobalHotkey()`：阻止把系统复制热键注册为全局热键。
 - `STranslate/Helpers/CtrlSameCHelper.cs`
   - 在独立消息窗口注册 `RIDEV_INPUTSINK` 接收后台 `WM_INPUT` 键盘按下/松开事件，由 `TripleCtrlGestureDetector` 在相邻松开间隔不超过 500ms 时识别三次独立左 Ctrl（原始输入按 E0 扩展标志区分左右，右 Ctrl 视为普通按键并打断三击）。完整后续手势不受固定冷却限制；组合键仍不计数，两次左 Ctrl 之间按下任何其他键也会重新计数。每 30 秒核对本进程键盘注册，丢失或初次失败时重建监听。
@@ -50,10 +50,10 @@
 5. `Settings.HideInputWithLangSelectControl` 仍作为普通显示偏好生效；输入翻译临时显示输入框时，语言选择控件也会同步显示。
 
 ### 从入口到结果：增量翻译（按住键）
-1. `IncrementalTranslateKey`（默认 `F4`）变化触发 `ApplyIncrementalTranslate()`。
-2. 注册 `HotkeyMapper.RegisterHoldKey(key, OnIncKeyPressed, OnIncKeyReleased)` 并开启低级键盘钩子；按住键单独按下时被拦截，不传给前台应用。按下瞬间若 Alt/Ctrl/Shift/Win 任一按下（用 `GetAsyncKeyState` 读全局状态），整次按压原样放行且不触发增量翻译，保证 `Alt+F4` 等组合键照常生效。
-3. 按下时 `OnIncKeyPressed()`：置顶窗口 + 向 `MouseSelectionService` 申请增量取词会话 + 缓存旧文本。若 `Settings.IncrementalClearInput`（默认 true）则先清空输入框，本次会话内选中文本仍累积追加；false 时保留旧逻辑不清空。
-4. 松开时 `OnIncKeyReleased()`：释放增量取词会话，若文本有变化则执行翻译；常驻划词仍启用时底层 Hook 不会停止。
+1. `IncrementalTranslateKey`（默认右 Ctrl，即 `RightCtrl`；设置对话框单键模式只额外放行右 Ctrl 这一个修饰键）变化触发 `ApplyIncrementalTranslate()`。
+2. 注册 `HotkeyMapper.RegisterHoldKey(key, OnIncKeyPressed, OnIncKeyReleased)` 并开启低级键盘钩子；按住键单独按下时被拦截，不传给前台应用。按下瞬间若其他修饰键任一按下（用 `GetAsyncKeyState` 按左右区分读全局状态，排除按住键自身），整次按压原样放行且不触发增量翻译，保证 `Alt+F4` 等组合键照常生效。钩子只认物理按键，带 `LLKHF_INJECTED` 的模拟输入原样放行：取词模拟 Ctrl+C 前会注入右 Ctrl 等修饰键松开，不能被当成用户松开按住键。按住键为右 Ctrl 时它被拦截，系统和前台应用都看不到，右 Ctrl 组合键随之失效；为免习惯性按右 Ctrl+C 只剩字母 c 替换掉选中文本，按住期间新按下的其他非修饰键整次吞掉（仅限距最近一次按住键按下或自动重复 1.5 秒内，防止钩子漏掉松开时持续吞键）。只有触发过按下回调的按压才拦截松开并配对松开回调，前台应用收到的按下与松开始终成对。
+3. 按下时 `OnIncKeyPressed()` 只向 `MouseSelectionService` 申请增量取词会话，不弹窗、不改输入，误触按住键不会打扰当前窗口。本次按压的首段划词取到文本后才 `BeginIncrementalSession()`：显示并置顶窗口 + 取消进行中的翻译并清空各服务结果（与 `InputClear()` 相同的重置，结果区保持为空直到松键翻译）+ 缓存旧文本；若 `Settings.IncrementalClearInput`（默认 true）则先清空输入框，本次会话内选中文本仍累积追加；false 时保留旧逻辑不清空。
+4. 松开时 `OnIncKeyReleased()`：释放增量取词会话；本次按压已弹窗时 `CompleteIncrementalSession()` 释放置顶，若文本有变化则执行翻译，没有划词则什么都不做。取词晚于松键完成时，文本追加后立即补做 `CompleteIncrementalSession()`。常驻划词仍启用时底层 Hook 不会停止。
 
 ### 从入口到结果：三击 Ctrl、鼠标划词、剪贴板监听
 - 三击 Ctrl：`CtrlSameCHelper` 接收后台键盘 `WM_INPUT` 按下和松开事件，`TripleCtrlGestureDetector` 计满三次独立的左 Ctrl 按松后触发 `CrosswordTranslateByCtrlSameCHandler()`。回调直接复用 `CrosswordTranslateAsync()`，观察调度和执行异常；取词结束后保证窗口显示，包含无选区、取词异常和“仅通知”偏好。取词未完成时再次触发只显示窗口，避免并行模拟复制。
@@ -132,6 +132,7 @@
 ## 关键文件
 - `STranslate/Core/HotkeySettings.cs`
 - `STranslate/Helpers/HotkeyMapper.cs`
+- `STranslate/Helpers/HoldKeyGate.cs`
 - `STranslate/Helpers/ForegroundFullscreenMonitor.cs`
 - `STranslate/Helpers/CtrlSameCHelper.cs`
 - `STranslate/Services/MouseHookService.cs`

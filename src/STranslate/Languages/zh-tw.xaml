@@ -229,7 +229,7 @@
     <sys:String x:Key="Hotkey_QrCode">識別二維碼</sys:String>
     <sys:String x:Key="Hotkey_QrCodeDescription">該熱鍵僅支援OCR視窗</sys:String>
     <sys:String x:Key="Hotkey_IncrementalTranslate">增量翻譯</sys:String>
-    <sys:String x:Key="Hotkey_IncrementalTranslateDescription" xml:space="preserve">按住快速鍵劃詞可持續追加內容，鬆開滑鼠即刻翻譯。&#10;僅支援單個按鍵，不包含 Win/Alt/Ctrl/Shift</sys:String>
+    <sys:String x:Key="Hotkey_IncrementalTranslateDescription" xml:space="preserve">按住快速鍵劃詞可持續追加內容，鬆開滑鼠即刻翻譯。&#10;僅支援單個按鍵或右 Ctrl，不包含其他 Win/Alt/Ctrl/Shift</sys:String>
     <!--  // Translation Page //  -->
     <sys:String x:Key="ReplaceService">替換翻譯</sys:String>
     <sys:String x:Key="ImTranService">圖片翻譯</sys:String>
