@@ -31,6 +31,11 @@
   - 应用级 MessageBox 入口：优先使用当前活动窗口作为 owner，缺省时用主屏中心的临时透明 owner 承载 iNKORE 弹窗。
 - `STranslate/Helpers/UACHelper.cs`
   - `Run()`：通过 Host 进程按普通/提权/计划任务模式拉起应用。
+  - `Create()` / `Delete()`：维护“跳过 UAC”任务 `STranslateSkipUAC`（无触发器，由 Host 按需运行）。
+  - `EnsureAutoStartTask()` / `RemoveAutoStartTask()`：维护开机自启任务 `STranslateAutoStart`（见下文“开机自启”）。
+  - 任务均在 C# 侧生成 XML 后经 `schtasks` 注册，`ExecutionTimeLimit` 为 `PT0S`（常驻程序不能被 72 小时默认时限强制结束）；最高权限任务在非管理员进程中经 UAC 提权注册。
+- `STranslate/Core/StartupTrace.cs`
+  - 在日志系统就绪前追加写 `Logs/startup-trace.log`：每次进程启动的父进程、是否提权，以及单实例退出、经 Host 提权重启、进入应用、配置解析回退等去向。
 - `STranslate.Host/src/commands/start.rs`
   - `start` 命令：延迟启动、等待旧进程退出、必要时清理旧进程。
 
@@ -53,6 +58,14 @@
 9. 向导关闭、跳过或完成时调用现有 `Save()` 生成配置文件，后续启动按文件已存在不再自动弹出。
 10. 向导结束后创建主窗口与主 VM；主窗口 `Loaded` 时执行延迟初始化：`Settings.LazyInitialize(initializeLanguage: false)`、`HotkeySettings.LazyInitialize()`、托盘提示、WebDav 后置备份上传，以及自动检查更新服务启动。
 11. 非首次向导路径仍按原流程创建主窗口，并在 `Loaded` 时执行完整 `Settings.LazyInitialize()`。
+
+### 从入口到结果：开机自启
+1. `Settings.Initialize()` 先 `ApplyStartMode()`（维护跳过 UAC 任务），再 `ApplyStartup(initialize: true)` 自愈；切换 `AutoStartup` 或 `StartMode` 时同样重新执行。
+2. 开启自启时注册当前用户的登录触发计划任务 `STranslateAutoStart`：登录后延迟 10 秒启动，普通模式为 `LeastPrivilege`，管理员/跳过 UAC 模式为 `HighestAvailable`，登录时直接以管理员身份运行，不再经 `NeedAdmin()` 二次重启。
+3. 若 exe 在兼容性设置中被勾选“以管理员身份运行此程序”（`AppCompatFlags\Layers` 含 `RUNASADMIN`），普通权限启动会以 `0x800702E4`（需要提权）失败，此时不论模式都改用最高权限。
+4. 已注册任务的程序路径、运行级别、时限、触发器与期望一致时不做任何事，避免每次启动都触发提权；便携版目录移动后会自动重建。
+5. 旧版放在启动文件夹的 `STranslate.lnk` 一律清理：需要提权的 exe（如带 `RUNASADMIN` 标记）放在启动文件夹或 Run 注册表项中，登录时会被系统静默跳过，不留任何痕迹。
+6. 用户刚打开开关但注册失败（如取消了 UAC）时回滚开关；启动时自愈失败只记日志、保留开关，下次启动重试。
 
 ### 从入口到结果：退出与资源回收
 1. 应用使用 `ShutdownMode.OnExplicitShutdown`，关闭最后一个窗口不会终止托盘常驻进程。
@@ -120,7 +133,7 @@
 ## 关键数据结构/配置
 - `Settings`：主行为配置（窗口、主题、热键策略、网络、OCR/图像翻译参数等）。
 - `AppShutdownReason`：统一标识主动退出、重启以及系统会话结束等退出来源。
-- `StartMode`：普通启动、提权启动、计划任务启动。
+- `StartMode`：普通启动、提权启动、计划任务启动；同时决定开机自启任务的运行级别。
 - `HotkeySettings`：全局热键、软件内热键、增量翻译键、三击 Ctrl 配置。
 - `ServiceSettings`：服务实例列表与特殊服务 ID（替换翻译、图片翻译）。
 - `WindowActivationMode`：`Normal` / `ForceForeground` 两种窗口激活策略。
@@ -141,6 +154,7 @@
 - `STranslate/Core/AppMessageBox.cs`
 - `STranslate/Core/DataLocation.cs`
 - `STranslate/Helpers/UACHelper.cs`
+- `STranslate/Core/StartupTrace.cs`
 - `STranslate.Host/src/commands/start.rs`
 
 ## 常见改动任务

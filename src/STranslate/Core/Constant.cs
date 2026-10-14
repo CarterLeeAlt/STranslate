@@ -20,6 +20,11 @@ public class Constant
     public const string HttpClientName = "DefaultClient";
     public const string HostExeName = "z_stranslate_host.exe";
     public const string TaskName = "STranslateSkipUAC";
+
+    /// <summary>
+    ///     开机自启用的登录触发任务名（与按需运行的 <see cref="TaskName" /> 分开管理）
+    /// </summary>
+    public const string AutoStartTaskName = "STranslateAutoStart";
     public const string EmptyHotkey = "None";
     public const string PluginFileExtension = ".spkg";
     public const string NeedDelete = "NeedDelete.txt";

@@ -79,8 +79,10 @@ public class StorageBase<T> : ISavable where T : new()
             {
                 Data = JsonSerializer.Deserialize<T>(serialized, JsonOption) ?? await LoadBackupOrDefaultAsync();
             }
-            catch (JsonException)
+            catch (JsonException ex)
             {
+                // 静默回退会让用户设置悄悄丢失（如启动模式、开机自启回到默认），必须留痕；此时日志系统可能尚未就绪
+                StartupTrace.Write($"config parse failed, fallback to backup: {FilePath} ({ex.Message})");
                 Data = await LoadBackupOrDefaultAsync();
             }
         }
@@ -118,8 +120,9 @@ public class StorageBase<T> : ISavable where T : new()
 
             return data;
         }
-        catch (JsonException)
+        catch (JsonException ex)
         {
+            StartupTrace.Write($"backup config parse failed: {BackupFilePath} ({ex.Message})");
             return default;
         }
     }
@@ -153,8 +156,10 @@ public class StorageBase<T> : ISavable where T : new()
             {
                 Data = JsonSerializer.Deserialize<T>(serialized, JsonOption) ?? TryLoadBackup() ?? LoadDefault();
             }
-            catch (JsonException)
+            catch (JsonException ex)
             {
+                // 静默回退会让用户设置悄悄丢失（如启动模式、开机自启回到默认），必须留痕；此时日志系统可能尚未就绪
+                StartupTrace.Write($"config parse failed, fallback to backup: {FilePath} ({ex.Message})");
                 Data = TryLoadBackup() ?? LoadDefault();
             }
         }
@@ -198,8 +203,9 @@ public class StorageBase<T> : ISavable where T : new()
 
             return data;
         }
-        catch (JsonException)
+        catch (JsonException ex)
         {
+            StartupTrace.Write($"backup config parse failed: {BackupFilePath} ({ex.Message})");
             return default;
         }
     }

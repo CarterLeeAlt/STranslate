@@ -480,8 +480,8 @@ public partial class Settings : ObservableObject
         EnsureMainHeaderVisibleActionsInitialized();
 
         ApplyLogLevel();
-        ApplyStartup();
         ApplyStartMode();
+        ApplyStartup(initialize: true);
     }
 
     public void LazyInitialize(bool initializeLanguage = true)
@@ -542,6 +542,9 @@ public partial class Settings : ObservableObject
                 break;
             case nameof(StartMode):
                 ApplyStartMode();
+                // 自启任务的运行级别随启动模式变化
+                if (AutoStartup)
+                    ApplyStartup();
                 break;
             case nameof(Language):
                 ApplyLanguage();
@@ -606,23 +609,29 @@ public partial class Settings : ObservableObject
 
     #region Apply Methods
 
-    private void ApplyStartup()
+    /// <summary>
+    ///     开机自启：注册当前用户登录触发的计划任务（启动时自愈，配置已是最新则不做任何事）
+    /// </summary>
+    /// <remarks>
+    ///     旧版在启动文件夹放快捷方式，管理员模式还要靠程序启动后经 Host 提权重启，登录时整条链路不可靠且不留痕迹；
+    ///     计划任务可直接以最高权限拉起，并延迟到任务栏就绪后启动。
+    /// </remarks>
+    /// <param name="initialize">程序启动时的自愈调用：失败只记日志、保留开关，下次启动重试</param>
+    private void ApplyStartup(bool initialize = false)
     {
-        if (string.IsNullOrEmpty(DataLocation.StartupPath))
+        Utilities.RemoveLegacyStartupShortcut();
+
+        if (!AutoStartup)
         {
-            AutoStartup = false;
+            UACHelper.RemoveAutoStartTask();
             return;
         }
 
-        if (AutoStartup)
-        {
-            if (!Utilities.IsStartup())
-                Utilities.SetStartup();
-        }
-        else
-        {
-            Utilities.UnSetStartup();
-        }
+        if (UACHelper.EnsureAutoStartTask(highestPrivilege: StartMode != StartMode.Normal) || initialize)
+            return;
+
+        // 用户刚打开开关但注册失败（如取消了 UAC）：回滚开关，避免界面显示已开启而系统侧未注册
+        AutoStartup = false;
     }
 
     private void ApplyStartMode()

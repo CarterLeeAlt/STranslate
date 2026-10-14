@@ -1,9 +1,13 @@
+using Microsoft.Win32;
 using STranslate.Core;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Security;
 using System.Security.Principal;
 using System.Text;
+using System.Xml;
+using System.Xml.Linq;
 
 namespace STranslate.Helpers;
 
@@ -48,22 +52,26 @@ internal class UACHelper
         Utilities.ExecuteProgram(DataLocation.HostExePath, args);
     }
 
+    /// <summary>
+    ///     确保“跳过 UAC”用的提权任务存在且为最新配置（无触发器，由 Host 按需运行）
+    /// </summary>
     public static void Create()
     {
-        var info = GetTaskInfo(Constant.TaskName);
-        if (!info.Success || !info.Output.Contains(DataLocation.AppExePath))
+        var result = EnsureTask(new TaskConfiguration
         {
-            string[] args = ["task", "-a", "create", "-n", Constant.TaskName, "-p", DataLocation.AppExePath, "-f"];
-            var isNeedAdmin = !IsUserAdministrator();
-            Utilities.ExecuteProgram(DataLocation.HostExePath, args, isNeedAdmin, true);
-        }
+            ExecutablePath = DataLocation.AppExePath,
+            TaskName = Constant.TaskName,
+            HighestPrivilege = true
+        });
+        if (!result.Success)
+            Serilog.Log.Warning("跳过 UAC 任务创建失败: {Message} {Error}", result.Message, result.Error);
     }
 
     public static void Delete()
     {
-        string[] args = ["task", "-a", "delete", "-n", Constant.TaskName];
-        var isNeedAdmin = !IsUserAdministrator();
-        Utilities.ExecuteProgram(DataLocation.HostExePath, args, isNeedAdmin);
+        var result = DeleteTaskWithElevation(Constant.TaskName);
+        if (!result.Success)
+            Serilog.Log.Warning("跳过 UAC 任务删除失败: {Message} {Error}", result.Message, result.Error);
     }
 
     public static bool Exist()
@@ -71,10 +79,66 @@ internal class UACHelper
         return TaskExists(Constant.TaskName).Success;
     }
 
+    /// <summary>
+    ///     确保开机自启任务存在且为最新配置：当前用户登录后延迟启动，管理员类模式直接以最高权限运行（不再经由程序自身提权重启）
+    /// </summary>
+    /// <param name="highestPrivilege">是否以最高权限运行</param>
+    /// <returns>true: 任务已就绪 false: 注册失败</returns>
+    public static bool EnsureAutoStartTask(bool highestPrivilege)
+    {
+        // exe 被勾选“以管理员身份运行此程序”时，以普通权限启动会因需要提权而失败（启动文件夹/Run 项也会被系统静默跳过），
+        // 此时不论启动模式都只能以最高权限运行
+        if (!highestPrivilege && HasRunAsAdminCompatFlag(DataLocation.AppExePath))
+        {
+            Serilog.Log.Information("程序已被设置为“以管理员身份运行”（兼容性 RUNASADMIN），开机自启任务改用最高权限");
+            highestPrivilege = true;
+        }
+
+        var result = EnsureTask(new TaskConfiguration
+        {
+            ExecutablePath = DataLocation.AppExePath,
+            TaskName = Constant.AutoStartTaskName,
+            Description = "Start STranslate when the user logs on",
+            HighestPrivilege = highestPrivilege,
+            LogonTrigger = true,
+            LogonDelay = AutoStartLogonDelay
+        });
+        if (result.Success)
+            Serilog.Log.Information("开机自启任务已就绪（最高权限：{Highest}）: {Message}", highestPrivilege, result.Message);
+        else
+            Serilog.Log.Warning("开机自启任务注册失败: {Message} {Error}", result.Message, result.Error);
+        return result.Success;
+    }
+
+    /// <summary>
+    ///     删除开机自启任务（不存在时直接返回成功）
+    /// </summary>
+    public static bool RemoveAutoStartTask()
+    {
+        if (!TaskExists(Constant.AutoStartTaskName).Success)
+            return true;
+
+        var result = DeleteTaskWithElevation(Constant.AutoStartTaskName);
+        if (!result.Success)
+            Serilog.Log.Warning("开机自启任务删除失败: {Message} {Error}", result.Message, result.Error);
+        return result.Success;
+    }
+
     #region TaskScheduler
 
     private const string DefaultAuthorPrefix = "STranslate";
     private const string DefaultUserSid = "S-1-5-21-0-0-0-1001";
+    private const string TaskXmlNamespace = "http://schemas.microsoft.com/windows/2004/02/mit/task";
+
+    /// <summary>
+    ///     登录后延迟启动，等任务栏与托盘就绪（与 Clash Verge 等常驻托盘程序的做法一致）
+    /// </summary>
+    private static readonly TimeSpan AutoStartLogonDelay = TimeSpan.FromSeconds(10);
+
+    /// <summary>
+    ///     ERROR_CANCELLED：用户在 UAC 弹窗中选择了“否”
+    /// </summary>
+    private const int ErrorCancelled = 1223;
 
     /// <summary>
     /// 创建任务计划（无触发器，手动执行）
@@ -103,10 +167,6 @@ internal class UACHelper
             if (!validationResult.Success)
                 return validationResult;
 
-            // 检查管理员权限
-            if (!IsRunAsAdministrator())
-                return TaskOperationResult.CreateFailure("需要管理员权限才能创建任务计划");
-
             // 检查文件是否存在
             if (!File.Exists(config.ExecutablePath))
                 return TaskOperationResult.CreateFailure($"找不到可执行文件: {config.ExecutablePath}");
@@ -115,16 +175,7 @@ internal class UACHelper
             config.WorkingDirectory ??= Path.GetDirectoryName(config.ExecutablePath);
             config.Author ??= $"{DefaultAuthorPrefix} - {Environment.UserName.ToLower()}";
 
-            // 删除现有任务
-            var existsResult = TaskExists(config.TaskName);
-            if (existsResult.Success)
-            {
-                var deleteResult = DeleteTask(config.TaskName);
-                if (!deleteResult.Success)
-                    return TaskOperationResult.CreateFailure($"无法删除现有任务: {deleteResult.Message}");
-            }
-
-            // 创建XML配置并执行
+            // 创建XML配置并执行（/F 覆盖同名任务；最高权限任务在非管理员进程中会经 UAC 提权创建）
             return CreateTaskFromConfiguration(config);
         }
         catch (Exception ex)
@@ -288,7 +339,10 @@ internal class UACHelper
             File.WriteAllText(tempXmlPath, xmlContent, Encoding.Unicode);
 
             // 执行创建命令
-            return ExecuteSchTasksCommand($"/Create /TN \"{config.TaskName}\" /XML \"{tempXmlPath}\" /F", "创建任务");
+            return ExecuteSchTasksWithElevation(
+                $"/Create /TN \"{config.TaskName}\" /XML \"{tempXmlPath}\" /F",
+                "创建任务",
+                elevateFirst: config.HighestPrivilege && !IsRunAsAdministrator());
         }
         finally
         {
@@ -349,6 +403,186 @@ internal class UACHelper
         };
     }
 
+    /// <summary>
+    ///     任务已存在且配置与期望一致时不做任何事，否则（重新）创建；用于启动时自愈，避免每次启动都触发提权
+    /// </summary>
+    private static TaskOperationResult EnsureTask(TaskConfiguration config)
+    {
+        var validationResult = ValidateTaskConfiguration(config);
+        if (!validationResult.Success)
+            return validationResult;
+
+        if (IsTaskUpToDate(config))
+            return TaskOperationResult.CreateSuccess("任务已是最新配置");
+
+        return CreateTask(config);
+    }
+
+    /// <summary>
+    ///     读取已注册任务的 XML，检查程序路径、运行级别、运行时限、登录触发器是否与期望一致
+    /// </summary>
+    private static bool IsTaskUpToDate(TaskConfiguration config)
+    {
+        var query = ExecuteSchTasksCommand($"/Query /TN \"{config.TaskName}\" /XML", "查询任务配置");
+        if (!query.Success || string.IsNullOrWhiteSpace(query.Output))
+            return false;
+
+        try
+        {
+            XNamespace ns = TaskXmlNamespace;
+            var doc = XDocument.Parse(query.Output);
+
+            var command = doc.Descendants(ns + "Command").FirstOrDefault()?.Value.Trim().Trim('"');
+            if (!string.Equals(command, config.ExecutablePath, StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            // 导出的 XML 中 LeastPrivilege 为默认值，会省略 RunLevel 元素
+            var runLevel = doc.Descendants(ns + "RunLevel").FirstOrDefault()?.Value ?? "LeastPrivilege";
+            if (runLevel != GetRunLevel(config))
+                return false;
+
+            var principalUser = doc.Descendants(ns + "Principal").Elements(ns + "UserId").FirstOrDefault()?.Value;
+            if (!string.Equals(principalUser, GetCurrentUserSid(), StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            // 缺省 ExecutionTimeLimit 即 PT72H，常驻程序会在 72 小时后被强制结束
+            var settings = doc.Descendants(ns + "Settings").FirstOrDefault();
+            var timeLimit = settings?.Element(ns + "ExecutionTimeLimit")?.Value;
+            if (timeLimit is null || XmlConvert.ToTimeSpan(timeLimit) != config.ExecutionTimeLimit)
+                return false;
+            if (settings?.Element(ns + "Enabled")?.Value == "false")
+                return false;
+
+            var logonTrigger = doc.Descendants(ns + "LogonTrigger").FirstOrDefault();
+            if (config.LogonTrigger != (logonTrigger is not null))
+                return false;
+            if (logonTrigger is not null)
+            {
+                if (logonTrigger.Element(ns + "Enabled")?.Value == "false")
+                    return false;
+                if (!string.Equals(logonTrigger.Element(ns + "UserId")?.Value, GetCurrentUserName(), StringComparison.OrdinalIgnoreCase))
+                    return false;
+                var delay = logonTrigger.Element(ns + "Delay")?.Value;
+                if ((delay is null ? TimeSpan.Zero : XmlConvert.ToTimeSpan(delay)) != config.LogonDelay)
+                    return false;
+            }
+
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private static TaskOperationResult DeleteTaskWithElevation(string taskName)
+    {
+        if (string.IsNullOrWhiteSpace(taskName))
+            return TaskOperationResult.CreateFailure("任务名称不能为空");
+
+        return ExecuteSchTasksWithElevation($"/Delete /TN \"{taskName}\" /F", "删除任务", elevateFirst: false);
+    }
+
+    /// <summary>
+    ///     执行 schtasks；非管理员进程执行失败（如无权覆盖/删除管理员创建的任务）时经 UAC 提权重试
+    /// </summary>
+    /// <param name="elevateFirst">已知需要管理员权限时直接提权执行，避免一次必然失败的尝试</param>
+    private static TaskOperationResult ExecuteSchTasksWithElevation(string arguments, string operationName, bool elevateFirst)
+    {
+        if (elevateFirst)
+            return ExecuteSchTasksElevated(arguments, operationName);
+
+        var result = ExecuteSchTasksCommand(arguments, operationName);
+        if (result.Success || IsRunAsAdministrator())
+            return result;
+
+        return ExecuteSchTasksElevated(arguments, operationName);
+    }
+
+    private static TaskOperationResult ExecuteSchTasksElevated(string arguments, string operationName)
+    {
+        try
+        {
+            using var process = Process.Start(new ProcessStartInfo
+            {
+                FileName = "schtasks.exe",
+                Arguments = arguments,
+                UseShellExecute = true,
+                Verb = "runas",
+                WindowStyle = ProcessWindowStyle.Hidden
+            });
+            if (process is null)
+                return TaskOperationResult.CreateFailure($"{operationName}失败：无法启动提权进程");
+
+            if (!process.WaitForExit(30000))
+                return TaskOperationResult.CreateFailure($"{operationName}失败：提权进程超时");
+
+            var success = process.ExitCode == 0;
+            return new TaskOperationResult
+            {
+                Success = success,
+                Message = success ? $"{operationName}成功（已提权）" : $"{operationName}失败 (ExitCode: {process.ExitCode})",
+                ExitCode = process.ExitCode
+            };
+        }
+        catch (Win32Exception ex) when (ex.NativeErrorCode == ErrorCancelled)
+        {
+            return TaskOperationResult.CreateFailure($"{operationName}失败：用户取消了 UAC 提权", ex.Message, ex);
+        }
+        catch (Exception ex)
+        {
+            return TaskOperationResult.CreateFailure($"{operationName}时发生异常", ex.Message, ex);
+        }
+    }
+
+    private static string GetCurrentUserName()
+    {
+        try
+        {
+            using var identity = WindowsIdentity.GetCurrent();
+            return identity.Name;
+        }
+        catch
+        {
+            return $"{Environment.UserDomainName}\\{Environment.UserName}";
+        }
+    }
+
+    /// <summary>
+    ///     检查 exe 是否在兼容性设置中被勾选“以管理员身份运行此程序”（当前用户或所有用户）
+    /// </summary>
+    private static bool HasRunAsAdminCompatFlag(string exePath)
+    {
+        const string layersPath = @"Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers";
+        foreach (var hive in new[] { RegistryHive.CurrentUser, RegistryHive.LocalMachine })
+        {
+            try
+            {
+                using var baseKey = RegistryKey.OpenBaseKey(hive, RegistryView.Registry64);
+                using var key = baseKey.OpenSubKey(layersPath);
+                if (key is null)
+                    continue;
+
+                var matched = key.GetValueNames()
+                    .Where(name => string.Equals(name, exePath, StringComparison.OrdinalIgnoreCase))
+                    .Any(name => key.GetValue(name) is string layers &&
+                                 layers.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                                     .Contains("RUNASADMIN", StringComparer.OrdinalIgnoreCase));
+                if (matched)
+                    return true;
+            }
+            catch
+            {
+                // 读取失败按未设置处理
+            }
+        }
+
+        return false;
+    }
+
+    private static string GetRunLevel(TaskConfiguration config) =>
+        config.HighestPrivilege ? "HighestAvailable" : "LeastPrivilege";
+
     private static Process CreateSchTasksProcess(string arguments)
     {
         return new Process
@@ -376,25 +610,42 @@ internal class UACHelper
         xml.AppendLine("<Task version=\"1.2\" xmlns=\"http://schemas.microsoft.com/windows/2004/02/mit/task\">");
         xml.AppendLine("  <RegistrationInfo>");
         xml.AppendLine($"    <Author>{SecurityElement.Escape(config.Author!)}</Author>");
+        if (!string.IsNullOrWhiteSpace(config.Description))
+            xml.AppendLine($"    <Description>{SecurityElement.Escape(config.Description)}</Description>");
         xml.AppendLine($"    <URI>\\{SecurityElement.Escape(config.TaskName)}</URI>");
         xml.AppendLine($"    <Date>{DateTime.Now:yyyy-MM-ddTHH:mm:ss}</Date>");
         xml.AppendLine("  </RegistrationInfo>");
-        xml.AppendLine("  <Triggers />");
+        if (config.LogonTrigger)
+        {
+            xml.AppendLine("  <Triggers>");
+            xml.AppendLine("    <LogonTrigger>");
+            xml.AppendLine("      <Enabled>true</Enabled>");
+            xml.AppendLine($"      <UserId>{SecurityElement.Escape(GetCurrentUserName())}</UserId>");
+            if (config.LogonDelay > TimeSpan.Zero)
+                xml.AppendLine($"      <Delay>{XmlConvert.ToString(config.LogonDelay)}</Delay>");
+            xml.AppendLine("    </LogonTrigger>");
+            xml.AppendLine("  </Triggers>");
+        }
+        else
+        {
+            xml.AppendLine("  <Triggers />");
+        }
         xml.AppendLine("  <Principals>");
         xml.AppendLine("    <Principal id=\"Author\">");
         xml.AppendLine($"      <UserId>{userSid}</UserId>");
         xml.AppendLine("      <LogonType>InteractiveToken</LogonType>");
-        xml.AppendLine("      <RunLevel>HighestAvailable</RunLevel>");
+        xml.AppendLine($"      <RunLevel>{GetRunLevel(config)}</RunLevel>");
         xml.AppendLine("    </Principal>");
         xml.AppendLine("  </Principals>");
         xml.AppendLine("  <Settings>");
+        xml.AppendLine("    <MultipleInstancesPolicy>IgnoreNew</MultipleInstancesPolicy>");
         xml.AppendLine($"    <DisallowStartIfOnBatteries>{config.DisallowStartIfOnBatteries.ToString().ToLower()}</DisallowStartIfOnBatteries>");
         xml.AppendLine($"    <StopIfGoingOnBatteries>{config.StopIfGoingOnBatteries.ToString().ToLower()}</StopIfGoingOnBatteries>");
         xml.AppendLine("    <AllowHardTerminate>true</AllowHardTerminate>");
-        xml.AppendLine("    <StartWhenAvailable>false</StartWhenAvailable>");
+        xml.AppendLine("    <StartWhenAvailable>true</StartWhenAvailable>");
         xml.AppendLine("    <RunOnlyIfNetworkAvailable>false</RunOnlyIfNetworkAvailable>");
         xml.AppendLine("    <IdleSettings>");
-        xml.AppendLine("      <StopOnIdleEnd>true</StopOnIdleEnd>");
+        xml.AppendLine("      <StopOnIdleEnd>false</StopOnIdleEnd>");
         xml.AppendLine("      <RestartOnIdle>false</RestartOnIdle>");
         xml.AppendLine("    </IdleSettings>");
         xml.AppendLine($"    <AllowStartOnDemand>{config.AllowStartOnDemand.ToString().ToLower()}</AllowStartOnDemand>");
@@ -402,7 +653,7 @@ internal class UACHelper
         xml.AppendLine($"    <Hidden>{config.Hidden.ToString().ToLower()}</Hidden>");
         xml.AppendLine("    <RunOnlyIfIdle>false</RunOnlyIfIdle>");
         xml.AppendLine("    <WakeToRun>false</WakeToRun>");
-        xml.AppendLine($"    <ExecutionTimeLimit>PT{config.ExecutionTimeLimit.TotalHours:F0}H</ExecutionTimeLimit>");
+        xml.AppendLine($"    <ExecutionTimeLimit>{XmlConvert.ToString(config.ExecutionTimeLimit)}</ExecutionTimeLimit>");
         xml.AppendLine($"    <Priority>{(int)config.Priority}</Priority>");
         xml.AppendLine("  </Settings>");
         xml.AppendLine("  <Actions Context=\"Author\">");
@@ -445,9 +696,29 @@ internal class UACHelper
         public string ExecutablePath { get; set; } = string.Empty;
         public string TaskName { get; set; } = string.Empty;
         public string? Author { get; set; }
+        public string? Description { get; set; }
         public string? WorkingDirectory { get; set; }
         public TaskPriority Priority { get; set; } = TaskPriority.Normal;
-        public TimeSpan ExecutionTimeLimit { get; set; } = TimeSpan.FromHours(72);
+
+        /// <summary>
+        ///     以最高权限运行（HighestAvailable），否则为 LeastPrivilege
+        /// </summary>
+        public bool HighestPrivilege { get; set; }
+
+        /// <summary>
+        ///     添加当前用户的登录触发器
+        /// </summary>
+        public bool LogonTrigger { get; set; }
+
+        /// <summary>
+        ///     登录触发后的延迟
+        /// </summary>
+        public TimeSpan LogonDelay { get; set; } = TimeSpan.Zero;
+
+        /// <summary>
+        ///     运行时限，0 表示不限：本程序是常驻程序，不能被任务计划按时限强制结束
+        /// </summary>
+        public TimeSpan ExecutionTimeLimit { get; set; } = TimeSpan.Zero;
         public bool AllowStartOnDemand { get; set; } = true;
         public bool DisallowStartIfOnBatteries { get; set; } = false;
         public bool StopIfGoingOnBatteries { get; set; } = false;

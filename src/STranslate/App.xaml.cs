@@ -345,9 +345,14 @@ public partial class App : ISingleInstanceApp, INavigation, IDisposable
     [STAThread]
     public static void Main()
     {
+        StartupTrace.Write($"launch: {StartupTrace.DescribeProcess()}");
+
         // Start the application as a single instance
         if (!SingleInstance<App>.InitializeAsFirstInstance())
+        {
+            StartupTrace.Write("exit: another instance is running");
             return;
+        }
 
         VelopackApp
             .Build()
@@ -364,6 +369,7 @@ public partial class App : ISingleInstanceApp, INavigation, IDisposable
             return;
         }
 
+        StartupTrace.Write("run: entering application");
         using var application = new App();
         application.InitializeComponent();
         application.Run();
@@ -415,16 +421,19 @@ public partial class App : ISingleInstanceApp, INavigation, IDisposable
                 return false;
 
             // 如果是跳过UAC管理员模式,则检查,如果缺失则先创建计划任务
-            if (mode == StartMode.SkipUACAdmin)
+            // （已存在时不在此升级配置，交给提权后的实例在 Settings.Initialize 中静默完成，避免额外的 UAC 弹窗）
+            if (mode == StartMode.SkipUACAdmin && !UACHelper.Exist())
             {
                 UACHelper.Create();
             }
 
+            StartupTrace.Write($"exit: relaunch via host, mode={mode}");
             UACHelper.Run(mode, waitPid: Environment.ProcessId, waitTimeoutSec: 6);
             return true;
         }
         catch (Exception ex)
         {
+            StartupTrace.Write($"admin check failed, continue without relaunch: {ex.Message}");
             Debug.WriteLine($"Cannot parse Settings.json for admin check: {ex.Message}");
             return false;
         }

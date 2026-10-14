@@ -772,28 +772,18 @@ public class Utilities
     #region ShortcutUtils
 
     /// <summary>
-    ///     设置开机自启
+    ///     清理旧版自启方式在启动文件夹留下的快捷方式（开机自启已改为计划任务，仅删除指向本程序的项）
     /// </summary>
-    public static void SetStartup()
+    public static void RemoveLegacyStartupShortcut()
     {
-        ShortCutCreate();
-    }
-
-    /// <summary>
-    ///     检查是否已经设置开机自启
-    /// </summary>
-    /// <returns>true: 开机自启 false: 非开机自启</returns>
-    public static bool IsStartup()
-    {
-        return ShortCutExist(DataLocation.AppExePath, DataLocation.StartupPath);
-    }
-
-    /// <summary>
-    ///     取消开机自启
-    /// </summary>
-    public static void UnSetStartup()
-    {
-        ShortCutDelete(DataLocation.AppExePath, DataLocation.StartupPath);
+        try
+        {
+            ShortCutDelete(DataLocation.AppExePath, DataLocation.StartupPath);
+        }
+        catch
+        {
+            // 清理失败不影响自启任务，下次启动会再次尝试
+        }
     }
 
     /// <summary>
@@ -820,27 +810,6 @@ public class Utilities
     }
 
     /// <summary>
-    ///     判断快捷方式是否存在
-    /// </summary>
-    /// <param name="path">快捷方式目标（可执行文件的绝对路径）</param>
-    /// <param name="target">目标文件夹（绝对路径）</param>
-    /// <returns></returns>
-    private static bool ShortCutExist(string path, string target)
-    {
-        if (string.IsNullOrWhiteSpace(path))
-            throw new ArgumentException("Path cannot be null or empty", nameof(path));
-
-        if (string.IsNullOrWhiteSpace(target))
-            throw new ArgumentException("Target cannot be null or empty", nameof(target));
-
-        if (!Directory.Exists(target))
-            return false;
-
-        var list = GetDirectoryFileList(target);
-        return list.Any(item => path.Equals(GetAppPathViaShortCut(item), StringComparison.OrdinalIgnoreCase));
-    }
-
-    /// <summary>
     ///     删除快捷方式（通过快捷方式目标进行删除）
     /// </summary>
     /// <param name="path">快捷方式目标（可执行文件的绝对路径）</param>
@@ -850,7 +819,7 @@ public class Utilities
     {
         var result = false;
         var list = GetDirectoryFileList(target);
-        foreach (var item in list.Where(item => path == GetAppPathViaShortCut(item)))
+        foreach (var item in list.Where(item => path.Equals(GetAppPathViaShortCut(item), StringComparison.OrdinalIgnoreCase)))
         {
             File.Delete(item);
             result = true;
