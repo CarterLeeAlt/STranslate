@@ -7,6 +7,7 @@
 - Git 提交信息必须使用英文。
 
 ## 全局开发规则
+- Git 提交直接提交到 `main` 分支，不新建功能分支（用户另行要求时除外）；推送仍需用户明确要求。
 - 项目内 MessageBox 必须统一走 `AppMessageBox.Show()`，不要直接调用 iNKORE `MessageBox.Show()`。
 - 从具体窗口或控件触发的 iNKORE `ContentDialog` 必须显式传入 owner，避免依赖活动窗口推断。
 - 调试运行使用便携模式：运行 Debug 构建（`dotnet run` 或直接启动 exe）前，在输出目录 `src/.artifacts/Debug/` 下创建空的 `PortableConfig` 文件夹，使配置写入程序目录而非 `%APPDATA%\STranslate`。
