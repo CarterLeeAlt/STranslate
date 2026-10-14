@@ -1,0 +1,10 @@
+{
+  "PluginID": "c464f44b30ba418eb65ac953c3d76397",
+  "Name": "RapidOCR (Built-in)",
+  "Description": "Offline local OCR plugin based on RapidOCR and PP-OCRv6",
+  "Author": "CarterLeeAlt",
+  "Version": "1.0.0",
+  "Website": "https://github.com/CarterLeeAlt/STranslate",
+  "ExecuteFileName": "STranslate.Plugin.Ocr.RapidOcrBuiltIn.dll",
+  "IconPath": "icon.png"
+}

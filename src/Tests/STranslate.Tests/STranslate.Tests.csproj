@@ -28,6 +28,7 @@
   <ItemGroup>
     <Using Include="Xunit" />
     <Compile Include="..\..\Plugins\STranslate.Plugin.Translate.Youdao\TranslationResponse.cs" Link="Youdao\TranslationResponse.cs" />
+    <Compile Include="..\..\Plugins\STranslate.Plugin.Ocr.RapidOcrBuiltIn\ReadingOrder.cs" Link="RapidOcr\ReadingOrder.cs" />
   </ItemGroup>
 
 </Project>

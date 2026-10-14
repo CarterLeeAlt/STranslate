@@ -1,0 +1,16 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr">介绍</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr_Content">本插件使用 RapidOCR（PP-OCRv6 small 模型）在本机离线识别，支持简繁中文、日文、英文及常见拉丁字母语言，能处理倾斜、旋转、倒置和竖排文字。模型在首次识别时加载。</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr_IdleUnload">空闲释放模型（分钟）</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr_IdleUnload_Description">超过该时间未使用时释放模型以回收内存，下次识别会重新加载；设为 0 表示模型常驻内存</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr_Support">支持</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr_Support_Description">此插件基于下面的开源项目与模型，请点击链接以支持原项目开发者</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr_UseCount">使用次数</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr_UseCount_Format1">已使用</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr_UseCount_Format2">次</sys:String>
+
+</ResourceDictionary>

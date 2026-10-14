@@ -110,6 +110,7 @@
 ## 常见改动任务
 - 截图行为改造：在 `Screenshot.GetScreenshotAsync()` 处理窗口折叠、等待时机和截图工具调用。
 - OCR 结果进入翻译或剪贴板前的文本清洗：优先复用 `MainWindowViewModel.HandleCapturedText()`，避免截图翻译和静默 OCR 行为分叉。
+- OCR 文本行顺序：普通 OCR 的 `OcrResult.Text` 直接按插件返回的 `OcrContents` 顺序拼接，宿主不重排；本地 RapidOCR 插件的行序整理见 [plugin-sdk-development.md](plugin-sdk-development.md) 中的 RapidOCR 小节。
 - OCR 坐标问题：优先检查插件是否按图片像素坐标返回 `BoxPoints`；如果服务商返回归一化坐标，插件应使用 `OcrRequest.PixelWidth` / `PixelHeight` 自行换算。
 - OCR 窗口图片文本选中：检查 `OcrWordBuilder` 与 `ImageZoom`。
 - 图片翻译分段、覆盖和插件能力问题：看 [flow-image-translation.md](flow-image-translation.md)。

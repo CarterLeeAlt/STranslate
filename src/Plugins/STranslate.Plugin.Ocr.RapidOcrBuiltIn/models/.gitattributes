@@ -1,0 +1,2 @@
+# 模型与字典按原样字节保存，避免 core.autocrlf 改写换行导致字典与 README 中的 SHA256 不一致
+* -text

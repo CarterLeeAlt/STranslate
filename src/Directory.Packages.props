@@ -28,6 +28,7 @@
     <PackageVersion Include="NHotkey.Wpf" Version="4.0.0" />
     <PackageVersion Include="ObservableCollections" Version="3.3.4" />
     <PackageVersion Include="PracticalToolkit.WPF" Version="1.0.4" />
+    <PackageVersion Include="RapidOcrNet" Version="4.2.0" />
     <PackageVersion Include="ScreenGrab" Version="1.0.17" />
     <PackageVersion Include="SemanticVersioning" Version="3.0.0" />
     <PackageVersion Include="Serilog.Extensions.Logging" Version="10.0.0" />

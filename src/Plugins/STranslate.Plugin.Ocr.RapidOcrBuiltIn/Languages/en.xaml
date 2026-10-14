@@ -1,0 +1,16 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr">Introduction</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr_Content">This plugin recognizes text locally and offline with RapidOCR (PP-OCRv6 small model). It supports Simplified and Traditional Chinese, Japanese, English and common Latin-script languages, and handles tilted, rotated, upside-down and vertical text. The model is loaded on first use.</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr_IdleUnload">Unload model when idle (minutes)</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr_IdleUnload_Description">Release the model to free memory after it has not been used for this long; it is reloaded on the next recognition. 0 keeps the model in memory</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr_Support">Support</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr_Support_Description">This plugin is based on the following open source projects and models. Please click the links to support the original developers</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr_UseCount">Usage Count</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr_UseCount_Format1">Used</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr_UseCount_Format2">times</sys:String>
+
+</ResourceDictionary>

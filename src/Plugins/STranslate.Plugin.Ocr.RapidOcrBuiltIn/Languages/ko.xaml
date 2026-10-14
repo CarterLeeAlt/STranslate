@@ -1,0 +1,16 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr">소개</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr_Content">이 플러그인은 RapidOCR(PP-OCRv6 small 모델)로 로컬에서 오프라인 인식을 수행합니다. 중국어 간체·번체, 일본어, 영어 및 일반적인 라틴 문자 언어를 지원하며 기울어진 글자, 회전·뒤집힌 글자와 세로쓰기도 처리합니다. 한국어는 지원하지 않습니다. 모델은 처음 인식할 때 로드됩니다.</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr_IdleUnload">유휴 시 모델 해제(분)</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr_IdleUnload_Description">이 시간 동안 사용하지 않으면 모델을 해제하여 메모리를 회수하고, 다음 인식 때 다시 로드합니다. 0이면 모델을 메모리에 상주시킵니다</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr_Support">지원</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr_Support_Description">이 플러그인은 다음 오픈 소스 프로젝트와 모델을 기반으로 합니다. 링크를 클릭하여 원 개발자를 지원해 주세요</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr_UseCount">사용 횟수</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr_UseCount_Format1">사용</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr_UseCount_Format2">회</sys:String>
+
+</ResourceDictionary>

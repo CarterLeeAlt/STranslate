@@ -1,0 +1,16 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr">Tanıtım</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr_Content">Bu eklenti metni RapidOCR (PP-OCRv6 small modeli) ile yerel olarak ve çevrimdışı tanır. Basitleştirilmiş ve Geleneksel Çince, Japonca, İngilizce ve yaygın Latin alfabeli dilleri destekler; eğik, döndürülmüş, ters çevrilmiş ve dikey metni de işler. Model ilk tanımada yüklenir.</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr_IdleUnload">Boştayken modeli kaldır (dakika)</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr_IdleUnload_Description">Bu süre boyunca kullanılmazsa model bellekten kaldırılır ve sonraki tanımada yeniden yüklenir. 0, modeli bellekte tutar</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr_Support">Destek</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr_Support_Description">Bu eklenti aşağıdaki açık kaynak projelere ve modellere dayanmaktadır. Orijinal geliştiricileri desteklemek için bağlantılara tıklayın</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr_UseCount">Kullanım Sayısı</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr_UseCount_Format1">Kullanıldı</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr_UseCount_Format2">kez</sys:String>
+
+</ResourceDictionary>

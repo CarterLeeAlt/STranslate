@@ -112,6 +112,12 @@
 - Transmart 内置翻译：
   - 腾讯 Transmart 官方服务已停止，插件保留仅用于兼容旧配置。
   - 设置页只展示停用说明，不再提供连通性验证入口。
+- RapidOCR 内置 OCR（`Plugins/STranslate.Plugin.Ocr.RapidOcrBuiltIn`）：
+  - 基于 NuGet `RapidOcrNet` + PP-OCRv6 small 单一多语言模型（中、繁、日与拉丁字母语言，不分语言），模型随源码放在插件 `models/`，来源与 SHA256 见其中 `README.md`；`RapidOcrNet` 以 `ExcludeAssets="build"` 引用，避免复制包自带的 latin 模型。
+  - 检测参数不要直接用 `RapidOcrOptions.PPOCRv6` 预设：它把短边放大到 736 px，小截图约 1 s、峰值内存 2.4 GB。当前为短边放大上限 384、识别 4 路并行、线程数取逻辑核一半（最多 8）、关闭 ONNX 内存池；依据写在 `RapidOcrEngine` 注释中，改参数前先用对比测试复核。
+  - 模型首次识别时加载，空闲 `Settings.IdleUnloadMinutes`（默认 10，0 为常驻）后释放；识别请求串行执行。
+  - RapidOCR 没有版面分析，`ReadingOrder` 负责把输出整理成阅读顺序：按框几何与方向分类结果求阅读方向（覆盖 180° 倒置、90°/270° 旋转、竖排从右到左），再递归 XY 切分，能切出正文栏时按栏输出，菜单、表格保持逐行。单元测试在 `Tests/STranslate.Tests/RapidOcrReadingOrderTests.cs`（链接源码编译，不引用插件项目）。
+  - 构建后只保留 `runtimes/win-x64` 原生库；插件目录约 59 MB。
 - 金山词霸内置词典：
   - 当前解析网页 `__NEXT_DATA__`，需同时处理 Next.js HTML 与直接 JSON 两类响应。
   - 无结果或跳转默认页时应返回 `DictionaryResultType.NoResult`，避免错误词条污染历史。

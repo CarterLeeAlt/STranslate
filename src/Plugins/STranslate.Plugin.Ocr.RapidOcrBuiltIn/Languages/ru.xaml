@@ -1,0 +1,16 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr">Описание</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr_Content">Плагин распознаёт текст локально и без сети с помощью RapidOCR (модель PP-OCRv6 small). Поддерживаются упрощённый и традиционный китайский, японский, английский и распространённые языки на латинице; наклонный, повёрнутый, перевёрнутый и вертикальный текст также обрабатывается. Кириллица не поддерживается. Модель загружается при первом распознавании.</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr_IdleUnload">Выгружать модель при простое (мин)</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr_IdleUnload_Description">Если модель не используется это время, она выгружается для освобождения памяти и загружается снова при следующем распознавании. 0 — держать модель в памяти</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr_Support">Поддержка</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr_Support_Description">Плагин основан на следующих проектах и моделях с открытым исходным кодом. Перейдите по ссылкам, чтобы поддержать их авторов</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr_UseCount">Число использований</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr_UseCount_Format1">Использовано</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr_UseCount_Format2">раз</sys:String>
+
+</ResourceDictionary>

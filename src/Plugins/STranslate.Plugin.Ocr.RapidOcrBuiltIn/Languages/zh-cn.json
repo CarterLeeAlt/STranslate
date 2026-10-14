@@ -1,0 +1,4 @@
+{
+  "Name": "RapidOCR (内置)",
+  "Description": "基于 RapidOCR 与 PP-OCRv6 的本地离线 OCR 插件"
+}

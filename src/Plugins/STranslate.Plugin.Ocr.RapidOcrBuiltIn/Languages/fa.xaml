@@ -1,0 +1,16 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr">معرفی</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr_Content">این افزونه متن را با RapidOCR (مدل PP-OCRv6 small) به‌صورت محلی و آفلاین تشخیص می‌دهد. از چینی ساده و سنتی، ژاپنی، انگلیسی و زبان‌های رایج با خط لاتین پشتیبانی می‌کند و متن کج، چرخیده، وارونه و عمودی را نیز پردازش می‌کند. خط فارسی و عربی پشتیبانی نمی‌شود. مدل در نخستین تشخیص بارگذاری می‌شود.</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr_IdleUnload">آزادسازی مدل در زمان بیکاری (دقیقه)</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr_IdleUnload_Description">اگر مدل در این مدت استفاده نشود، برای آزادسازی حافظه تخلیه می‌شود و در تشخیص بعدی دوباره بارگذاری می‌شود. مقدار 0 مدل را در حافظه نگه می‌دارد</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr_Support">پشتیبانی</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr_Support_Description">این افزونه بر پایه پروژه‌ها و مدل‌های متن‌باز زیر ساخته شده است. برای حمایت از توسعه‌دهندگان اصلی روی پیوندها کلیک کنید</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr_UseCount">تعداد استفاده</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr_UseCount_Format1">استفاده شده</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_RapidOcr_UseCount_Format2">بار</sys:String>
+
+</ResourceDictionary>

@@ -40,6 +40,7 @@
     <Project Path="Plugins/STranslate.Plugin.Ocr.OpenAI/STranslate.Plugin.Ocr.OpenAI.csproj" />
     <Project Path="Plugins/STranslate.Plugin.Ocr.DeepSeek/STranslate.Plugin.Ocr.DeepSeek.csproj" />
     <Project Path="Plugins/STranslate.Plugin.Ocr.WeChatBuiltIn/STranslate.Plugin.Ocr.WeChatBuiltIn.csproj" />
+    <Project Path="Plugins/STranslate.Plugin.Ocr.RapidOcrBuiltIn/STranslate.Plugin.Ocr.RapidOcrBuiltIn.csproj" />
     <Project Path="Plugins/STranslate.Plugin.Ocr.Google/STranslate.Plugin.Ocr.Google.csproj" />
     <Project Path="Plugins/STranslate.Plugin.Ocr.Tencent/STranslate.Plugin.Ocr.Tencent.csproj" />
     <Project Path="Plugins/STranslate.Plugin.Ocr.Youdao/STranslate.Plugin.Ocr.Youdao.csproj" />
