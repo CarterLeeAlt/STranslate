@@ -110,6 +110,33 @@ public partial class MainWindow : IDisposable
         }, DispatcherPriority.Input);
     }
 
+    /// <summary>
+    /// 无输入框的划词模式下，窗口以 Collapsed 方式隐藏再显示会恢复隐藏前的键盘焦点
+    /// （可能停在结果区上次点击过的按钮上），显式聚焦首个结果文本便于滚动与复制。
+    /// </summary>
+    internal void FocusFirstResultText()
+    {
+        var result = FindVisibleResultText(PART_ContentScroll);
+        if (result is null) return;
+        result.Focus();
+        Keyboard.Focus(result);
+    }
+
+    private static System.Windows.Controls.TextBox? FindVisibleResultText(DependencyObject parent)
+    {
+        var count = System.Windows.Media.VisualTreeHelper.GetChildrenCount(parent);
+        for (var i = 0; i < count; i++)
+        {
+            var child = System.Windows.Media.VisualTreeHelper.GetChild(parent, i);
+            // 结果文本是只读 TextBox，输入框不是只读，不会误中。
+            if (child is System.Windows.Controls.TextBox { IsReadOnly: true, IsVisible: true, IsEnabled: true } box)
+                return box;
+            if (FindVisibleResultText(child) is { } nested)
+                return nested;
+        }
+        return null;
+    }
+
     public MainWindow()
     {
         _viewModel = Ioc.Default.GetRequiredService<MainWindowViewModel>();

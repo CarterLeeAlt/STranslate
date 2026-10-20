@@ -2055,6 +2055,10 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
             MainWindow.PART_Input.Focus();
             Keyboard.Focus(MainWindow.PART_Input);
         }
+        else
+        {
+            MainWindow.FocusFirstResultText();
+        }
     }
 
     public void Hide()
