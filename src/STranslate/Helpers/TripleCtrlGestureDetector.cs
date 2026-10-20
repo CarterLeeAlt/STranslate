@@ -35,11 +35,10 @@ internal sealed class TripleCtrlGestureDetector(Func<ushort, bool>? isKeyDown = 
         var inputGap = timestamp - _lastInput;
         if (_lastInput != 0 && inputGap > StaleInputMs)
         {
-            if (isKeyDown is null)
-            {
-                _otherKeysDown.Clear();
-                _ctrlDown = false;
-            }
+            // KeyUp 丢失时原始输入与 GetAsyncKeyState 会同时卡在按下，对账清不掉，
+            // 空闲一段时间后必须无条件重置兜底；正常按住的键会自动重复，不会走到这里。
+            _otherKeysDown.Clear();
+            _ctrlDown = false;
             _pressCount = 0;
         }
         _lastInput = timestamp;

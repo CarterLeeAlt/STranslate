@@ -172,18 +172,31 @@ public class TripleCtrlGestureDetectorTests
         }
     }
 
-    [Theory]
-    [InlineData(300)]
-    [InlineData(6_300)]
-    public void PreservesActuallyHeldKeyDuringStateReconciliation(long start)
+    [Fact]
+    public void PreservesActuallyHeldKeyDuringStateReconciliation()
     {
         var physicallyHeld = new HashSet<ushort> { 0x43 };
         var detector = new TripleCtrlGestureDetector(physicallyHeld.Contains);
         detector.OnKeyEvent(0x43, 0, 100);
         for (var i = 0; i < 3; i++)
         {
-            detector.OnKeyEvent(Ctrl, 0, start + i * 100);
-            Assert.False(detector.OnKeyEvent(Ctrl, KeyBreak, start + 50 + i * 100));
+            detector.OnKeyEvent(Ctrl, 0, 300 + i * 100);
+            Assert.False(detector.OnKeyEvent(Ctrl, KeyBreak, 350 + i * 100));
+        }
+    }
+
+    [Fact]
+    public void RecoversFromStuckAsyncKeyStateAfterQuietPeriod()
+    {
+        // KeyUp 丢失后 GetAsyncKeyState 与原始输入一起卡在按下，对账无法自愈，
+        // 只能靠 5 秒空闲后的无条件重置恢复三击。
+        var stuckDown = new HashSet<ushort> { 0x43 };
+        var detector = new TripleCtrlGestureDetector(stuckDown.Contains);
+        detector.OnKeyEvent(0x43, 0, 100);
+        for (var i = 0; i < 3; i++)
+        {
+            detector.OnKeyEvent(Ctrl, 0, 6_300 + i * 100);
+            Assert.Equal(i == 2, detector.OnKeyEvent(Ctrl, KeyBreak, 6_350 + i * 100));
         }
     }
 
