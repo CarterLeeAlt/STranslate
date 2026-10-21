@@ -8,7 +8,7 @@ public partial class ProxySettings : ObservableObject
     public partial bool IsEnabled { get; set; } = false;
 
     [ObservableProperty]
-    public partial ProxyType ProxyType { get; set; } = ProxyType.System;
+    public partial ProxyType ProxyType { get; set; } = ProxyType.None;
 
     [ObservableProperty]
     public partial string ProxyAddress { get; set; } = "127.0.0.1";

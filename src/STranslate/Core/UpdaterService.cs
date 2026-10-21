@@ -21,7 +21,8 @@ namespace STranslate.Core;
 public class UpdaterService(
     ILogger<UpdaterService> logger,
     Internationalization i18n,
-    INotification notification
+    INotification notification,
+    Settings settings
     )
 {
     private SemaphoreSlim UpdateLock { get; } = new SemaphoreSlim(1);
@@ -36,7 +37,7 @@ public class UpdaterService(
         {
             notification.Show(i18n.GetTranslation("UpdateCheck"), i18n.GetTranslation("CheckingForUpdates"));
 
-            var updateManager = new UpdateManager(new GithubSource(Constant.UpdateRepository, accessToken: default, prerelease: false));
+            var updateManager = new UpdateManager(new GithubSource(Constant.UpdateRepository, accessToken: default, prerelease: false, new ProxyAwareFileDownloader(settings)));
 
             var newUpdateInfo = await updateManager.CheckForUpdatesAsync();
 
@@ -116,7 +117,7 @@ public class UpdaterService(
         await UpdateLock.WaitAsync();
         try
         {
-            var updateManager = new UpdateManager(new GithubSource(Constant.UpdateRepository, accessToken: default, prerelease: false));
+            var updateManager = new UpdateManager(new GithubSource(Constant.UpdateRepository, accessToken: default, prerelease: false, new ProxyAwareFileDownloader(settings)));
             var newUpdateInfo = await updateManager.CheckForUpdatesAsync();
 
             if (newUpdateInfo == null)
@@ -186,5 +187,23 @@ public class UpdaterService(
                 logger.LogError(ex, "Failed to navigate to Settings-About from update notification.");
             }
         }));
+    }
+
+    /// <summary>
+    /// Velopack 默认的 HttpClientHandler 会跟随系统代理；
+    /// 覆盖为与应用代理设置一致的 handler，保证软件选择直连时更新流量也不绕道系统代理。
+    /// </summary>
+    private sealed class ProxyAwareFileDownloader(Settings settings) : HttpClientFileDownloader
+    {
+        protected override HttpClientHandler CreateHttpClientHandler()
+        {
+            var handler = base.CreateHttpClientHandler();
+            var proxy = ProxyHelper.CreateWebProxy(settings.Proxy);
+            if (proxy is null)
+                handler.UseProxy = false;
+            else
+                handler.Proxy = proxy;
+            return handler;
+        }
     }
 }

@@ -478,6 +478,7 @@ public partial class Settings : ObservableObject
 
         NormalizeLayoutAnalysisMode();
         EnsureMainHeaderVisibleActionsInitialized();
+        NormalizeProxyType();
 
         ApplyLogLevel();
         ApplyStartMode();
@@ -520,6 +521,16 @@ public partial class Settings : ObservableObject
     {
         if (LayoutAnalysisMode is not (LayoutAnalysisMode.Auto or LayoutAnalysisMode.Provider or LayoutAnalysisMode.Smart or LayoutAnalysisMode.NoMerge))
             LayoutAnalysisMode = LayoutAnalysisMode.Auto;
+    }
+
+    /// <summary>
+    /// 代理禁用状态下的"系统代理"类型没有实际意义（行为等同直连），
+    /// 归一为"无代理"，使设置页显示与实际行为一致。
+    /// </summary>
+    internal void NormalizeProxyType()
+    {
+        if (!Proxy.IsEnabled && Proxy.ProxyType == ProxyType.System)
+            Proxy.ProxyType = ProxyType.None;
     }
 
     #endregion

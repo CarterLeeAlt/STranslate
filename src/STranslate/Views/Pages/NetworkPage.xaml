@@ -120,19 +120,21 @@
                     </ui:SettingsCard>
                 </control:CardGroup>
 
-                <!--  代理启用设置  -->
-                <ui:SettingsCard
-                    Margin="0,8,0,0"
-                    Description="{DynamicResource Network_EnableProxyDescription}"
-                    Header="{DynamicResource Network_EnableProxy}">
-                    <ui:SettingsCard.HeaderIcon>
-                        <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.Shield_24_Regular}" />
-                    </ui:SettingsCard.HeaderIcon>
-                    <ui:ToggleSwitch
-                        IsOn="{Binding Settings.Proxy.IsEnabled}"
-                        OffContent="{DynamicResource Disable}"
-                        OnContent="{DynamicResource Enable}" />
-                </ui:SettingsCard>
+                <!--  定制版：代理锁定为直连（默认且禁止修改），需要调整时改此处的 IsEnabled  -->
+                <ikw:SimpleStackPanel IsEnabled="False" Spacing="4">
+                    <!--  代理启用设置  -->
+                    <ui:SettingsCard
+                        Margin="0,8,0,0"
+                        Description="{DynamicResource Network_EnableProxyDescription}"
+                        Header="{DynamicResource Network_EnableProxy}">
+                        <ui:SettingsCard.HeaderIcon>
+                            <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.Shield_24_Regular}" />
+                        </ui:SettingsCard.HeaderIcon>
+                        <ui:ToggleSwitch
+                            IsOn="{Binding Settings.Proxy.IsEnabled}"
+                            OffContent="{DynamicResource Disable}"
+                            OnContent="{DynamicResource Enable}" />
+                    </ui:SettingsCard>
 
                 <!--  代理类型设置  -->
                 <ui:SettingsExpander
@@ -243,6 +245,7 @@
                         </ui:SettingsCard>
                     </ui:SettingsExpander.Items>
                 </ui:SettingsExpander>
+                </ikw:SimpleStackPanel>
 
                 <!--  连接测试区域  -->
                 <control:CardGroup>
