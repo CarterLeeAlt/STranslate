@@ -11,7 +11,7 @@ namespace STranslate.Tests;
 
 public class WindowMaximizeTests
 {
-    [Fact]
+    [InteractiveUiFact]
     public void DisablingMaximizePreservesResizeAcrossWindowVisibilityChanges()
     {
         Exception? error = null;
