@@ -22,3 +22,8 @@ target/
 
 # superpowers docs
 docs/superpowers/
+# 本地工具链与临时目录（工作区隔离，勿提交）
+.dotnet/
+.nuget/
+.dotnet-home/
+.tmp/

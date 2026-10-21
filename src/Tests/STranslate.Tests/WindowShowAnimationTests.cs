@@ -12,7 +12,7 @@ namespace STranslate.Tests;
 
 public class WindowShowAnimationTests
 {
-    [Theory]
+    [InteractiveUiTheory]
     [InlineData(false)]
     [InlineData(true)]
     public void NativeWindowFadesAndRestoresStyleOnCompletionOrCancellation(bool cancel)
@@ -60,7 +60,7 @@ public class WindowShowAnimationTests
         });
     }
 
-    [Fact]
+    [InteractiveUiFact]
     public void FadeFinishesBeforeTheWindowStopsRising()
     {
         Assert.Equal(0, WindowShowAnimation.GetAlpha(0));
@@ -69,7 +69,7 @@ public class WindowShowAnimationTests
         Assert.Equal(255, WindowShowAnimation.GetAlpha(180));
     }
 
-    [Fact]
+    [InteractiveUiFact]
     public void RealWindowReturnsToOriginalBoundsOnEachMonitor()
     {
         RunOnSta(() =>
@@ -109,7 +109,7 @@ public class WindowShowAnimationTests
         });
     }
 
-    [Fact]
+    [InteractiveUiFact]
     public void FrameRisesToTargetWithoutOvershoot()
     {
         Assert.Equal(18, WindowShowAnimation.GetOffset(0), precision: 3);
@@ -124,7 +124,7 @@ public class WindowShowAnimationTests
         Assert.Equal(0, WindowShowAnimation.GetOffset(260), precision: 3);
     }
 
-    [Theory]
+    [InteractiveUiTheory]
     [InlineData(false)]
     [InlineData(true)]
     public void RealWindowMovesWithoutWritingAnimationPositionsToBindings(bool topmost)
@@ -185,7 +185,7 @@ public class WindowShowAnimationTests
         });
     }
 
-    [Fact]
+    [InteractiveUiFact]
     public void FirstShowIsCloakedOnlyUntilRealWindowStartsMoving()
     {
         RunOnSta(() =>
@@ -212,7 +212,7 @@ public class WindowShowAnimationTests
         });
     }
 
-    [Theory]
+    [InteractiveUiTheory]
     [InlineData(false)]
     [InlineData(true)]
     public void CancellationRestoresLatestTopmostBinding(bool latestTopmost)
@@ -249,7 +249,7 @@ public class WindowShowAnimationTests
         });
     }
 
-    [Theory]
+    [InteractiveUiTheory]
     [InlineData(false)]
     [InlineData(true)]
     public void HidingCancelsPendingOrRunningAnimationWithoutReopeningWindow(bool running)
@@ -288,7 +288,7 @@ public class WindowShowAnimationTests
         });
     }
 
-    [Fact]
+    [InteractiveUiFact]
     public void HidingInsidePositionUpdateCancelsWithoutCompletingOrReopening()
     {
         RunOnSta(() =>
@@ -313,7 +313,7 @@ public class WindowShowAnimationTests
         });
     }
 
-    [Fact]
+    [InteractiveUiFact]
     public void KeyboardInputRestoresLatestBoundPositionWithoutSwallowingInput()
     {
         RunOnSta(() =>
@@ -342,7 +342,7 @@ public class WindowShowAnimationTests
         });
     }
 
-    [Theory]
+    [InteractiveUiTheory]
     [InlineData(false)]
     [InlineData(true)]
     public void ClosingCancelsPendingOrRunningAnimation(bool running)
