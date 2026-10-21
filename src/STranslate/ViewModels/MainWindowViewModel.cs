@@ -2064,8 +2064,12 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     public void Hide()
     {
         ExitInputTranslateMode();
-        MainWindow.Visibility = Visibility.Collapsed;
-        MainWindow.StopShowAnimation();
+        // 主窗口关闭/切换的时序下 Application.Current.MainWindow 可能为空，
+        // 失焦回调走到这里时空引用曾导致整个程序崩溃。
+        if (Application.Current.MainWindow is not MainWindow window)
+            return;
+        window.Visibility = Visibility.Collapsed;
+        window.StopShowAnimation();
     }
 
     [RelayCommand]

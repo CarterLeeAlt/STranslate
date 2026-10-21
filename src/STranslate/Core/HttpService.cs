@@ -375,7 +375,9 @@ public class HttpService : IHttpService
 
         LogRequest(request, serviceName, jsonContent);
 
+        var startedAt = Environment.TickCount64;
         using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+        var ttfbMs = Environment.TickCount64 - startedAt;
         LogResponse(request, response, serviceName, "<stream started>");
         await EnsureSuccessStatusCodeAsync(response, cancellationToken);
 
@@ -384,14 +386,22 @@ public class HttpService : IHttpService
 
         // 保持与回调模式一致：逐行读取并忽略空行，避免把心跳空包暴露给调用方。
         string? line;
+        var lineCount = 0;
         while (!cancellationToken.IsCancellationRequested && (line = await reader.ReadLineAsync(cancellationToken)) != null)
         {
             if (!string.IsNullOrEmpty(line))
             {
                 LogStreamResponse(request, response, serviceName, line);
+                lineCount++;
                 yield return line;
             }
         }
+
+        // 流式耗时在 Information 级别落盘，供"翻译卡顿"类问题定位网络/服务端延迟。
+        _logger.LogInformation(
+            "HTTP stream POST {Url}, Service: {ServiceName}, status {Status}, ttfb {Ttfb}ms, total {Total}ms, lines {Lines}, cancelled {Cancelled}",
+            request.RequestUri, serviceName, (int)response.StatusCode, ttfbMs, Environment.TickCount64 - startedAt,
+            lineCount, cancellationToken.IsCancellationRequested);
     }
 
     #endregion
