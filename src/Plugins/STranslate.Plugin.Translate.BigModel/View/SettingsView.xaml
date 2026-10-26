@@ -121,10 +121,10 @@
                 <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.Thinking_20_Regular}" />
             </ui:SettingsCard.HeaderIcon>
 
-            <ui:ToggleSwitch
-                IsOn="{Binding Thinking}"
-                OffContent="{DynamicResource Off}"
-                OnContent="{DynamicResource On}" />
+            <ComboBox
+                MinWidth="120"
+                ItemsSource="{Binding ThinkingLevels}"
+                SelectedItem="{Binding ThinkingLevel, Mode=TwoWay}" />
         </ui:SettingsCard>
 
         <!--  连接验证  -->

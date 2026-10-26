@@ -48,11 +48,6 @@ public partial class Settings : ObservableObject
 
     [ObservableProperty] public partial bool HideNotifyIcon { get; set; } = false;
 
-    /// <summary>
-    /// 是否启用自动检查更新
-    /// </summary>
-    [ObservableProperty] public partial bool AutoCheckUpdate { get; set; } = false;
-
     [ObservableProperty] public partial ElementTheme ColorScheme { get; set; }
 
     [ObservableProperty] public partial HistoryLimit HistoryLimit { get; set; } = HistoryLimit.Limit100;

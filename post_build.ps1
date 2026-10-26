@@ -1,7 +1,6 @@
 # 从命令行参数获取版本号,如果未提供则使用默认值
 param(
-    [string]$Version = "2.0.0",
-    [string]$RepoUrl = "https://github.com/STranslate/STranslate"
+    [string]$Version = "2.0.0"
 )
 
 $ErrorActionPreference = "Stop"
@@ -22,119 +21,72 @@ if (-not (Test-Path $SourcePath)) {
     exit 1
 }
 
-# 检查图标是否存在
-$IconPath = ".\src\STranslate\Resources\updater.ico"
-if (-not (Test-Path $IconPath)) {
-    Log "错误: 图标文件不存在: $IconPath" "Red"
-    exit 1
+# 中间文件放在构建产物目录，publish 只保留最终交付文件
+$PackPath = ".\src\.artifacts\pack\$CleanVersion"
+New-Item -ItemType Directory -Path $PackPath -Force | Out-Null
+
+$ZipName = "STranslate-win-Portable.zip"
+$ZipPath = Join-Path $PackPath $ZipName
+
+# 压缩 Release 产物（根目录布局，与本地安装目录一致）
+Log "正在压缩 Release 产物..." "Cyan"
+Add-Type -AssemblyName System.IO.Compression.FileSystem
+
+if (Test-Path -LiteralPath $ZipPath) {
+    Remove-Item -LiteralPath $ZipPath -Force
 }
 
-# 确保输出目录存在
-$OutputPath = ".\publish"
-if (-not (Test-Path $OutputPath)) {
-    Log "创建输出目录: $OutputPath" "Cyan"
-    New-Item -ItemType Directory -Path $OutputPath -Force | Out-Null
-}
+[System.IO.Compression.ZipFile]::CreateFromDirectory(
+    (Resolve-Path $SourcePath).Path,
+    $ZipPath,
+    [System.IO.Compression.CompressionLevel]::Optimal,
+    $false
+)
 
-# 下载最新的 GitHub release 以方便比对生成 delta 包
-Log "下载最新的 GitHub release..." "Cyan"
-$downloadSuccess = $false
-$downloadedFiles = @()
-
+# 写入空的 PortableConfig 目录，解压后即为便携模式
+$zip = [System.IO.Compression.ZipFile]::Open($ZipPath, [System.IO.Compression.ZipArchiveMode]::Update)
 try {
-    # 记录下载前的文件
-    $filesBefore = Get-ChildItem -Path $OutputPath -File | Select-Object -ExpandProperty Name
-
-    vpk download github --repoUrl $RepoUrl -o $OutputPath
-
-    if ($LASTEXITCODE -eq 0) {
-        Log "成功下载最新 release" "Green"
-        $downloadSuccess = $true
-
-        # 记录下载后新增的文件
-        $filesAfter = Get-ChildItem -Path $OutputPath -File | Select-Object -ExpandProperty Name
-        $downloadedFiles = $filesAfter | Where-Object { $_ -notin $filesBefore }
-
-        if ($downloadedFiles.Count -gt 0) {
-            Log "已下载文件: $($downloadedFiles -join ', ')" "Cyan"
-        }
-    } else {
-        Log "警告: 下载 release 失败,将跳过 delta 包生成" "Yellow"
+    $existing = $zip.GetEntry("PortableConfig/")
+    if ($existing) {
+        $existing.Delete()
     }
-} catch {
-    Log "警告: 下载 release 时出错: $($_.Exception.Message)" "Yellow"
-    Log "将继续进行完整包打包..." "Yellow"
+    $zip.CreateEntry("PortableConfig/") | Out-Null
+} finally {
+    $zip.Dispose()
 }
 
-# 执行 vpk 打包
-Log "执行 vpk 打包..." "Cyan"
-vpk pack -u STranslate -v $CleanVersion -p $SourcePath -o $OutputPath -i $IconPath
+# 整理到 publish/portable，并只保留最新版
+Log "整理交付文件..." "Cyan"
 
-if ($LASTEXITCODE -ne 0) {
-    Log "错误: vpk 打包失败" "Red"
+$OutputPath = ".\publish"
+$PortableDir = Join-Path $OutputPath "portable"
+New-Item -ItemType Directory -Path $PortableDir -Force | Out-Null
+
+# 清理旧版更新体系留下的目录
+foreach ($legacy in @("setup", "update", "metadata")) {
+    $legacyPath = Join-Path $OutputPath $legacy
+    if (Test-Path $legacyPath) {
+        Remove-Item -LiteralPath $legacyPath -Recurse -Force
+    }
+}
+
+# 只保留最新版便携包
+Get-ChildItem -Path $PortableDir -Filter "*.zip" -File | Remove-Item -Force
+
+$Destination = Join-Path $PortableDir $ZipName
+Move-Item -LiteralPath $ZipPath -Destination $Destination -Force
+
+# 校验压缩包
+$zip = [System.IO.Compression.ZipFile]::OpenRead($Destination)
+$entryCount = $zip.Entries.Count
+$hasPortableConfig = $null -ne $zip.GetEntry("PortableConfig/")
+$zip.Dispose()
+
+if (-not $hasPortableConfig) {
+    Log "错误: 压缩包中缺少 PortableConfig 目录" "Red"
     exit 1
 }
 
 Log "打包完成!" "Green"
-
-# 在 STranslate-win-Portable.zip 的 current 目录中添加 PortableConfig 文件夹
-Log "处理便携版 zip 文件..." "Cyan"
-
-$PortableZipPath = Join-Path $OutputPath "STranslate-win-Portable.zip"
-
-if (Test-Path $PortableZipPath) {
-    try {
-        # 加载 .NET 压缩程序集
-        Add-Type -AssemblyName System.IO.Compression.FileSystem
-
-        # 以更新模式打开 ZIP 文件
-        $zip = [System.IO.Compression.ZipFile]::Open($PortableZipPath, [System.IO.Compression.ZipArchiveMode]::Update)
-
-        try {
-            # 在 zip 内创建空目录 entry：current/PortableConfig/
-            $entryPath = "current/PortableConfig/"
-
-            # 如果 entry 已存在先删除（避免重复）
-            $existing = $zip.GetEntry($entryPath)
-            if ($existing) {
-                $existing.Delete()
-                Log "已删除旧的 PortableConfig 目录" "Gray"
-            }
-
-            # 创建目录 entry（目录 entry 必须以 "/" 结尾）
-            $zip.CreateEntry($entryPath) | Out-Null
-            Log "处理成功「已在 current 目录中添加 PortableConfig 文件夹」" "Green"
-        }
-        finally {
-            $zip.Dispose()
-        }
-    }
-    catch {
-        Log "错误: 处理便携版 zip 文件时出错: $($_.Exception.Message)" "Red"
-    }
-} else {
-    Log "警告: 未找到 STranslate-win-Portable.zip 文件，跳过 PortableConfig 添加" "Yellow"
-}
-
-# 清理下载的文件
-if ($downloadSuccess -and $downloadedFiles.Count -gt 0) {
-    Log "清理下载的临时文件..." "Cyan"
-    foreach ($file in $downloadedFiles) {
-        $filePath = Join-Path $OutputPath $file
-        if (Test-Path $filePath) {
-            try {
-                Remove-Item -Path $filePath -Force
-                Log "  已删除: $file" "Gray"
-            } catch {
-                Log "  警告: 无法删除 $file - $($_.Exception.Message)" "Yellow"
-            }
-        }
-    }
-    Log "临时文件清理完成" "Green"
-}
-
-# 列出生成的文件
 Log "生成的文件:" "Cyan"
-Get-ChildItem -Path $OutputPath | ForEach-Object {
-    Log "  - $($_.Name)" "White"
-}
+Log "  - portable\$ZipName（$entryCount 项，含 PortableConfig 目录）" "White"

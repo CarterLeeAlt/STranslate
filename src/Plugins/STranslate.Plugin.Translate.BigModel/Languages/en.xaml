@@ -4,6 +4,6 @@
     xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
     <sys:String x:Key="STranslate_Plugin_Translate_BigModel_Thinking">Thinking Mode</sys:String>
-    <sys:String x:Key="STranslate_Plugin_Translate_BigModel_Thinking_Description">Controls whether the model performs deeper thinking and reasoning. Supported by GLM-4.5 and above</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Translate_BigModel_Thinking_Description">Selects the reasoning effort: low, high, or max. GLM-5.3-Flash cannot disable thinking</sys:String>
 
 </ResourceDictionary>

@@ -4,16 +4,16 @@ public class Settings
 {
     public string ApiKey { get; set; } = string.Empty;
     public string Url { get; set; } = "https://open.bigmodel.cn/";
-    public string Model { get; set; } = "glm-4.7-flash";
+    public string Model { get; set; } = "GLM-5.3-Flash";
     public List<string> Models { get; set; } =
     [
-        "glm-4.7-flash",
+        "GLM-5.3-Flash",
     ];
     public int MaxTokens { get; set; } = 2048;
     public int TopP { get; set; } = 1;
     public int N { get; set; } = 1;
     public bool Stream { get; set; } = true;
-    public bool Thinking { get; set; } = false;
+    public string ThinkingLevel { get; set; } = "low";
     public int? MaxRetries { get; set; } = 3;
     public int RetryDelayMilliseconds { get; set; } = 1000;
 

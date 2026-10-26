@@ -135,7 +135,7 @@ public class Main : LlmTranslatePluginBase
 
         // 选择模型
         var model = Settings.Model.Trim();
-        model = string.IsNullOrEmpty(model) ? "glm-4.7-flash" : model;
+        model = string.IsNullOrEmpty(model) ? "GLM-5.3-Flash" : model;
 
         // 替换Prompt关键字
         var messages = (Prompts.FirstOrDefault(x => x.IsEnabled) ?? throw new Exception("请先完善Prompt配置"))
@@ -156,7 +156,7 @@ public class Main : LlmTranslatePluginBase
             stream = true,
             thinking = new
             {
-                type = Settings.Thinking ? "enabled" : "disabled"
+                type = string.IsNullOrWhiteSpace(Settings.ThinkingLevel) ? "low" : Settings.ThinkingLevel
             }
         };
 

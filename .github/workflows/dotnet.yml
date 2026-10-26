@@ -30,19 +30,14 @@ jobs:
     - name: Test
       run: dotnet test src/Tests/STranslate.Tests/STranslate.Tests.csproj -c Release --nologo
 
-    - name: Install vpk
-      if: startsWith(github.ref, 'refs/tags/')
-      run: dotnet tool install -g vpk
-
     - name: Build and Pack
       if: startsWith(github.ref, 'refs/tags/')
       shell: pwsh
       env:
         VERSION: ${{ github.ref_name }}
-        REPO_URL: ${{ github.server_url }}/${{ github.repository }}
       run: |
         .\build.ps1 $env:VERSION
-        .\post_build.ps1 -Version $env:VERSION -RepoUrl $env:REPO_URL
+        .\post_build.ps1 -Version $env:VERSION
 
     - name: Release
       uses: softprops/action-gh-release@v3
@@ -52,4 +47,4 @@ jobs:
         body_path: CHANGELOG.md
         draft: false # 设置为 false 可立即发布版本
         files: |
-          publish/*
+          publish/portable/*

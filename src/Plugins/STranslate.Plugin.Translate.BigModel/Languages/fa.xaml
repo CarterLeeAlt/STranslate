@@ -2,5 +2,5 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:sys="clr-namespace:System;assembly=mscorlib">
     <sys:String x:Key="STranslate_Plugin_Translate_BigModel_Thinking">حالت تفکر</sys:String>
-    <sys:String x:Key="STranslate_Plugin_Translate_BigModel_Thinking_Description">کنترل انجام تفکر و استدلال عمیق‌تر توسط مدل. پشتیبانی‌شده در GLM-4.5 و بالاتر</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Translate_BigModel_Thinking_Description">شدت تفکر مدل را انتخاب می‌کند: low، high یا max. GLM-5.3-Flash از غیرفعال کردن تفکر پشتیبانی نمی‌کند</sys:String>
 </ResourceDictionary>

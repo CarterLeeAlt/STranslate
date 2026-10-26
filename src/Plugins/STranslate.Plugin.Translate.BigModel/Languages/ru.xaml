@@ -4,6 +4,6 @@
     xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
     <sys:String x:Key="STranslate_Plugin_Translate_BigModel_Thinking">Режим размышления</sys:String>
-    <sys:String x:Key="STranslate_Plugin_Translate_BigModel_Thinking_Description">Определяет, будет ли модель рассуждать глубже. Поддерживается в GLM-4.5 и новее</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Translate_BigModel_Thinking_Description">Выбор интенсивности рассуждений: low, high или max. GLM-5.3-Flash не поддерживает отключение рассуждений</sys:String>
 
 </ResourceDictionary>

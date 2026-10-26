@@ -4,6 +4,6 @@
     xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
     <sys:String x:Key="STranslate_Plugin_Translate_BigModel_Thinking">사고 모드</sys:String>
-    <sys:String x:Key="STranslate_Plugin_Translate_BigModel_Thinking_Description">모델이 더 깊은 사고와 추론을 수행할지 여부를 제어합니다. GLM-4.5 이상에서 지원됩니다</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Translate_BigModel_Thinking_Description">모델의 사고 강도(low / high / max)를 선택합니다. GLM-5.3-Flash는 사고를 끌 수 없습니다</sys:String>
 
 </ResourceDictionary>

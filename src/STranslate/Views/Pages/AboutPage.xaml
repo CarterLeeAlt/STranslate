@@ -186,9 +186,6 @@
 
                         <ui:SettingsCard Header="{DynamicResource Version}">
                             <ikw:SimpleStackPanel Orientation="Horizontal" Spacing="4">
-                                <Button Command="{Binding CheckUpdateCommand}">
-                                    <ui:IconAndText Content="{DynamicResource CheckUpdate}" Icon="{x:Static ui:FluentSystemIcons.GlobeArrowUp_20_Regular}" />
-                                </Button>
                                 <Button Command="{Binding OpenWizardCommand}">
                                     <ui:IconAndText Content="{DynamicResource Wizard}" Icon="{x:Static ui:FluentSystemIcons.PlayMultiple_16_Regular}" />
                                 </Button>

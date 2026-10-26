@@ -26,7 +26,7 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
         ApiKey = _settings.ApiKey;
         Model = _settings.Model;
         Models = new ObservableCollection<string>(_settings.Models);
-        Thinking = _settings.Thinking;
+        ThinkingLevel = ThinkingLevels.Contains(_settings.ThinkingLevel) ? _settings.ThinkingLevel : ThinkingLevels[0];
 
         PropertyChanged += OnPropertyChanged;
         Models.CollectionChanged += OnModelsCollectionChanged;
@@ -56,8 +56,8 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
             case nameof(Model):
                 _settings.Model = Model ?? string.Empty;
                 break;
-            case nameof(Thinking):
-                _settings.Thinking = Thinking;
+            case nameof(ThinkingLevel):
+                _settings.ThinkingLevel = ThinkingLevel;
                 break;
             default:
                 return;
@@ -71,7 +71,8 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
     [ObservableProperty] public partial string ApiKey { get; set; }
     [ObservableProperty] public partial string? Model { get; set; }
     [ObservableProperty] public partial ObservableCollection<string> Models { get; set; }
-    [ObservableProperty] public partial bool Thinking { get; set; }
+    [ObservableProperty] public partial string ThinkingLevel { get; set; }
+    public IReadOnlyList<string> ThinkingLevels { get; } = ["low", "high", "max"];
 
     [RelayCommand]
     private void AddModel(string model)
@@ -121,7 +122,7 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
             var url = UrlHelper.BuildFinalUrl(_settings.Url, "/api/paas/v4/chat/completions", UrlPathMatchRule.ChatGLM);
 
             // 选择模型
-            var model = string.IsNullOrEmpty(_settings.Model?.Trim()) ? "glm-4.7-flash" : _settings.Model.Trim();
+            var model = string.IsNullOrEmpty(_settings.Model?.Trim()) ? "GLM-5.3-Flash" : _settings.Model.Trim();
 
             // 替换Prompt关键字
             var prompt = (Main.Prompts.FirstOrDefault(x => x.IsEnabled) ?? throw new Exception("请先完善Prompt配置"));
@@ -141,7 +142,7 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
                 stream = true,
                 thinking = new
                 {
-                    type = Thinking ? "enabled" : "disabled"
+                    type = string.IsNullOrWhiteSpace(ThinkingLevel) ? "low" : ThinkingLevel
                 }
             };
 

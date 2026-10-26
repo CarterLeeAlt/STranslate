@@ -18,7 +18,6 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Windows;
-using Velopack;
 
 namespace STranslate;
 
@@ -37,7 +36,6 @@ public partial class App : ISingleInstanceApp, INavigation, IDisposable
     private PluginManager? _pluginManager;
     private PinnedWindowController? _pinnedWindowController;
     private Notification? _notification;
-    private AutoUpdateCheckerService? _autoUpdateCheckerService;
     private MouseSelectionService? _mouseSelectionService;
     private static bool _disposed;
     private AppShutdownReason _shutdownReason = AppShutdownReason.ExternalOrUnknown;
@@ -149,8 +147,6 @@ public partial class App : ISingleInstanceApp, INavigation, IDisposable
                     services.AddScopedFromNamespace("STranslate.ViewModels.Pages", Assembly.GetExecutingAssembly());
                     services.AddScopedFromNamespace("STranslate.Views.Pages", Assembly.GetExecutingAssembly());
 
-                    services.AddSingleton<UpdaterService>();
-                    services.AddSingleton<AutoUpdateCheckerService>();
                     services.AddSingleton<ExternalCallService>();
                     services.AddSingleton<SqlService>();
                 })
@@ -229,7 +225,6 @@ public partial class App : ISingleInstanceApp, INavigation, IDisposable
     {
         _mouseSelectionService = Ioc.Default.GetRequiredService<MouseSelectionService>();
         _mainWindowViewModel = Ioc.Default.GetRequiredService<MainWindowViewModel>();
-        _autoUpdateCheckerService = Ioc.Default.GetRequiredService<AutoUpdateCheckerService>();
         _mainWindow = new MainWindow();
         Current.MainWindow = _mainWindow;
         Current.MainWindow.Title = Constant.AppName;
@@ -240,7 +235,6 @@ public partial class App : ISingleInstanceApp, INavigation, IDisposable
             UpdateToolTip();
             CheckAndShowInfo();
             WebDavBackupOperation();
-            _autoUpdateCheckerService?.Start();
         };
     }
 
@@ -354,11 +348,6 @@ public partial class App : ISingleInstanceApp, INavigation, IDisposable
             return;
         }
 
-        VelopackApp
-            .Build()
-            .OnAfterUpdateFastCallback(_ => TryGetPortableConfig())
-            .Run();
-
         if (NeedAdmin())
         {
             SingleInstance<App>.Cleanup();
@@ -373,32 +362,6 @@ public partial class App : ISingleInstanceApp, INavigation, IDisposable
         using var application = new App();
         application.InitializeComponent();
         application.Run();
-    }
-
-    private static void TryGetPortableConfig()
-    {
-        try
-        {
-            if (!Directory.Exists(DataLocation.TmpConfigDirectory))
-                return;
-
-            FilesFolders.CopyAll(DataLocation.TmpConfigDirectory, DataLocation.PortableDataPath);
-        }
-        catch
-        {
-            Debug.WriteLine("Cannot move tmp config directory to portable data directory.");
-        }
-        finally
-        {
-            try
-            {
-                Directory.Delete(DataLocation.TmpConfigDirectory, true);
-            }
-            catch
-            {
-                Debug.WriteLine("Cannot delete tmp config directory.");
-            }
-        }
     }
 
     private static bool NeedAdmin()
@@ -559,7 +522,6 @@ public partial class App : ISingleInstanceApp, INavigation, IDisposable
         {
             // Dispose needs to be called on the main Windows thread,
             // since some resources owned by the thread need to be disposed.
-            _autoUpdateCheckerService?.Dispose();
             _hotkeySettings?.Dispose();
             _notification?.Uninstall();
             _pinnedWindowController?.CloseAll();

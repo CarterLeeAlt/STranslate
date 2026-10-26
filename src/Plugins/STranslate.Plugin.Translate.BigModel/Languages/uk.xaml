@@ -4,6 +4,6 @@
     xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
     <sys:String x:Key="STranslate_Plugin_Translate_BigModel_Thinking">Режим міркування</sys:String>
-    <sys:String x:Key="STranslate_Plugin_Translate_BigModel_Thinking_Description">Визначає, чи міркуватиме модель глибше. Підтримується у GLM-4.5 і новіших</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Translate_BigModel_Thinking_Description">Вибір інтенсивності міркувань: low, high або max. GLM-5.3-Flash не підтримує вимкнення міркувань</sys:String>
 
 </ResourceDictionary>

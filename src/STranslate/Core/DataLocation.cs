@@ -18,7 +18,6 @@ public class DataLocation
     public static readonly string DesktopShortcutPath = Path.Combine(DesktopPath, Constant.AppName + ".lnk");
     public static readonly string InfoFilePath = Path.Combine(Constant.ProgramDirectory, Constant.InfoFileName);
     public static readonly string BackupFilePath = Path.Combine(Constant.ProgramDirectory, Constant.BackupFileName);
-    public static readonly string TmpConfigDirectory = Path.Combine(Path.GetTempPath(), Constant.TmpConfigFolderName);
 
     public static string VersionLogDirectory => Path.Combine(LogDirectory, Constant.Version);
     public static string LogDirectory => Path.Combine(DataDirectory(), Constant.Logs);

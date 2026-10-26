@@ -4,6 +4,6 @@
     xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
     <sys:String x:Key="STranslate_Plugin_Translate_BigModel_Thinking">思考モード</sys:String>
-    <sys:String x:Key="STranslate_Plugin_Translate_BigModel_Thinking_Description">モデルがより深い思考と推論を行うかどうかを制御します。GLM-4.5以降でサポートされています</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Translate_BigModel_Thinking_Description">モデルの思考強度（low / high / max）を選択します。GLM-5.3-Flash は思考を無効にできません</sys:String>
 
 </ResourceDictionary>

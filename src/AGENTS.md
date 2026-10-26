@@ -30,7 +30,7 @@ New-Item -ItemType Directory -Force .artifacts/Debug/PortableConfig | Out-Null
 
 ## 部署到本地便携安装
 
-- 日常安装位置：`C:\UserProgram\STranslate-win-Portable`（程序文件直接在根目录，非 Velopack 的 `current\` 布局；用户数据在其 `PortableConfig\`，绝不触碰）。
+- 日常安装位置：`C:\UserProgram\STranslate-win-Portable`（程序文件直接在根目录；用户数据在其 `PortableConfig\`，绝不触碰）。
 - 用仓库根的 `deploy-local.ps1` 热替换（被运行中进程锁定的文件自动重命名为 `.old-<时间戳>` 后放新文件），**脚本末尾内置关键文件哈希验证，验证不过即失败退出**。
 - 注意：`git stash` 等操作后 `dotnet test` 会用 stash 后的源码重新编译并覆盖构建产物，**任何 stash 对照之后必须重新 `dotnet build` 再部署**。
 
@@ -39,7 +39,7 @@ New-Item -ItemType Directory -Force .artifacts/Debug/PortableConfig | Out-Null
 1. 更新仓库根 `CHANGELOG.md`（格式见文件内），提交 `docs: write changelog for vX.Y.Z`。
 2. `git tag vX.Y.Z && git push origin main --tags`：**CI 仅由 tag 推送或 Release 发布触发**（`.github/workflows/dotnet.yml`），普通 main 推送只跑构建与测试、不发 Release。
 3. CI（windows-latest）执行 `build.ps1` + `post_build.ps1` 打包，tag 构建自动发布 GitHub Release（正文取 CHANGELOG.md）。
-4. Release 的 `STranslate-win-Portable.zip` 是 Velopack 布局（程序在 `current\` 子目录）；替换本地根目录布局安装时从 zip 的 `current\` 层拷贝（排除 zip 里的空 `PortableConfig`）。
+4. Release 的 `STranslate-win-Portable.zip` 是根目录布局：程序文件直接在 zip 根，内含空 `PortableConfig\`，解压即可作为便携安装；不含自动更新机制。
 
 ## 测试
 

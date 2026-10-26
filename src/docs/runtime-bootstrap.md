@@ -7,7 +7,7 @@
 
 ## 关键入口
 - `STranslate/App.xaml.cs`
-  - `Main()`：单实例判定、Velopack 回调、管理员模式启动判定。
+  - `Main()`：单实例判定、管理员模式启动判定。
   - `App()` 构造函数：读取三类设置并注册 DI。
   - `OnStartup()`：插件/服务/数据库初始化，必要时先显示首次向导，再创建主窗口并执行启动后延迟初始化。
   - `Register*Exception()`、`RegisterExitEvents()`、`Dispose()`：异常与退出收敛。
@@ -43,21 +43,20 @@
 ### 从入口到结果：应用启动到主窗口可用
 1. `App.Main()` 先调用 `SingleInstance<App>.InitializeAsFirstInstance()`。
 2. 若是第二实例：通过命名管道通知首实例触发 `OnSecondAppStarted()` 并退出；首实例执行 `MainWindowViewModel.Show()`。
-3. 首实例继续执行 Velopack `OnAfterUpdateFastCallback`，把临时配置目录回迁到便携数据目录。
-4. 执行 `NeedAdmin()`：若启动模式要求提权，先清理单实例资源，再交给 `UACHelper` 重启进程后当前实例返回。
+3. 执行 `NeedAdmin()`：若启动模式要求提权，先清理单实例资源，再交给 `UACHelper` 重启进程后当前实例返回。
    - `UACHelper.Run(mode, waitPid: Environment.ProcessId, waitTimeoutSec: 6)` 会把当前进程 ID 传给 Host。
    - Host 启动前等待旧进程退出；超时后尝试 `taskkill /PID <pid> /T /F`，并输出 `handover ...` 报告。
-5. 创建 `App` 实例：从 `AppStorage<T>` 读取 `Settings`、`HotkeySettings`、`ServiceSettings`。
-6. 在 `App()` 内配置 DI：注册核心服务（插件/服务管理、翻译链、HTTP、窗口 VM、更新、外部调用、数据库等）。
-7. `OnStartup()` 中顺序初始化：
+4. 创建 `App` 实例：从 `AppStorage<T>` 读取 `Settings`、`HotkeySettings`、`ServiceSettings`。
+5. 在 `App()` 内配置 DI：注册核心服务（插件/服务管理、翻译链、HTTP、窗口 VM、外部调用、数据库等）。
+6. `OnStartup()` 中顺序初始化：
    - `PluginManager.LoadPlugins()`
    - `ServiceManager.LoadServices()`
    - `SqlService.InitializeDB()`
    - 注册全局异常处理
-8. 若 `App` 构造阶段记录到三类配置文件启动前都不存在，则在主窗口创建前打开欢迎向导；打开前只初始化语言资源，保证向导首页可切换语言。
-9. 向导关闭、跳过或完成时调用现有 `Save()` 生成配置文件，后续启动按文件已存在不再自动弹出。
-10. 向导结束后创建主窗口与主 VM；主窗口 `Loaded` 时执行延迟初始化：`Settings.LazyInitialize(initializeLanguage: false)`、`HotkeySettings.LazyInitialize()`、托盘提示、WebDav 后置备份上传，以及自动检查更新服务启动。
-11. 非首次向导路径仍按原流程创建主窗口，并在 `Loaded` 时执行完整 `Settings.LazyInitialize()`。
+7. 若 `App` 构造阶段记录到三类配置文件启动前都不存在，则在主窗口创建前打开欢迎向导；打开前只初始化语言资源，保证向导首页可切换语言。
+8. 向导关闭、跳过或完成时调用现有 `Save()` 生成配置文件，后续启动按文件已存在不再自动弹出。
+9. 向导结束后创建主窗口与主 VM；主窗口 `Loaded` 时执行延迟初始化：`Settings.LazyInitialize(initializeLanguage: false)`、`HotkeySettings.LazyInitialize()`、托盘提示、WebDav 后置备份上传。
+10. 非首次向导路径仍按原流程创建主窗口，并在 `Loaded` 时执行完整 `Settings.LazyInitialize()`。
 
 ### 从入口到结果：开机自启
 1. `Settings.Initialize()` 先 `ApplyStartMode()`（维护跳过 UAC 任务），再 `ApplyStartup(initialize: true)` 自愈；切换 `AutoStartup` 或 `StartMode` 时同样重新执行。
@@ -69,7 +68,7 @@
 
 ### 从入口到结果：退出与资源回收
 1. 应用使用 `ShutdownMode.OnExplicitShutdown`，关闭最后一个窗口不会终止托盘常驻进程。
-2. 主动退出统一调用 `App.RequestShutdown(AppShutdownReason)`；托盘菜单、托盘双击、快捷键、更新、备份恢复、便携模式切换和插件变更分别记录退出原因。
+2. 主动退出统一调用 `App.RequestShutdown(AppShutdownReason)`；托盘菜单、托盘双击、快捷键、备份恢复、便携模式切换和插件变更分别记录退出原因。
 3. `ProcessExit`、`Application.Exit`、`SessionEnding` 任一事件触发时统一进入 `Dispose()`；`Application.Exit` 会同时记录已知退出原因，无法归因的退出记录为 `ExternalOrUnknown`。
 4. 在主线程释放资源：通知图标卸载、主窗口 VM 释放、主窗口释放、`PluginManager.Dispose()` 清理临时解压目录。
 5. 需要重启生效的插件目录清理并不在这里直接删除，而由下次启动时的插件扫描阶段处理（`NeedDelete`/`NeedUpgrade` 标记）。
