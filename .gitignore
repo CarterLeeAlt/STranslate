@@ -25,5 +25,7 @@ docs/superpowers/
 # 本地工具链与临时目录（工作区隔离，勿提交）
 .dotnet/
 .nuget/
+.rustup/
+.cargo/
 .dotnet-home/
 .tmp/

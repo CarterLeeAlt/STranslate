@@ -558,7 +558,7 @@ public partial class PluginViewModel : ObservableObject
 
         try
         {
-            var tempPath = Path.GetTempPath();
+            var tempPath = DataLocation.TempDirectory;
             var fileName = $"{plugin.PackageName}.zip";
 
             // 创建进度报告

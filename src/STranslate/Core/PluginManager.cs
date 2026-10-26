@@ -19,7 +19,7 @@ public class PluginManager : IDisposable
     {
         _logger = logger;
         _pluginMetaDatas = [];
-        _tempExtractPath = Path.Combine(Path.GetTempPath(), Constant.TmpPluginFolderName);
+        _tempExtractPath = Path.Combine(DataLocation.TempDirectory, Constant.TmpPluginFolderName);
 
         Directory.CreateDirectory(Constant.PreinstalledDirectory);
         Directory.CreateDirectory(DataLocation.PluginsDirectory);

@@ -3,7 +3,7 @@
 ## 模块职责
 - 维护全局设置模型与服务配置模型。
 - 提供统一 JSON 存储抽象（应用配置与插件配置）。
-- 统一便携模式/漫游模式路径策略。
+- 统一数据目录策略：所有用户数据固定写入程序目录下的 `PortableConfig`。
 - 负责翻译历史 SQLite 存储模型与读写逻辑。
 - 负责历史记录 CSV 导出、批量/全量删除与历史展示快照字段兼容。
 
@@ -19,7 +19,7 @@
 - `STranslate/Core/PluginStorage.cs`
   - 插件级配置存储：`PluginSettingsDirectory/{serviceId}.json`。
 - `STranslate/Core/DataLocation.cs`
-  - 便携/漫游目录与缓存/日志/数据库路径决策。
+  - 数据目录、缓存/日志/数据库与临时目录路径决策。
 - `STranslate/Core/SqlService.cs`
   - 历史表初始化、读写、分页、游标与相邻记录查询。
 - `STranslate/Helpers/HistoryCsvHelper.cs`
@@ -37,11 +37,10 @@
 4. `StorageBase.Load()` 遇到 JSON 异常时回退 `.bak`，再失败则使用默认对象。
 5. 首次欢迎向导不使用额外完成标记：`App` 在 `Load()` 前检查 `Settings.json`、`HotkeySettings.json`、`ServiceSettings.json` 是否都不存在；都不存在才在主窗口创建前自动打开向导。向导跳过、关闭或完成时保存三类配置，生成文件后后续启动不再自动弹出。首页语言选择直接绑定 `Settings.Language`，沿用现有语言切换和保存行为。
 
-### 从入口到结果：便携/漫游路径策略
-1. `DataLocation.PortableDataLocationInUse()` 判断程序目录下是否存在便携目录。
-2. 若存在：配置、缓存、日志、插件目录全部落在 `PortableDataPath`。
-3. 若不存在：落在 `RoamingDataPath`（`%AppData%/STranslate`）。
-4. 数据库连接串固定指向 `CacheDirectory/history.db`。
+### 从入口到结果：数据目录策略
+1. `DataLocation.DataDirectory()` 固定返回程序目录下的 `PortableDataPath`（`PortableConfig`），目录不存在时自动创建，不再回退 `%AppData%`。
+2. 配置、缓存、日志、插件目录与临时文件全部落在 `PortableDataPath` 下。
+3. 数据库连接串固定指向 `CacheDirectory/history.db`。
 
 ### 从入口到结果：历史数据写入与缓存命中
 1. 首次启动执行 `SqlService.InitializeDB()` 创建 `History` 表。
@@ -101,6 +100,6 @@
   4. 对数值型设置补充归一化逻辑时，确保保存分支覆盖该属性。
 - 调整首次向导时，不要新增“是否完成向导”字段；启动条件以三类配置文件启动前是否存在为准，并保持自动向导先于主窗口显示。
 - 调整存储可靠性：优先改 `StorageBase`，避免在业务层重复实现备份恢复。
-- 修改便携策略：改 `DataLocation`，并验证便携/漫游数据目录切换。
+- 修改数据目录策略：改 `DataLocation`，并验证配置、缓存、日志、插件与临时目录都在 `PortableConfig` 下。
 - 历史结构演进：新增表列需在 `SqlService.InitializeDB()` 补迁移逻辑；修改 `HistoryData` 时需确认 `RawData` 兼容旧版本 JSON。
 - 调整历史导出：优先改 `HistoryCsvHelper`，保持历史页展示与导出语言/服务名解析一致。

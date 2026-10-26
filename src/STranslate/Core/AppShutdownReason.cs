@@ -7,11 +7,9 @@ public enum AppShutdownReason
     TrayMenu,
     TrayDoubleClick,
     KeyboardShortcut,
-    ApplicationUpdate,
     LocalBackup,
     LocalRestore,
     WebDavBackup,
     WebDavRestore,
-    PortableModeChange,
     PluginChange,
 }

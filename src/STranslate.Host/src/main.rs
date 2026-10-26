@@ -3,64 +3,15 @@ mod commands;
 use clap::{Arg, ArgAction, Command};
 
 use crate::commands::{
-    BackupMode, PortableMode, StartMode, TaskAction, handle_backup_command,
-    handle_portable_command, handle_start_command, handle_task_command, handle_update_command,
+    BackupMode, StartMode, TaskAction, handle_backup_command, handle_start_command,
+    handle_task_command,
 };
 
 fn main() {
     let matches = Command::new("z_stranslate_host")
         .version("1.0.3")
         .author("ZGGSONG <zggsong@foxmail.com>")
-        .about("程序更新和后台启动工具")
-        .subcommand(
-            Command::new("update")
-                .about("更新程序")
-                .arg(
-                    Arg::new("archive")
-                        .short('a')
-                        .long("archive")
-                        .value_name("PATH")
-                        .help("缓存的压缩包路径")
-                        .required(true),
-                )
-                .arg(
-                    Arg::new("wait-time")
-                        .short('w')
-                        .long("wait-time")
-                        .value_name("SECONDS")
-                        .help("关闭进程等待时间（秒）")
-                        .default_value("0")
-                        .value_parser(clap::value_parser!(u64)),
-                )
-                .arg(
-                    Arg::new("clean")
-                        .short('c')
-                        .long("clean")
-                        .action(ArgAction::SetTrue)
-                        .help("是否清理必要目录（保留 log、portable_config、tmp 目录）"),
-                )
-                .arg(
-                    Arg::new("process-name")
-                        .short('p')
-                        .long("process")
-                        .value_name("NAME")
-                        .help("要关闭的进程名称"),
-                )
-                .arg(
-                    Arg::new("auto-start")
-                        .short('s')
-                        .long("auto-start")
-                        .action(ArgAction::SetTrue)
-                        .help("更新完成后自动启动程序"),
-                )
-                .arg(
-                    Arg::new("verbose")
-                        .short('v')
-                        .long("verbose")
-                        .action(ArgAction::SetTrue)
-                        .help("显示详细输出"),
-                ),
-        )
+        .about("后台启动与维护工具")
         .subcommand(
             Command::new("start")
                 .about("后台启动程序")
@@ -281,92 +232,9 @@ fn main() {
                         .help("显示详细输出"),
                 ),
         )
-        .subcommand(
-            Command::new("portable")
-                .about("切换便携模式并迁移目录")
-                .arg(
-                    Arg::new("mode")
-                        .short('m')
-                        .long("mode")
-                        .value_name("MODE")
-                        .help("切换模式：enable 或 disable")
-                        .value_parser(clap::value_parser!(PortableMode))
-                        .required(true),
-                )
-                .arg(
-                    Arg::new("source")
-                        .short('s')
-                        .long("source")
-                        .value_name("PATH")
-                        .help("迁移源目录")
-                        .required(true),
-                )
-                .arg(
-                    Arg::new("target")
-                        .short('t')
-                        .long("target")
-                        .value_name("PATH")
-                        .help("迁移目标目录")
-                        .required(true),
-                )
-                .arg(
-                    Arg::new("delay")
-                        .short('d')
-                        .long("delay")
-                        .value_name("SECONDS")
-                        .help("执行前延迟秒数")
-                        .default_value("0")
-                        .value_parser(clap::value_parser!(u64)),
-                )
-                .arg(
-                    Arg::new("restart-target")
-                        .short('p')
-                        .long("restart-target")
-                        .value_name("PATH_OR_TASK")
-                        .help("重启目标（可执行文件路径）")
-                        .required(true),
-                )
-                .arg(
-                    Arg::new("info-file")
-                        .short('i')
-                        .long("info-file")
-                        .value_name("FILE")
-                        .help("写入提示信息的文件路径")
-                        .required(true),
-                )
-                .arg(
-                    Arg::new("success-message")
-                        .short('w')
-                        .long("success-message")
-                        .value_name("TEXT")
-                        .help("迁移成功提示文案")
-                        .required(true),
-                )
-                .arg(
-                    Arg::new("failure-prefix")
-                        .short('f')
-                        .long("failure-prefix")
-                        .value_name("TEXT")
-                        .help("迁移失败前缀文案")
-                        .required(true),
-                )
-                .arg(
-                    Arg::new("verbose")
-                        .short('v')
-                        .long("verbose")
-                        .action(ArgAction::SetTrue)
-                        .help("显示详细输出"),
-                ),
-        )
         .get_matches();
 
     match matches.subcommand() {
-        Some(("update", sub_matches)) => {
-            if let Err(e) = handle_update_command(sub_matches) {
-                eprintln!("❌ 更新失败: {}", e);
-                std::process::exit(1);
-            }
-        }
         Some(("start", sub_matches)) => {
             if let Err(e) = handle_start_command(sub_matches) {
                 eprintln!("❌ 启动失败: {}", e);
@@ -385,14 +253,8 @@ fn main() {
                 std::process::exit(1);
             }
         }
-        Some(("portable", sub_matches)) => {
-            if let Err(e) = handle_portable_command(sub_matches) {
-                eprintln!("❌ 便携模式操作失败: {}", e);
-                std::process::exit(1);
-            }
-        }
         _ => {
-            eprintln!("❌ 请指定命令: update、start、task、backup 或 portable");
+            eprintln!("❌ 请指定命令: start、task 或 backup");
             eprintln!("使用 --help 查看帮助信息");
             std::process::exit(1);
         }

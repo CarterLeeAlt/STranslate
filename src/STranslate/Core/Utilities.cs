@@ -635,6 +635,7 @@ public class Utilities
             {
                 FileName = filename,
                 Arguments = BuildArguments(args),
+                WorkingDirectory = Constant.ProgramDirectory,
                 UseShellExecute = useAdmin,
                 CreateNoWindow = !useAdmin, // useAdmin 时无法隐藏窗口
             };
@@ -786,14 +787,6 @@ public class Utilities
         }
     }
 
-    /// <summary>
-    ///     设置桌面快捷方式
-    /// </summary>
-    public static void SetDesktopShortcut()
-    {
-        ShortCutCreate(true);
-    }
-
     #region Private Method
 
     /// <summary>
@@ -823,27 +816,6 @@ public class Utilities
         {
             File.Delete(item);
             result = true;
-        }
-
-        return result;
-    }
-
-    /// <summary>
-    ///     为本程序创建一个快捷方式
-    /// </summary>
-    /// <param name="isDesktop">是否为桌面快捷方式</param>
-    /// <returns></returns>
-    private static bool ShortCutCreate(bool isDesktop = false)
-    {
-        var result = true;
-        try
-        {
-            var shortcutPath = isDesktop ? DataLocation.DesktopShortcutPath : DataLocation.StartupShortcutPath;
-            CreateShortcut(shortcutPath, DataLocation.AppExePath, DataLocation.AppExePath);
-        }
-        catch
-        {
-            result = false;
         }
 
         return result;
@@ -883,27 +855,6 @@ public class Utilities
         {
             return null;
         }
-    }
-
-    /// <summary>
-    ///     向目标路径创建指定文件的快捷方式
-    /// </summary>
-    /// <param name="shortcutPath">快捷方式路径</param>
-    /// <param name="appPath">App路径</param>
-    /// <param name="description">提示信息</param>
-    private static void CreateShortcut(string shortcutPath, string appPath, string description)
-    {
-        // ReSharper disable once SuspiciousTypeConversion.Global
-        var link = (IShellLink)new ShellLink();
-        link.SetDescription(description);
-        link.SetPath(appPath);
-        var workingDir = Directory.GetParent(appPath)?.FullName;
-        if (workingDir != null)
-            link.SetWorkingDirectory(workingDir);
-
-        if (File.Exists(shortcutPath))
-            File.Delete(shortcutPath);
-        link.Save(shortcutPath, false);
     }
 
     [ComImport]

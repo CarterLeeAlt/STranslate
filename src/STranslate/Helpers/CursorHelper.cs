@@ -1,4 +1,5 @@
 using Microsoft.Win32;
+using STranslate.Core;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows;
@@ -253,7 +254,7 @@ public static class CursorHelper
     /// </summary>
     private static void LoadAndSetCustomCursors()
     {
-        var tempFilePath = Path.GetTempFileName();
+        var tempFilePath = Path.Combine(DataLocation.TempDirectory, $"cursor_{Guid.NewGuid():N}.cur");
         try
         {
             ExtractCursorResource(tempFilePath);

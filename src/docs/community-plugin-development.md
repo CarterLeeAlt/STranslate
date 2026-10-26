@@ -210,8 +210,7 @@ Plugins\ThirdPlugins\STranslate.Plugin.Translate.DeepLX\.artifacts\plugins\STran
 插件应使用 `Context.Logger` 记录诊断信息。宿主会把日志写到：
 
 ```text
-便携模式：<STranslate.exe 所在目录>\PortableConfig\Logs\<当前版本>\*.log
-漫游模式：%APPDATA%\STranslate\Logs\<当前版本>\*.log
+<STranslate.exe 所在目录>\PortableConfig\Logs\<当前版本>\*.log
 ```
 
 日志模板包含 `SourceContext`，社区插件通常会显示为插件程序集名，便于从主程序日志中筛出插件记录。
@@ -220,15 +219,13 @@ Plugins\ThirdPlugins\STranslate.Plugin.Translate.DeepLX\.artifacts\plugins\STran
 插件配置由 `context.LoadSettingStorage<T>()` / `context.SaveSettingStorage<T>()` 管理：
 
 ```text
-便携模式：<STranslate.exe 所在目录>\PortableConfig\Settings\Plugins\<AssemblyName>_<PluginID>\<serviceId>.json
-漫游模式：%APPDATA%\STranslate\Settings\Plugins\<AssemblyName>_<PluginID>\<serviceId>.json
+<STranslate.exe 所在目录>\PortableConfig\Settings\Plugins\<AssemblyName>_<PluginID>\<serviceId>.json
 ```
 
 插件缓存目录由 `context.MetaData.PluginCacheDirectoryPath` 提供：
 
 ```text
-便携模式：<STranslate.exe 所在目录>\PortableConfig\Cache\Plugins\<AssemblyName>_<PluginID>
-漫游模式：%APPDATA%\STranslate\Cache\Plugins\<AssemblyName>_<PluginID>
+<STranslate.exe 所在目录>\PortableConfig\Cache\Plugins\<AssemblyName>_<PluginID>
 ```
 
 配置模型变更时优先在插件 `Init()` 内兼容旧配置并保存，不要要求宿主为社区插件硬编码迁移逻辑。
@@ -254,7 +251,7 @@ Plugins\ThirdPlugins\STranslate.Plugin.Translate.DeepLX\.artifacts\plugins\STran
 | 安装 `.spkg` 提示结构无效 | 包根目录是否直接包含 `plugin.json`；是否把整个项目文件夹压进了包里；`PluginID` 是否为空。 |
 | 升级被提示版本过旧 | `Version` 是否可被 `Version.TryParse()` 解析；新版本是否大于已安装版本。 |
 | 断点不命中 | 运行中的 `STranslate.exe` 是否加载了你刚构建的目录；dll 旁边是否有 pdb；是否存在同 `PluginID` 的更高版本插件被优先加载。 |
-| 设置保存后重启丢失 | 是否在设置 VM 中调用了 `SaveSettingStorage<T>()`；是否调试了另一个数据目录（便携/漫游目录不一致）。 |
+| 设置保存后重启丢失 | 是否在设置 VM 中调用了 `SaveSettingStorage<T>()`；是否调试了另一个数据目录（数据目录固定为 `PortableConfig`）。 |
 | ESC 或关闭窗口无法取消请求 | 是否把 `CancellationToken` 传给所有 HTTP、流式读取、下载和音频操作。 |
 | 图片翻译无法选中 OCR 区域 | OCR 插件是否 override `SupportBoxPoints()` 并返回 `true`；OCR 结果是否填充图片像素坐标 `OcrContent.BoxPoints` 或结构化 `Regions` 中的行框；仅返回纯文本无法支持框选和标注。 |
 | 日志里有 `ReflectionTypeLoadException` | 依赖 dll 是否随插件输出；依赖版本是否与宿主可加载版本兼容；Release 打包是否遗漏内容文件。 |

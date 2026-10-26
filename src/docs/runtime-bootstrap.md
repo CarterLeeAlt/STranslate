@@ -68,7 +68,7 @@
 
 ### 从入口到结果：退出与资源回收
 1. 应用使用 `ShutdownMode.OnExplicitShutdown`，关闭最后一个窗口不会终止托盘常驻进程。
-2. 主动退出统一调用 `App.RequestShutdown(AppShutdownReason)`；托盘菜单、托盘双击、快捷键、备份恢复、便携模式切换和插件变更分别记录退出原因。
+2. 主动退出统一调用 `App.RequestShutdown(AppShutdownReason)`；托盘菜单、托盘双击、快捷键、备份恢复和插件变更分别记录退出原因。
 3. `ProcessExit`、`Application.Exit`、`SessionEnding` 任一事件触发时统一进入 `Dispose()`；`Application.Exit` 会同时记录已知退出原因，无法归因的退出记录为 `ExternalOrUnknown`。
 4. 在主线程释放资源：通知图标卸载、主窗口 VM 释放、主窗口释放、`PluginManager.Dispose()` 清理临时解压目录。
 5. 需要重启生效的插件目录清理并不在这里直接删除，而由下次启动时的插件扫描阶段处理（`NeedDelete`/`NeedUpgrade` 标记）。
@@ -137,7 +137,7 @@
 - `ServiceSettings`：服务实例列表与特殊服务 ID（替换翻译、图片翻译）。
 - `WindowActivationMode`：`Normal` / `ForceForeground` 两种窗口激活策略。
 - `WindowActivationContext`：基于 `AsyncLocal` 的激活模式作用域，支持嵌套、异步传播和退出恢复。
-- `DataLocation`：便携/漫游目录选择、日志/缓存/配置路径、`InfoFilePath` 与 `BackupFilePath`。
+- `DataLocation`：数据目录（固定 `PortableConfig`）、日志/缓存/配置/临时路径、`InfoFilePath` 与 `BackupFilePath`。
 
 ## 关键文件
 - `STranslate/App.xaml`

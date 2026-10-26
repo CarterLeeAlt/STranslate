@@ -348,6 +348,8 @@ public partial class App : ISingleInstanceApp, INavigation, IDisposable
             return;
         }
 
+        DataLocation.ResetTempDirectory();
+
         if (NeedAdmin())
         {
             SingleInstance<App>.Cleanup();

@@ -333,7 +333,7 @@ internal class UACHelper
         {
             // 生成XML内容
             string xmlContent = CreateTaskXml(config);
-            tempXmlPath = Path.Combine(Path.GetTempPath(), $"Task_{Guid.NewGuid():N}.xml");
+            tempXmlPath = Path.Combine(DataLocation.TempDirectory, $"Task_{Guid.NewGuid():N}.xml");
 
             // 写入临时文件 - 使用 Unicode 编码（UTF-16LE）
             File.WriteAllText(tempXmlPath, xmlContent, Encoding.Unicode);
