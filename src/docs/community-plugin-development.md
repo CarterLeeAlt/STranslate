@@ -1,7 +1,7 @@
-# 社区插件开发调试指南
+# 社区插件开发指南
 
 ## 文档目标
-- 面向 clone 主程序源码后，在 `Plugins/ThirdPlugins` 中联调社区插件的开发者，说明从插件仓库准备到本地断点、打包导入、排障定位的推荐路径。
+- 面向 clone 主程序源码后，在 `Plugins/ThirdPlugins` 中开发社区插件的开发者，说明从插件仓库准备到打包导入、排障定位的推荐路径。
 - 以当前运行时真实加载链路为准，避免只在源码仓库内可用、发布后失效的调试方式。
 - 与 [插件 SDK 与开发范式](plugin-sdk-development.md) 分工：SDK 文档说明接口和模型，本指南说明开发调试流程。
 
@@ -31,7 +31,7 @@
       STranslate\
       STranslate.Plugin\
       Plugins\
-        ThirdPlugins\                               # 自己手动创建该目录 <与 csproj 里DEBUG OutputPath 层级有关>
+        ThirdPlugins\                               # 自己手动创建该目录
           STranslate.Plugin.Translate.DeepLX\       # 独立插件 git 仓库
             .git\
             STranslate.Plugin.Translate.DeepLX\
@@ -92,8 +92,8 @@ git remote add origin https://github.com/STranslate/STranslate.Plugin.Translate.
 - **`Version`**：改为自己的插件版本，并保持 `System.Version` 可解析格式。
 - **`ExecuteFileName`**：改为自己的插件 dll 文件名。
 
-### `csproj` 调试改法
-`ThirdPlugins` 下的社区插件会受到主仓库上层 `Directory.Packages.props` 影响，所以插件项目应显式关闭集中包版本管理，并保留自己的 `PackageReference` 版本。以下是 `DeepLX` 项目文件中的实际配置参考，不要遗漏其中的 Debug / Release 输出和内容复制项；`STranslate.Plugin` 推荐使用 [NuGet 上的最新版本](https://www.nuget.org/packages/STranslate.Plugin)，截至 2026-08-14 核对为 `1.0.14`：
+### `csproj` 配置
+`ThirdPlugins` 下的社区插件会受到主仓库上层 `Directory.Packages.props` 影响，所以插件项目应显式关闭集中包版本管理，并保留自己的 `PackageReference` 版本。以下是 `DeepLX` 项目文件的 Release 配置参考；`STranslate.Plugin` 推荐使用 [NuGet 上的最新版本](https://www.nuget.org/packages/STranslate.Plugin)，截至 2026-08-14 核对为 `1.0.14`：
 
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
@@ -110,18 +110,6 @@ git remote add origin https://github.com/STranslate/STranslate.Plugin.Translate.
         <UseWPF>true</UseWPF>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
         <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
-    </PropertyGroup>
-
-    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-        <DebugSymbols>true</DebugSymbols>
-        <DebugType>portable</DebugType>
-        <Optimize>false</Optimize>
-        <!--// 方便调试 //-->
-        <OutputPath>..\..\..\..\.artifacts\Debug\Plugins\STranslate.Plugin.Translate.DeepLX\</OutputPath>
-        <DefineConstants>DEBUG;TRACE</DefineConstants>
-        <ErrorReport>prompt</ErrorReport>
-        <WarningLevel>4</WarningLevel>
-        <Prefer32Bit>false</Prefer32Bit>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -159,7 +147,6 @@ git remote add origin https://github.com/STranslate/STranslate.Plugin.Translate.
 
 需要替换为自己插件参数的内容：
 - **`RepositoryUrl`**：改为自己的插件仓库地址。
-- **Debug `OutputPath` 末尾的 `STranslate.Plugin.Translate.DeepLX`**：改为自己的插件输出目录名，通常与插件项目/程序集名一致。
 - **Release `OutputPath`**：可沿用插件仓库内 `.artifacts`，如需调整则改为自己的发布输出目录。
 - **`PackageReference` 列表和版本号**：改为自己插件真实依赖；`STranslate.Plugin` 推荐先使用 NuGet 最新版本。
 
@@ -167,23 +154,7 @@ git remote add origin https://github.com/STranslate/STranslate.Plugin.Translate.
 - `ManagePackageVersionsCentrally=false`：让插件仓库使用自己的 NuGet 版本声明，避免被主程序仓库的集中包版本覆盖。
 - `PackageReference Include="STranslate.Plugin"`：推荐使用 NuGet 最新版本；如果插件必须兼容旧宿主，再单独锁定较旧版本。
 - `AppendTargetFrameworkToOutputPath=false` / `AppendRuntimeIdentifierToOutputPath=false`：让 `plugin.json`、插件 dll、图标、语言文件直接落在插件目录根部，符合宿主扫描预期。
-- Debug `OutputPath`：把插件输出直接放进源码版宿主的 `Plugins` 目录，启动 Debug 宿主即可加载。
 - Release `OutputPath` + `EnableAutoPackage=true`：把发布产物留在插件仓库自己的 `.artifacts` 中，并自动生成 `.spkg`。
-
-## 本地断点调试
-### 主仓库源码联调
-这是实际最常用的调试路径。
-
-1. 使用 Visual Studio 打开主程序源码的 `STranslate.slnx`。
-2. 在解决方案资源管理器中右键解决方案，选择“添加” -> “现有项目”。
-3. 选择 `Plugins\ThirdPlugins\STranslate.Plugin.Translate.DeepLX\STranslate.Plugin.Translate.DeepLX\STranslate.Plugin.Translate.DeepLX.csproj`。
-4. 将 `STranslate` 设为启动项目，配置选择 `Debug`，直接按 `F5` 调试。
-5. 在插件项目中给 `Init()`、`GetSettingUI()`、`TranslateAsync()` / `RecognizeAsync()` / `PlayAudioAsync()` 等入口打断点。
-
-需要替换为自己插件参数的内容：
-- **`Plugins\ThirdPlugins\STranslate.Plugin.Translate.DeepLX\STranslate.Plugin.Translate.DeepLX\STranslate.Plugin.Translate.DeepLX.csproj`**：改为自己的插件项目路径。
-
-宿主 Debug 程序目录是 `.artifacts\Debug`，插件 Debug 输出目录正好是 `.artifacts\Debug\Plugins\<插件名>`，因此 `PluginManager.LoadPlugins()` 能按正常运行时路径加载该插件。
 
 ## 打包与安装验证
 ### 生成 `.spkg`
@@ -257,7 +228,7 @@ Plugins\ThirdPlugins\STranslate.Plugin.Translate.DeepLX\.artifacts\plugins\STran
 | 日志里有 `ReflectionTypeLoadException` | 依赖 dll 是否随插件输出；依赖版本是否与宿主可加载版本兼容；Release 打包是否遗漏内容文件。 |
 
 ## 发布前检查
-- 使用 Release 打包并通过本地导入安装一次，不只验证 Debug 目录直连。
+- 使用 Release 打包并通过本地导入安装验证。
 - 清理本机旧插件目录后再测一次首次安装，避免被本地旧配置掩盖问题。
 - 至少覆盖一种成功路径和一种失败路径，确认错误能在 UI 或日志中被理解。
 - 测试取消：翻译、OCR、TTS、下载、流式响应都应能响应宿主传入的取消令牌。

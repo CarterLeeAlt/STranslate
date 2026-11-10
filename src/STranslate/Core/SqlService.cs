@@ -176,11 +176,11 @@ public class SqlService
         await using var connection = new SqliteConnection(DataLocation.DbConnectionString);
         await connection.OpenAsync(token ?? CancellationToken.None);
 
-        // 构造查询语句
-        var query = $"SELECT * FROM History WHERE LOWER(SourceText) LIKE '%{content.ToLower()}%'";
+        const string query = "SELECT * FROM History WHERE LOWER(SourceText) LIKE @Pattern";
         // 使用 Dapper 执行查询数据的 SQL 语句
         // https://stackoverflow.com/questions/25540793/cancellationtoken-with-async-dapper-methods
         return await connection.QueryAsync<HistoryModel>(new CommandDefinition(query,
+            parameters: new { Pattern = $"%{content.ToLower()}%" },
             cancellationToken: token ?? CancellationToken.None));
     }
 

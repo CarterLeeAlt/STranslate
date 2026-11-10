@@ -4,7 +4,7 @@
 # 造成"已成功生成"的假部署——因此本脚本末尾强制比对关键文件哈希。
 
 param(
-    [string]$Src = "$PSScriptRoot\src\.artifacts\Debug",
+    [string]$Src = "$PSScriptRoot\src\.artifacts\Release",
     [string]$Dst = 'C:\UserProgram\STranslate-win-Portable',
     # 参与部署后哈希验证的关键文件（相对路径）
     [string[]]$VerifyFiles = @('STranslate.exe', 'STranslate.dll', 'STranslate.Plugin.dll')
@@ -16,7 +16,8 @@ $copied = 0; $renamed = 0; $failed = [System.Collections.Generic.List[string]]::
 
 # 用户数据目录绝不触碰
 $files = Get-ChildItem -LiteralPath $Src -Recurse -File | Where-Object {
-    $_.FullName -notmatch '\\PortableConfig\\'
+    $_.FullName -notmatch '\\PortableConfig\\' -and
+        $_.FullName -notmatch '\\Plugins\\.*\\STranslate\.Plugin\.(dll|xml|pdb)$'
 }
 
 foreach ($f in $files) {

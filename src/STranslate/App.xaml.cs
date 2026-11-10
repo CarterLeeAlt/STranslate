@@ -353,10 +353,6 @@ public partial class App : ISingleInstanceApp, INavigation, IDisposable
         if (NeedAdmin())
         {
             SingleInstance<App>.Cleanup();
-#if DEBUG
-            // 7 秒延迟是 Visual Studio 调试器的正常行为 生产环境不会有这个延迟(Ctrl+F5能避免该延迟)
-            Process.GetCurrentProcess().Kill();
-#endif
             return;
         }
 

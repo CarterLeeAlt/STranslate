@@ -36,9 +36,6 @@ internal static class OcrLayoutAnalyzer
 
     private static List<OcrLayoutBlock> CreateProviderFallbackBlocks(OcrResult ocrResult)
     {
-#if DEBUG
-        System.Diagnostics.Debug.WriteLine("Provider layout requested but OCR result has no structured layout. Falling back to NoMerge.");
-#endif
         return CreateNoMergeBlocks(GetFlatContents(ocrResult));
     }
 

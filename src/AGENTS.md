@@ -10,18 +10,12 @@
 - Git 提交直接提交到 `main` 分支，不新建功能分支（用户另行要求时除外）；推送仍需用户明确要求。
 - 项目内 MessageBox 必须统一走 `AppMessageBox.Show()`，不要直接调用 iNKORE `MessageBox.Show()`。
 - 从具体窗口或控件触发的 iNKORE `ContentDialog` 必须显式传入 owner，避免依赖活动窗口推断。
-- 运行 Debug 构建（`dotnet run` 或直接启动 exe）时，配置固定写入输出目录 `src/.artifacts/Debug/PortableConfig/`，程序启动时自动创建，不会写 `%APPDATA%`。
-- **每次重新构建时必须同时清理运行配置**，保证每次构建后程序以全新状态启动（首次运行向导重新出现）：
-  1. 程序未运行（进程占用时不得清理）；
-  2. 删除 `src/.artifacts/Debug/PortableConfig/` 整个目录（回收站方式），下次启动会自动重建；
+- 本项目使用 Release 构建；程序配置写入可执行文件目录的 `PortableConfig/`，保留现有用户数据。
 
 ## 最小构建与运行
 ```powershell
-# 最常用：直接运行
- dotnet run --project STranslate/STranslate.csproj
-
-# 调试构建
- dotnet build STranslate.slnx --configuration Debug
+# 构建
+ dotnet build STranslate.slnx --configuration Release
 ```
 
 ## 部署到本地便携安装

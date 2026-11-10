@@ -122,7 +122,7 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
             var url = UrlHelper.BuildFinalUrl(_settings.Url, "/api/paas/v4/chat/completions", UrlPathMatchRule.ChatGLM);
 
             // 选择模型
-            var model = string.IsNullOrEmpty(_settings.Model?.Trim()) ? "GLM-5.3-Flash" : _settings.Model.Trim();
+            var model = string.IsNullOrEmpty(_settings.Model?.Trim()) ? "glm-5.3-flash" : _settings.Model.Trim();
 
             // 替换Prompt关键字
             var prompt = (Main.Prompts.FirstOrDefault(x => x.IsEnabled) ?? throw new Exception("请先完善Prompt配置"));
@@ -142,8 +142,9 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
                 stream = true,
                 thinking = new
                 {
-                    type = string.IsNullOrWhiteSpace(ThinkingLevel) ? "low" : ThinkingLevel
-                }
+                    type = "enabled"
+                },
+                reasoning_effort = string.IsNullOrWhiteSpace(ThinkingLevel) ? "low" : ThinkingLevel
             };
 
             var key = string.IsNullOrWhiteSpace(_settings.ApiKey) ? Encoding.UTF8.GetString(Convert.FromBase64String(Main.GetFallbackKey())) : _settings.ApiKey;
@@ -151,7 +152,7 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
             {
                 Headers = new Dictionary<string, string>
                 {
-                    { "authorization", "Bearer " + BigModelAuthenication.GenerateToken(key, 60) }
+                    { "authorization", "Bearer " + key }
                 }
             };
 

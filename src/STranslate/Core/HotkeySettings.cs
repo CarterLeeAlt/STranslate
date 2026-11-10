@@ -329,11 +329,7 @@ public partial class HotkeySettings : ObservableObject, IDisposable
         {
             TrayIconType.NoHotkey => BitmapImageLoc.NoHotkeyIcon,
             TrayIconType.IgnoreOnFullScreen => BitmapImageLoc.IgnoreOnFullScreenIcon,
-#if DEBUG
-            _ => BitmapImageLoc.DevIcon,
-#else
             _ => BitmapImageLoc.AppIcon
-#endif
         };
     }
 

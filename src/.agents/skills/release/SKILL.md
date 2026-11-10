@@ -10,7 +10,7 @@ description: 为 STranslate 项目创建发布版本。当用户要发布新版�
 ## 背景事实（项目现状，开工前已核实）
 
 - 发版触发：推送形如 `v2.0.x`（`v` + 三段语义化版本号，`x` 为占位符）的 tag → `.github/workflows/dotnet.yml` 在 windows-latest 上构建，并用 `CHANGELOG.md` 作为 GitHub Release 的 body（`body_path: CHANGELOG.md`），产物发布到 `publish/*`。**无需 Token，`permissions: contents: write`。**
-- 版本号来源：tag 名即版本号。`build.ps1` 会去掉 `v` 前缀并以 `/p:Version=` 传入 dotnet 构建，同时改写 `src/SolutionAssemblyInfo.cs` 后用 `git restore` 还原。**不要手动改任何版本号文件。**
+- 版本号来源：tag 名即版本号。`build.ps1` 去掉 `v` 前缀并以 `/p:Version=` 传入 dotnet 构建。**不要手动改任何版本号文件。**
 - tag 形式：历史 tag 为**带注释的 tag**（`git cat-file -t v2.0.8` → `tag`），用 `git tag -a` 创建。
 - `CHANGELOG.md` 是**整文件覆盖**式发布说明，每次发版前重写为本次内容（GitHub Release body 就是它）。
 - 插件 NuGet 包版本独立于应用 tag 版本：存在 `src/STranslate.Plugin/STranslate.Plugin.csproj` 的 `<PackageVersion>`，仅当 `src/STranslate.Plugin/` 下公共 API 有变更时升 patch；版本记录累积在同目录 `README.md` 顶部。

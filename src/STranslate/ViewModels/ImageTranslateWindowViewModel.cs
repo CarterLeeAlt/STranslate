@@ -749,29 +749,9 @@ public partial class ImageTranslateWindowViewModel : ObservableObject, IDisposab
     /// <param name="ocrResult">OCR 识别结果</param>
     private List<OcrLayoutBlock> ApplyLayoutAnalysis(OcrResult ocrResult)
     {
-#if DEBUG
-        var originalCount = ocrResult.OcrContents.Count;
-        System.Diagnostics.Debug.WriteLine($"原始文本块数量: {originalCount}");
-#endif
-
         var layoutBlocks = OcrLayoutAnalyzer.AnalyzeBlocks(ocrResult, Settings.LayoutAnalysisMode);
         ocrResult.OcrContents.Clear();
         ocrResult.OcrContents.AddRange(layoutBlocks.Select(x => x.ToOcrContent()));
-
-#if DEBUG
-        var finalCount = ocrResult.OcrContents.Count;
-        System.Diagnostics.Debug.WriteLine($"合并后文本块数量: {finalCount}");
-        if (originalCount > 0)
-            System.Diagnostics.Debug.WriteLine($"合并率: {(originalCount - finalCount) / (double)originalCount * 100:F1}%");
-
-        // 输出每个合并后的文本块
-        for (int i = 0; i < layoutBlocks.Count; i++)
-        {
-            var block = layoutBlocks[i];
-            System.Diagnostics.Debug.WriteLine(
-                $"文本块 {i + 1}: [{block.Source}] confidence={block.Confidence:F2}, lines={block.LineBoxPoints.Count}, text={block.Text}");
-        }
-#endif
 
         return layoutBlocks;
     }

@@ -135,7 +135,7 @@ public class Main : LlmTranslatePluginBase
 
         // 选择模型
         var model = Settings.Model.Trim();
-        model = string.IsNullOrEmpty(model) ? "GLM-5.3-Flash" : model;
+        model = string.IsNullOrEmpty(model) ? "glm-5.3-flash" : model;
 
         // 替换Prompt关键字
         var messages = (Prompts.FirstOrDefault(x => x.IsEnabled) ?? throw new Exception("请先完善Prompt配置"))
@@ -156,8 +156,9 @@ public class Main : LlmTranslatePluginBase
             stream = true,
             thinking = new
             {
-                type = string.IsNullOrWhiteSpace(Settings.ThinkingLevel) ? "low" : Settings.ThinkingLevel
-            }
+                type = "enabled"
+            },
+            reasoning_effort = string.IsNullOrWhiteSpace(Settings.ThinkingLevel) ? "low" : Settings.ThinkingLevel
         };
 
         var key = string.IsNullOrWhiteSpace(Settings.ApiKey) ? Encoding.UTF8.GetString(Convert.FromBase64String(GetFallbackKey())) : Settings.ApiKey;
@@ -165,7 +166,7 @@ public class Main : LlmTranslatePluginBase
         {
             Headers = new Dictionary<string, string>
             {
-                { "authorization", "Bearer " + BigModelAuthenication.GenerateToken(key, 3600) }
+                { "authorization", "Bearer " + key }
             }
         };
 

@@ -1,5 +1,6 @@
 <Project>
     <PropertyGroup>
+        <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
         <LangVersion>preview</LangVersion>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
@@ -12,6 +13,10 @@
         <!--// 集中管理编译输出，将 bin 和 obj 统一放入 .artifacts 目录 //-->
         <ArtifactsPath>$(MSBuildThisFileDirectory).artifacts</ArtifactsPath>
     </PropertyGroup>
+
+    <Target Name="RequireReleaseConfiguration" BeforeTargets="PrepareForBuild" Condition="'$(Configuration)' != 'Release'">
+        <Error Text="STranslate 仅支持 Release 构建。" />
+    </Target>
 
     <!--// 清理 WPF 临时编译文件夹 //-->
     <Target Name="CleanupWpfTempFolders" AfterTargets="Build;Rebuild">

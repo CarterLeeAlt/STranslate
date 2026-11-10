@@ -57,13 +57,9 @@ public static class FilesFolders
         }
         catch (Exception)
         {
-#if DEBUG
-            throw;
-#else
-                messageBoxExShow ??= AppMessageBox.Show;
-                messageBoxExShow(string.Format("Copying path {0} has failed, it will now be deleted for consistency", targetPath));
-                RemoveFolderIfExists(targetPath, messageBoxExShow);
-#endif
+            messageBoxExShow ??= AppMessageBox.Show;
+            messageBoxExShow(string.Format("Copying path {0} has failed, it will now be deleted for consistency", targetPath));
+            RemoveFolderIfExists(targetPath, messageBoxExShow);
         }
 
     }
@@ -93,13 +89,9 @@ public static class FilesFolders
         }
         catch (Exception)
         {
-#if DEBUG
-            throw;
-#else
-                messageBoxExShow ??= AppMessageBox.Show;
-                messageBoxExShow(string.Format("Unable to verify folders and files between {0} and {1}", fromPath, toPath));
-                return false;
-#endif
+            messageBoxExShow ??= AppMessageBox.Show;
+            messageBoxExShow(string.Format("Unable to verify folders and files between {0} and {1}", fromPath, toPath));
+            return false;
         }
 
     }
@@ -118,12 +110,8 @@ public static class FilesFolders
         }
         catch (Exception)
         {
-#if DEBUG
-            throw;
-#else
-                messageBoxExShow ??= AppMessageBox.Show;
-                messageBoxExShow(string.Format("Not able to delete folder {0}, please go to the location and manually delete it", path));
-#endif
+            messageBoxExShow ??= AppMessageBox.Show;
+            messageBoxExShow(string.Format("Not able to delete folder {0}, please go to the location and manually delete it", path));
         }
     }
 
@@ -167,12 +155,8 @@ public static class FilesFolders
         }
         catch (Exception)
         {
-#if DEBUG
-            throw;
-#else
-                messageBoxExShow ??= AppMessageBox.Show;
-                messageBoxExShow(string.Format("Unable to open the path {0}, please check if it exists", fileOrFolderPath));
-#endif
+            messageBoxExShow ??= AppMessageBox.Show;
+            messageBoxExShow(string.Format("Unable to open the path {0}, please check if it exists", fileOrFolderPath));
         }
     }
 
@@ -199,12 +183,8 @@ public static class FilesFolders
         }
         catch (Exception)
         {
-#if DEBUG
-            throw;
-#else
-                messageBoxExShow ??= AppMessageBox.Show;
-                messageBoxExShow(string.Format("Unable to open the path {0}, please check if it exists", filePath));
-#endif
+            messageBoxExShow ??= AppMessageBox.Show;
+            messageBoxExShow(string.Format("Unable to open the path {0}, please check if it exists", filePath));
         }
     }
 

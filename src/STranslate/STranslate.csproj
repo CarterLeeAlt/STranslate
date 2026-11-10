@@ -9,24 +9,14 @@
         <StartupObject>STranslate.App</StartupObject>
         <!--// Avoid generating redundant assembly attributes //-->
         <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+        <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+        <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+        <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+        <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
         <ApplicationIcon>Resources\app.ico</ApplicationIcon>
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
         <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-        <PlatformTarget>AnyCPU</PlatformTarget>
-        <DebugSymbols>true</DebugSymbols>
-        <DebugType>portable</DebugType>
-        <Optimize>false</Optimize>
-        <OutputPath>..\.artifacts\Debug\</OutputPath>
-        <DefineConstants>DEBUG;TRACE</DefineConstants>
-        <ErrorReport>prompt</ErrorReport>
-        <WarningLevel>4</WarningLevel>
-        <UseVSHostingProcess>true</UseVSHostingProcess>
-        <Prefer32Bit>false</Prefer32Bit>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -119,12 +109,5 @@
     <ItemGroup>
         <ProjectReference Include="..\STranslate.Plugin\STranslate.Plugin.csproj" />
     </ItemGroup>
-
-    <!-- 构建前根据配置复制对应的 FodyWeavers 文件 -->
-    <Target Name="SelectFodyWeaversConfig" BeforeTargets="BeforeBuild">
-        <Message Text="Selecting FodyWeavers configuration for $(Configuration)" Importance="high" />
-        <Copy SourceFiles="FodyWeavers.$(Configuration).xml" DestinationFiles="FodyWeavers.xml" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="false" />
-        <Message Text="FodyWeavers.xml updated for $(Configuration) configuration" Importance="high" />
-    </Target>
 
 </Project>

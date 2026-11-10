@@ -1,4 +1,7 @@
 <Solution>
+  <Configurations>
+    <BuildType Name="Release" />
+  </Configurations>
   <!-- 解决方案项 -->
   <Folder Name="/Items/">
     <File Path=".editorconfig" />
