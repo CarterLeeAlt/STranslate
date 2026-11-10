@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
 using STranslate.Controls;
 using STranslate.Core;
+using STranslate.Helpers;
 using STranslate.Plugin;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -41,6 +42,7 @@ public class BackupService(Settings Settings,
             DefaultButton = ContentDialogButton.Close,
             Content = i18n.GetTranslation("ConfirmRestartAndBackup"),
         };
+        ContentDialogHelper.HighlightPrimaryAction(dialog);
         var dialogResult = await dialog.ShowAsync();
         if (dialogResult != ContentDialogResult.Primary)
             return;
@@ -79,6 +81,7 @@ public class BackupService(Settings Settings,
             DefaultButton = ContentDialogButton.Close,
             Content = i18n.GetTranslation("ConfirmRestartAndRestore"),
         };
+        ContentDialogHelper.HighlightPrimaryAction(dialog);
         var dialogResult = await dialog.ShowAsync();
         if (dialogResult != ContentDialogResult.Primary)
             return;
@@ -126,6 +129,7 @@ public class BackupService(Settings Settings,
             DefaultButton = ContentDialogButton.Close,
             Content = i18n.GetTranslation("ConfirmRestartAndBackup"),
         };
+        ContentDialogHelper.HighlightPrimaryAction(dialog);
         var dialogResult = await dialog.ShowAsync();
         if (dialogResult != ContentDialogResult.Primary)
             return;
@@ -243,6 +247,7 @@ public class BackupService(Settings Settings,
                 DefaultButton = ContentDialogButton.Close,
                 Content = i18n.GetTranslation("ConfirmRestartAndRestore"),
             };
+            ContentDialogHelper.HighlightPrimaryAction(dialog);
             var dialogResult = await dialog.ShowAsync();
             if (dialogResult != ContentDialogResult.Primary)
             {

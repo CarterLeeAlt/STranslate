@@ -12,7 +12,6 @@
                                      IsDesignTimeCreatable=False}"
     d:DesignHeight="450"
     d:DesignWidth="800"
-    CloseButtonStyle="{DynamicResource {x:Static ui:ThemeKeys.AccentButtonStyleKey}}"
     CloseButtonText="{DynamicResource Close}"
     mc:Ignorable="d">
     <ListBox Background="Transparent" ItemsSource="{Binding Collections}">

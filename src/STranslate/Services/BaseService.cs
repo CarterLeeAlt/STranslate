@@ -3,6 +3,7 @@ using iNKORE.UI.WPF.Modern.Controls;
 using Microsoft.Win32;
 using STranslate.Controls;
 using STranslate.Core;
+using STranslate.Helpers;
 using STranslate.Plugin;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -100,6 +101,7 @@ public abstract partial class BaseService : ObservableObject, IDisposable
             Content = string.Format(_i18n.GetTranslation("ConfirmDeleteService"), service.DisplayName),
         };
 
+        ContentDialogHelper.HighlightPrimaryAction(dialog);
         var result = await dialog.ShowAsync();
         if (result == ContentDialogResult.Primary)
         {
